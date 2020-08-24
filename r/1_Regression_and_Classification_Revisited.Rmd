@@ -1,0 +1,35 @@
+---
+title: "Regression and Classification Revisited"
+author: "Michael Mayer"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Basic Setting
+
+In this chapter, we will refresh regression and classification, the two main branches of supervised learning. 
+
+The basic setting for both branches is as follows. 
+
+We want to model a response/target variable $y$ by a function $f$ of covariables/features $X = (x_1, ..., x_m)$, i.e.
+$$
+  y = f(X) + \varepsilon.
+$$
+The error term $\varepsilon$ represents random noise. Unlike in physics, the function $f$ is unknown and we want to estimate it by $\hat f$ from observed data $y= (y_1, \dots, y_n)$ and $X = (X_1, \dots, X_n)$. To do so, we need to specify three things:
+
+1. The structure of $f$,
+2. an optimization criterion $s(y, \hat f(X))$,
+3. and a suitable optimization algorithm to find $\hat f$. 
+
+## Linear Regression
+
+In linear regression, we chose:
+
+1. $f(X) = X\beta = \beta_0 + \beta_1 x_1 + \cdots \beta_m x_m$, a linear function in the parameter vector $\beta = (\beta_0, \dots, \beta_m)$.
+2. Minimize sum of squared errors $s(y, \hat f(X)) = \sum_{i=1}^2n (y_i - \hat f(X_i))^2$. 
+3. Find $\hat f$ by least squares.
+
