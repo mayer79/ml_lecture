@@ -16,13 +16,29 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Basics
 
-In this chapter, we will refresh the background on regression and classification, the two main branches of supervised learning. 
+In this chapter, we will refresh the background on regression and classification, the two main branches of supervised learning. Before heading into regression and classification, we provide the very basics on data analysis and modeling.
 
 ## Data organization
 
 *Structured* data is organized as one or multiple tables. Each row of a table represents an *observation/instance*, each column $X$ a *variable* and each cell a *value*. A value of column $X$ can be viewed as a realization of the random variable $X$. 
 
 Examples of unstructured data are images, text, audio or video data. We will deal with structured data only.
+
+Throughout this lecture, we will consider the following two data sets:
+
+- `Titanic`: Passenger information, including the variable "survived: yes/no". Each row represents a passenger.
+
+- `diamonds`: Diamonds prices along with the four "C"-variables: Carat, Color, Cut, and Clarity. Each observation/row represents a diamond.
+
+### Example: diamonds
+Let's look at the first six observations of the diamonds data set.
+```{r}
+library(ggplot2) # Contains "diamonds"
+
+head(diamonds)
+```
+
+The data set is neatly structured. It seems to be sorted by price.
 
 ## Data types
 
@@ -33,6 +49,16 @@ We roughly distinguish the following data types.
 - **binary**: The variable just takes two values (male/female, yes/no, ...) that can be represented by 0/1. A binary variable counts as both numeric and categorical.
 
 Data types are important in determining suitable analysis methods.
+
+### Example: diamonds
+
+In the `diamonds` data set, we will consider the numeric variables `price` and `carat` and the following *ordered* categoricals:
+
+- `color` with ordered categories D < E < F < G < H < I < J,
+- `cut` with ordered categories Fair < Good < Very Good < Premium < Ideal, and
+- `clarity` with ordered categories I1 < SI2 < SI1 < VS2 < VS1 < VVS2 < VVS1 < IF.
+
+There are no unordered categoricals or binary variables.
 
 ## Descriptive Analysis
 
@@ -54,23 +80,156 @@ The more time we invest in the descriptive analysis, the more we learn about the
 
 During or after the descriptive analysis, we usually do the *data preprocessing* for the modeling task.
 
+### Example: diamonds
+
+Let's summarize the diamonds data set.
+
+```{r}
+# Data size
+nrow(diamonds)  # 53940
+
+# Univariate description
+summary(diamonds[, c("price", "carat", "color", "cut", "clarity")])
+
+hist(diamonds$price, breaks = "FD")
+hist(diamonds$carat, breaks = "FD")
+barplot(table(diamonds$color), main = "Distribution of color")
+barplot(table(diamonds$cut), main = "Distribution of cut")
+barplot(table(diamonds$clarity), main = "Distribution of clarity")
+
+# Selected bivariate descriptions
+plot(price ~ carat, data = diamonds, pch = ".", main = "Price against carat")
+plot(price ~ carat, data = diamonds, pch = ".", log = "xy",
+     main = "Price against carat - logarithmic scales")
+boxplot(price ~ color, data = diamonds, varwidth = TRUE, main = "Price against color")
+boxplot(price ~ cut, data = diamonds, varwidth = TRUE, main = "Price against cut")
+boxplot(price ~ clarity, data = diamonds, varwidth = TRUE, main = "Price against clarity")
+
+```
+
+**Comments**
+
+- Prices and carats are positive and right skewed with large outliers.
+- Related: on (natural) logarithmic scale, the relationship between price and carat seems quite linear. We will use this insight later.
+- The worst categories of `color`, `cut`, and `clarity` are rare.
+- Prices tend to be lower for nice colors. This is unintuitive and might be explained by the fact that large diamonds have lower quality than small ones. More on this later.
+
 ## The modeling task
 
-Typically, we want to model a response variable $y$ by a function $f$ of covariables $X = (x_1, ..., x_m)$, i.e.
+Typically, we want to model a response variable $y$ by a function $f$ of covariables $X = (X_1, ..., X_m)$, i.e.
 $$
-  y = f(X) + \varepsilon.
+  y \approx f(X).
 $$
-The error term $\varepsilon$ represents random noise. Unlike in physics, the function $f$ is unknown and we want to estimate it by $\hat f$ from observed data $y= (y_1, \dots, y_n)$ and $X = (X_1, \dots, X_n)$. To do so, we need to specify three things:
+Unlike in physics, the function $f$ is unknown and we want to estimate it by $\hat f$ from observed data.
 
-1. The structure of $f$,
-2. an optimization criterion $s(y, \hat f(X))$, and
-3. a suitable optimization algorithm to find $\hat f$. 
+Once found, $\hat f$ serves as our prediction function that can be applied to fresh data. Furthermore, we can investigate it to gain insights on the relationship between response and covariables like e.g. variable importance and covariable effects on the response.
 
-E.g. for linear regression:
+**Remark:** Instead of *response variable*, we might say: output or target. Instead of *covariable*, we might say: input or feature.
 
-1. $f(X) = X\beta = \beta_0 + \beta_1 x_1 + \cdots \beta_m x_m$, a linear function in the parameter vector $\beta = (\beta_0, \dots, \beta_m)$.
-2. Minimize sum of squared errors $s(y, \hat f(X)) = \sum_{i=1}^2n (y_i - \hat f(X_i))^2$.
-3. Find $\hat f$ by least squares.
+# Linear Regression
 
-Remark: Instead of *response variable*, we might say: output or target. Instead of *covariable*, we might say: input or feature.
+(Multiple) linear regression is the mother of all machine learning algorithms. It was first published by Legendre in 1805 and is still very frequently used thanks to its simplicity and interpretability. It further serves as a simple benchmark for more complex algorithms and is the starting point for extentions like generalized linear models.
 
+Starting point is the additive linear regression equation
+$$
+  E(y) = f(X) = \beta_1 X_1 + \cdots \beta_m X_m
+$$
+that relates the regressors $X_1, \dots, X_m$ to the expected response $E(y)$ by an affine linear formula in the parameter vector $\beta = (\beta_1, \dots, \beta_m)$. $X_1$ is an artificial variable with value 1 used for calibration and called *intercept*. 
+
+**Remarks** 
+
+- The model equation stresses the fact that our interest is not in modeling the full statistical distribution of the response but rather just one aspect, namely its expectation (= mean or average).
+- By *regressor*, we mean a *numeric* variable derived from our covariables, see a bit later.
+- A linear regression with just one covariable is called *simple* linear regression and has model equation $E(y) = \alpha + \beta X$.
+
+The optimal $\hat f$ to estimate $f$ is found by minimizing the sum of squared model errors
+$$
+  \sum_{i=1}^n (y_i - \hat f(X^{(i)}))^2
+$$
+across our $n$ observations, a very frequently used optimization situation in regression settings. $y_i$ and $X^{(i)}$ are the observed response and regressor vector of observation $1 \le i \le n$.
+
+In *linear* regression, the optimal $\hat f$ resp. $\hat \beta$ is found analytically by the famous least-squares method. It is one of the only ML algorithms with an explicit solution. It involves a little bit of linear algebra. In practice, we let software do the hard work, so we add it just for the sake of completeness:
+$$
+  \hat \beta = (X'X)^{-1}X'y.
+$$
+Here, $X$ is the so-called $(n \times m)$-design matrix or model matrix representing the $n$ observations of the $m$ regressors and $y$ is the response vector. The prime (') means the matrix transpose.
+
+## Example: diamonds
+
+In order to study the typical output of a linear regression, we now model diamond prices by their size.
+
+```{r}
+fit <- lm(price ~ carat, data = diamonds)
+summary(fit)
+
+# Visualize the regression line
+plot(price ~ carat, data = diamonds, pch = ".", 
+     xlim = c(0, 3), ylim = c(-3000, 20000))
+abline(fit, col = "red")
+```
+
+**Comments**
+
+- In the equation $E(\text{price}) = \alpha + \beta \text{carat}$, the intercept $\alpha$ is estimated by $\hat \alpha = -2256$. Strictly speaking, this means that a 0 carat diamond costs -2256 USD, which is nonsensical but important for calibration.
+- The slope $\beta$ is estimated by $\hat \beta = 7756$ USD. It means that a one carat increase goes along with an average increase in price of 7756 USD.
+- The standard error estimates the standard deviation of the estimated coefficients. They are small compared to the coefficients, reflecting the fact that the sample is large and thus the sampling uncertainty small.
+- The residual standard error ("deviation" would be a better word) is 1549. This means that residuals (= prediction errors) are typically around 1549 USD.
+- The R-squared is the proportion of variability explained by the covariables. Here, about 85% of the price variability is due to the fact that not all diamonds are equally large. The remaining 15% is yet unexplained.
+
+## Common Problems
+
+### Missing values
+
+As many algorithms, linear regression cannot deal with missing values. Rows with missing response variable can be safely dropped, while missings in covariables should usually be dealt with. The simplest (often too naive) approach is to fill missings with a typical value such as the mean or the most frequent value.
+
+### Outliers
+
+Gross outliers in covariables can distort the result of the linear regression. Don't delete them, but try to reduce their effect by taking logarithms or look for a more robust alternative to least-squares regression.
+
+### Overfitting
+
+If too many parameters are fitted in relation to the number of observations, the resulting model might look good but would not generalize well to new data. This is called overfitting. A small amound of it is unproblematic. But don't dare to fit a model with $m=100$ parameters on a data set with just $n=200$ rows. A $n/m$ ratio of 50 is usually safe.
+
+## Representation of covariables
+
+Depending on the specific situation, covariables might need to be transformed into one or multiple numeric *regressors*:
+
+- Categoricals are usually *dummy* encoded. This means that each category is represented by its own binary variable ("am I in this category yes/no?"). This is often done implicitly by the software. Rare categories can be lumped together in order to not estimate too many parameters.
+- Besides dummy coding, ordered categoricals are sometimes *integer encoded* for simplicity i.e. each category is represented by an integer number instead a of a binary variable. This assumes (approximate) equally spaced categories.
+- Positive numeric variables can be log-transformed to deal with large outliers and/or to bring it to a relative scale.
+- Important numeric covariables might be represented by more than just one parameter (= slope) to allow for a more flexible association to the response. Adding a squared term e.g. allows for curvature. More flexible are regression splines. They can approximate arbitrary smooth relationships at the price of interpretability.
+- Strongly related covariables can be decorrelated to improve interpretation of results. A typical example are house price models. There, number of rooms and living area are strongly related and therefore, it might help to represent living area by the derived variable "living area per room".
+- As a consequence of the additive model structure, each covariable acts independently on the response. This is not always the case. E.g. being flawless means more to a large diamond than to a small diamond. In such cases, adding interaction terms might be worth the effort. Since interactions complicate the interpretation of the results, they should be used with care and only for the most important covariables.
+
+## Example: diamonds improved
+
+Now, we try to improve our simple linear regression in two ways.
+
+1. We add color, cut and clarity (implicitly as dummy variables).
+
+2. We model logarithmic price and carat. 
+
+```{r}
+dia <- transform(diamonds,
+                 color_ = factor(color, ordered = FALSE),
+                 cut_ = factor(cut, ordered = FALSE),
+                 clarity_ = factor(clarity, ordered = FALSE))
+fit <- lm(log(price) ~ log(carat) + color_ + cut_ + clarity_, data = dia)
+summary(fit)
+```
+
+**Comments**
+
+- Effects of dummy coded variables like color are with respect to the first (= reference) category. E.g. we can say that average log prices are 0.054 lower for color "E" than for color "D". In contrast to the descriptive analysis, we see lower prices for worse colors. This is explained by the fact that we now study effects of covariables on the response *keeping other variables fixed*. Put differently, we now study effects of covariables adjusted for other effects.
+
+- Since our model uses log-price as response, we might be interested to translate effects to the original level. This can be done by exponentiating the estimated coefficients or approximately by interpreting the coefficients as percentages. We can e.g. say: Typical diamonds prices are about 5% ($e^{-0.054277} - 1 = -0.0528$) lower for color "E" than for color "F".
+
+- Similarly, model errors are on log scale (and therefore approximately on percentage scale). Looking at residual standard error, we can say that the typical prediction error is about 13%. 
+
+- Based on the R-squared, we can say that about 98% of the variability in log-prices can be explained by our four covariables.
+
+- How can we describe the effect of carat? One approach is to stay in the transformed scale: An increase in log-carat by 1 tends to a 1.88 increase in log-price. This is not very easy to grasp. It is easier to switch to the original scale and talk about percentage: A 1% increase in size is associated with a typical price increase of 1.9%.
+
+# Binary classification
+
+We now switch to a binary classification situation. We use binary logistic regression to model titanic survival status in terms of covariables like gender, ...
