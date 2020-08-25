@@ -9,13 +9,16 @@ ML can be viewed as a collection of statistical algorithms used to
 1. predict values (supervised ML) or to
 2. investigate data structure (unsupervised ML).
 
-Our focus is on *supervised ML*. Depending on if we predict numbers or classes, we talk about *regression* or *classification*. 
+Our focus is on *supervised ML*. Depending on if we predict numbers or classes, we talk about *regression* or *classification*.
 
 ## Organization
 
 The lecture is split into four parts, each of which is accompanied with an R and Python notebook with background and examples. You will find them in the corresponding subfolders.
 
-1. Regression and Classification Revisited 
+1. Basics and Linear Models 
+    - Basics
+    - Linear regression
+    - Logistic regression
 2. Model Selection
     - Performance metrics and loss functions
     - Simple validation, cross-validation
