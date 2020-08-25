@@ -26,19 +26,19 @@ The lecture is split into four parts, each of which is accompanied with an R and
     - Gradient boosting
 4. Neural Nets
 
-## References
+## Further Reading
 
-1. James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). *An Introduction to Statistical Learning - with Applications in R*. New York, USA: Springer New York Inc.
+- James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). *An Introduction to Statistical Learning - with Applications in R*. New York, USA: Springer New York Inc.
 
-2. Hastie, T., Tibshirani, R., Friedman, J. (2001). *The Elements of Statistical Learning*. New York, USA: Springer New York Inc.
+- Hastie, T., Tibshirani, R., Friedman, J. (2001). *The Elements of Statistical Learning*. New York, USA: Springer New York Inc.
 
-3. Wickham, H., Grolemund, G. (2017). *R for Data Science: Import, Tidy, Transform, Visualize, and Model Data*. O'Reilly Media. 
+- Wickham, H., Grolemund, G. (2017). *R for Data Science: Import, Tidy, Transform, Visualize, and Model Data*. O'Reilly Media. 
 
-4. VanderPlas, J. (2016). *Python data science handbook : essential tools for working with data*. Sebastopol, CA: O'Reilly Media, Inc.
+- VanderPlas, J. (2016). *Python data science handbook : essential tools for working with data*. Sebastopol, CA: O'Reilly Media, Inc.
 
-5. Chollet, F. (2017). *Deep Learning with Python*. Manning.
+- Chollet, F. (2017). *Deep Learning with Python*. Manning.
 
-6. Chollet, F., Allaire, J. J. (2018). *Deep Learning with R*. Manning.
+- Chollet, F., Allaire, J. J. (2018). *Deep Learning with R*. Manning.
 
 
 

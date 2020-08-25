@@ -2,24 +2,29 @@
 title: "Regression and Classification Revisited"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Basics
+# Basics
 
 In this chapter, we will refresh the background on regression and classification, the two main branches of supervised learning. 
 
-### Data organization
+## Data organization
 
 *Structured* data is organized as one or multiple tables. Each row of a table represents an *observation/instance*, each column $X$ a *variable* and each cell a *value*. A value of column $X$ can be viewed as a realization of the random variable $X$. 
 
 Examples of unstructured data are images, text, audio or video data. We will deal with structured data only.
 
-### Data types
+## Data types
 
 We roughly distinguish the following data types.
 
@@ -29,21 +34,7 @@ We roughly distinguish the following data types.
 
 Data types are important in determining suitable analysis methods.
 
-
-
-### Models
-
-We want to model a response/target variable $y$ by a function $f$ of covariables/features $X = (x_1, ..., x_m)$, i.e.
-$$
-  y = f(X) + \varepsilon.
-$$
-The error term $\varepsilon$ represents random noise. Unlike in physics, the function $f$ is unknown and we want to estimate it by $\hat f$ from observed data $y= (y_1, \dots, y_n)$ and $X = (X_1, \dots, X_n)$. To do so, we need to specify three things:
-
-1. The structure of $f$,
-2. an optimization criterion $s(y, \hat f(X))$,
-3. and a suitable optimization algorithm to find $\hat f$. 
-
-### Analysis
+## Descriptive Analysis
 
 A modeling task always starts with an intensive descriptive analysis of the data sources. This typically involves numeric and/or graphical summary of each variable and the most relevant variable pairs, e.g. 
 
@@ -54,13 +45,32 @@ A modeling task always starts with an intensive descriptive analysis of the data
 - frequency tables and/or mosaic plots for the most important pairs of categorical variables,
 - stratified means and/or boxplots for the most important pairs of categorical *and* numerical variables.
 
-The more time we invest in the descriptive analysis, the more we learn about the data, which is essential for successful modeling. Besides getting used to the data set, we might identify data errors, join keys, variables with high number of missing values
+The more time we invest in the descriptive analysis, the more we learn about the data, which is essential for successful modeling. Besides getting used to the data set, we might 
+- identify data errors and gross outliers, 
+- find join keys to combine multiple data sources, 
+- detect variables with high number of missing values,
+- learn how the data is structured (what *is* a row? do we deal with time series? are rows grouped to clusters etc),
+- ...
 
-## Linear Regression
+During or after the descriptive analysis, we usually do the *data preprocessing* for the modeling task.
 
-In linear regression, we chose:
+## The modeling task
+
+Typically, we want to model a response variable $y$ by a function $f$ of covariables $X = (x_1, ..., x_m)$, i.e.
+$$
+  y = f(X) + \varepsilon.
+$$
+The error term $\varepsilon$ represents random noise. Unlike in physics, the function $f$ is unknown and we want to estimate it by $\hat f$ from observed data $y= (y_1, \dots, y_n)$ and $X = (X_1, \dots, X_n)$. To do so, we need to specify three things:
+
+1. The structure of $f$,
+2. an optimization criterion $s(y, \hat f(X))$, and
+3. a suitable optimization algorithm to find $\hat f$. 
+
+E.g. for linear regression:
 
 1. $f(X) = X\beta = \beta_0 + \beta_1 x_1 + \cdots \beta_m x_m$, a linear function in the parameter vector $\beta = (\beta_0, \dots, \beta_m)$.
-2. Minimize sum of squared errors $s(y, \hat f(X)) = \sum_{i=1}^2n (y_i - \hat f(X_i))^2$. 
+2. Minimize sum of squared errors $s(y, \hat f(X)) = \sum_{i=1}^2n (y_i - \hat f(X_i))^2$.
 3. Find $\hat f$ by least squares.
+
+Remark: Instead of *response variable*, we might say: output or target. Instead of *covariable*, we might say: input or feature.
 
