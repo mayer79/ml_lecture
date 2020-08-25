@@ -9,11 +9,29 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Basic Setting
+## Basics
 
-In this chapter, we will refresh regression and classification, the two main branches of supervised learning. 
+In this chapter, we will refresh the background on regression and classification, the two main branches of supervised learning. 
 
-The basic setting for both branches is as follows. 
+### Data organization
+
+*Structured* data is organized as one or multiple tables. Each row of a table represents an *observation/instance*, each column $X$ a *variable* and each cell a *value*. A value of column $X$ can be viewed as a realization of the random variable $X$. 
+
+Examples of unstructured data are images, text, audio or video data. We will deal with structured data only.
+
+### Data types
+
+We roughly distinguish the following data types.
+
+- **numerical**: The values are discrete or continuous numbers where calculating averages makes sense. Examples: house prices, insurance claim frequencies, blood pressure.
+- **categorical**: The values are categories, e.g. house types, claim types or colors. Depending on whether categories follow a natural order, we talk of *ordered* or *unordered* categoricals. 
+- **binary**: The variable just takes two values (male/female, yes/no, ...) that can be represented by 0/1. A binary variable counts as both numeric and categorical.
+
+Data types are important in determining suitable analysis methods.
+
+
+
+### Models
 
 We want to model a response/target variable $y$ by a function $f$ of covariables/features $X = (x_1, ..., x_m)$, i.e.
 $$
@@ -24,6 +42,19 @@ The error term $\varepsilon$ represents random noise. Unlike in physics, the fun
 1. The structure of $f$,
 2. an optimization criterion $s(y, \hat f(X))$,
 3. and a suitable optimization algorithm to find $\hat f$. 
+
+### Analysis
+
+A modeling task always starts with an intensive descriptive analysis of the data sources. This typically involves numeric and/or graphical summary of each variable and the most relevant variable pairs, e.g. 
+
+- mean, standard deviation, quartiles, minimum and maximum for numeric variables (-> boxplots, plots of averages),
+- mean for binary variables (-> barplots),
+- absolute or relative counts for categorical variables (-> barplots),
+- correlations and/or scatter plots for the most important pairs of numeric variables,
+- frequency tables and/or mosaic plots for the most important pairs of categorical variables,
+- stratified means and/or boxplots for the most important pairs of categorical *and* numerical variables.
+
+The more time we invest in the descriptive analysis, the more we learn about the data, which is essential for successful modeling. Besides getting used to the data set, we might identify data errors, join keys, variables with high number of missing values
 
 ## Linear Regression
 

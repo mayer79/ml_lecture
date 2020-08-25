@@ -6,14 +6,14 @@ Welcome to this little lecture on machine learning (ML).
 
 ML can be viewed as a collection of statistical algorithms used to
 
-1. predict a target variable based on features (supervised ML) or to
+1. predict values (supervised ML) or to
 2. investigate data structure (unsupervised ML).
 
-Our focus is on *supervised algorithms*. These are often split by the data type of the response variable. If the latter is numeric (house prices, blood pressure, insurance claim counts/amounts), we talk of *regression*. If the response variable is categorical (house type, medical diagnosis, sentiment of an email), we are in the field of classification. The binary case can be tackled by both.
+Our focus is on *supervised ML*. Depending on if we predict numbers or classes, we talk about *regression* or *classification*. 
 
 ## Organization
 
-The lecture is split into four parts, each of which is accompanied with an R and Python notebook with examples. You will find them in the corresponding subfolders.
+The lecture is split into four parts, each of which is accompanied with an R and Python notebook with background and examples. You will find them in the corresponding subfolders.
 
 1. Regression and Classification Revisited 
 2. Model Selection
