@@ -16,11 +16,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Decision trees
 
+## How they work
+
 In our journey to estimate the model $f$ by $\hat f$, we have considered linearly parametrized functions $f$ so far. We now move to a different function class, namely decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others, see [1].
 
-A decision tree is a very simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their importance lies in the fact that they are the building bricks of two of the most successful ML algorithms as per today: random forests and gradient boosted trees. 
+A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and gradient boosted trees. 
 
-(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen in a way that improves the chosen loss (e.g. MSE for regression and cross-entropy ("information gain") for classification) the most by asking the best "yes/no" question about one covariable. 
+(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen in a way that optimizes the loss by asking the best "yes/no" question about a covariable.
+
+Typical loss functions are the MSE for regression problems and information (= cross-entropy = logloss) or gini impurity for classification. The latter can be viewed as a "variance" for categorical variables.
 
 Predictions are calculated by sending an observation "down" the tree, starting with the question at the "trunk" and ending in a "leaf". The prediction is the value associated with the leaf. For MSE loss, the leaf values equal the average response of all observations in the leaf. In classification settings, it may be the most frequent class of in the tree or the probabilities of all classes.
 
@@ -51,17 +55,22 @@ The first observation is a 22 year old male who paid 7.25 fare: all three questi
 
 How was e.g. the first question (male/female?) chosen? The algorithm scans all covariables for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariable `Sex` reduced the loss most. 
 
-## Notes on feature construction
+**Comments about decision trees**
 
 - In contrast to linear models, outliers in *covariables* are not an issue as the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in *covariables* has no effect. Both statements do not hold for the response variable.
 - Some implementations can deal with missing values in the input.
 - Unordered categorical covariables are tricky to split as with $\ell$ levels you end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways.
+- Regression trees cannot extrapolate by construction.
 
 ## Task
 
-Fit a regression tree for diamonds prices, using the four "C" variables as covariables. Optimize one paramter that controls tree size by cross-validation and evaluate the resulting best model on a test data set.
+1. Study the documentation of the algorithm. What parameters will have an impact on tree size?
+2. Split the diamonds data set in train/valid/test sets. Fit a regression tree on the training data, using the four "C" variables as covariables. 
+3. Use performance on the validaiton data to optimize 1-2 of the parameters found in 1.
 
 # Random forests
+
+## How they work
 
 In 2001, Leo Breiman introduced a very powerful tree-based algorithm called *random forest*, see [2]. A random forest consists of many decision trees. To ensure that the trees differ, two sources or randomness are injected:
 
@@ -77,9 +86,21 @@ Predictions are found by pooling the predictions of all trees, e.g. by averaging
 - **OOB validation**: In each tree, about 1/3 of all observations are not in the bootstrap sample just by chance. Put differently: each observation is used in about 2/3 of all trees. If its prediction is calculated from the other 1/3 of the trees, we get an "out-of-sample" resp. "out-of-bag" prediction. These "OOB"-results are some sort of "free" validation result. **Use OOB results to judge performance on the training set**.
 - **Paramter tuning:** Random forests offer many tuning parameters. Since the results do not depend too much on their choice, untuned random forests are ideal benchmark models.
 
-## Interpretation
+## Interpreting a "black box" model like a random forest
 
-In contrast to a single decision tree, a combination or *ensemble* of many trees is not easy to interprete. 
+In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any supervised model on tabular data to study at least *variable importance* and the strongest *effects*. A pure "prediction machine" is hardly of interest and might even contain errors like using covariables derived from the response. Model interpretation helps to fight such problems and thus to increase trust in a model.
+
+### Variable importance
+
+There are different approaches to measure the importance of a covariable. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent. For tree-based methods, a usual approach is to measure how many times a covariable $X$ was used in a split or how much loss improvement was thanks to $X$.
+
+Approaches that work for *any* supervised model (including neural nets) include **permutation importance** and **SHAP importance**.
+
+### Effects
+
+One of the main reasons for the success of methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable $X$ typically depends on the values of other covariables. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding the value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The usefulness of partial dependence plots heavily depends on this Ceteris Paribus clause.
+
+Alternatives to partial dependence plots include **accumulated local effect plots** and **SHAP dependence plots**. Both relax the Ceteris Paribus clause.
 
 ## Example: diamonds
 
@@ -88,30 +109,278 @@ library(ggplot2)
 library(splitTools)
 library(ranger)
 library(MetricsWeighted)
+library(flashlight)
 
-ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2))
+ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
 
 fit <- ranger(price ~ carat + color + cut + clarity, 
               data = diamonds[ix$train, ], 
+              importance = "impurity",
               seed = 83)
 fit
 
-# test performance
+# Performance on test data
 pred <- predict(fit, diamonds[ix$test, ])$predictions
-rmse(diamonds$price[ix$test], pred)
+rmse(diamonds$price[ix$test], pred) # 557 USD
+
+# Variable importance regarding MSE improvement
+imp <- sort(importance(fit))
+imp <- round(imp / sum(imp) * 100, 1)
+barplot(imp, horiz = TRUE)
+
+# Effects on the prediction, averaged over all interactions
+fl <- flashlight(model = fit, 
+                 y = "price", 
+                 data = diamonds[ix$train, ], 
+                 label = "rf", 
+                 predict_function = function(m, X) predict(m, X)$predictions)
+plot(light_profile(fl, v = "carat", n_bins = 40)) +
+  labs(title = "Partial dependence plot for carat", y = "price")
+
+plot(light_profile(fl, v = "clarity")) +
+  labs(title = "Partial dependence plot for clarity", y = "price")
+
+plot(light_profile(fl, v = "cut")) +
+  labs(title = "Partial dependence plot for cut", y = "price")
+
+plot(light_profile(fl, v = "color")) +
+  labs(title = "Partial dependence plot for color", y = "price")
+```
+
+## Task
+
+0. In above example: How large is the out-of-bag RMSE? Is it similar to the test RMSE?
+1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
+2. Instead of taking logarithms of carat, model log(price). Interpret the results and compare with the model without logs.
+3. Fit a random forest on the titanic training data. Make sure to fit a probabilistic classification, not a regression.
+
+# Gradient boosted trees
+
+Another tree ensembling approach is called gradient boosting or tree boosting. The first implementation "AdaBoost" was published by Freund and Schapire in 1997, closely followed by the more general concept "gradient boosting" in the 1999 article [4] by Jerome Friedman that, as a remark, also introduced the famous partial dependence plots. Modern implementations and variants of his orginal idea are [XGBoost (2014)](https://xgboost.readthedocs.io/en/latest/), [LightGBM (2017)](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost (2017)](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [my comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences.
+
+## How it works
+
+Tree boosting works as follows. A shallow tree (a "weak" learner) is fit to the data. The next tree corrects the errors from the first tree and so on, until some stopping criterion is reached. 
+
+Predictions are done similar to random forests.
+
+## Parameters of boosted trees
+
+Boosted trees offer a quite a lot of parameters. Unlike with random forests, they need to be tuned to achieve good results. Here is a selection:
+
+- **Number of boosting rounds:** In contrast to random forests, more trees/rounds is not always beneficial as the model begins to overfit after some time. The optimal number of rounds is usually found by early-stopping, i.e. one lets the algorithm stop as soon as the (cross-)validation performance stops improving.
+
+- **Learning rate:** The learning rate determines training speed resp. the impact of each tree. Typical values are between 0.05 and 0.5. In practical applications, it is set to a value that leads to a reasonable amount of trees (100-1000). Usually, halving the learning rate means twice as much rounds for similar performance.
+
+- **Regularization parameters:** Additional typical parameters include
+    - the tree depth (often 3-7) or the number of leaves (often 7-63), 
+    - the strength of the L1 and L2 penalties (often between 0 and 5), 
+    - the row subsampling rate (often between 0.8 and 1), 
+    - the column subsampling rate (often between 0.6 and 1), and
+    - additional parameters.
+
+## Strategy to choose parameters
+
+The following strategy has to be proven to work well in many situations. It has four steps.
+
+- Step 1: With default parameters, select a learning rate that leads to a reasonable amount of boosting rounds by early stopping. Use a relatively high learning rate so that fitting is fast (about 100-200 boosting rounds).
+- Step 2: Perform a randomized or fixed grid search on regularization parameters. The grid should be course enough.
+- Step 3: Based on the results of Step 2, customize the grid. Select a lower learning rate to aim at 200-1000 rounds. Perform the grid search again.
+- Step 4: Choose the best model from Step 3 and refit on the training data.
+
+All decisions (early stopping, grid search) should be done by cross-validation. If this takes too long because the data set is too large, using a simple validation is fine as well.
+
+**Remark:** It takes quite a couple of lines of code to perform a clean grid search. However, the code is very generic and can be used with small changes also for other modeling techniques.
+
+## Example: diamonds
+
+We will revisit the titanic survival model and use XGBoost to fit it - following the four step strategy to select parameters described above.
+
+```{r}
+library(ggplot2)
+library(xgboost)
+library(splitTools)
+
+# Split into train and test
+ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
+
+# As XGBoost does not understand strings, we map non-numeric data into integers.
+prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
+  to_int <- c("color", "cut", "clarity")
+  X[, to_int] <- lapply(X[, to_int], as.integer)
+  data.matrix(X[, x])
+}
+
+y_train <- diamonds$price[ix$train]
+X_train <- prep_xgb(diamonds[ix$train, ])
+head(X_train)
+
+# Let XGBoost optimize the data set internally in C++
+dtrain <- xgb.DMatrix(X_train, label = y_train)
+
+# If model parameters should be tuned first, set tune <- TRUE. 
+# Here, we apply the first three of four steps outlined above.
+tune <- FALSE
+if (tune) {
+  
+  # STEP 1: Select reasonable learning rate
+  params <- list(objective = "reg:squarederror",
+                 learning_rate = 0.2)
+  
+  fit <- xgb.cv(params = params, 
+                data = dtrain,
+                nrounds = 1000, # selected by early stopping
+                nfold = 5, 
+                verbose = FALSE,
+                early_stopping_rounds = 10)
+  
+  fit
+  
+  # STEP 2: Run a course grid search
+  max_grid <- 20
+  
+  paramGrid <- expand.grid(
+    iteration = NA_integer_, # filled by algorithm
+    score = NA_real_,        # "
+    learning_rate = 0.2,    # found in Step 1
+    objective = "reg:squarederror",
+    max_depth = 3:7, 
+    min_child_weight = c(1, 10),
+    colsample_bytree = c(0.8, 1), 
+    subsample = c(0.8, 1), 
+    reg_lambda = 0:5,        # l2 penalty
+    reg_alpha = 0:5,         # l1 penalty
+    min_split_loss = c(0, 1e-04)
+  )
+  
+  n <- nrow(paramGrid)
+  
+  if (n > max_grid) {
+    set.seed(342267)
+    paramGrid <- paramGrid[sample(n, max_grid), ]
+    n <- max_grid
+  }
+  
+  pb <- txtProgressBar(0, n, style = 3)
+  
+  for (i in seq_len(n)) { # i = 1
+    cvm <- xgb.cv(
+      as.list(paramGrid[i, -(1:2)]),
+      dtrain,
+      nrounds = 5000, # we use early stopping
+      nfold = 5,
+      stratified = FALSE,
+      showsd = FALSE,
+      early_stopping_rounds = 10,
+      verbose = 0
+    )
+    paramGrid[i, 1] <- bi <- cvm$best_iteration
+    paramGrid[i, 2] <- as.numeric(cvm$evaluation_log[bi, "test_rmse_mean"])
+    setTxtProgressBar(pb, i)
+    save(paramGrid, file = "gridsearch/diamonds_xgb_course.RData")
+  }
+  
+  # STEP 3: Run a fine grid search
+  paramGrid <- expand.grid(
+    iteration = NA_integer_, # filled by algorithm
+    score = NA_real_,        # "
+    learning_rate = 0.05,    # found in Step 2
+    objective = "reg:squarederror",
+    max_depth = 6:7, 
+    min_child_weight = c(1, 10),
+    colsample_bytree = c(0.8, 1), 
+    subsample = 1, 
+    reg_lambda = c(0, 2.5, 5, 7.5),
+    reg_alpha = c(0, 4),
+    min_split_loss = c(0, 1e-04)
+  )
+  
+  n <- nrow(paramGrid)
+  
+  if (n > max_grid) {
+    set.seed(342267)
+    paramGrid <- paramGrid[sample(n, max_grid), ]
+    n <- max_grid
+  }
+  
+  pb <- txtProgressBar(0, n, style = 3)
+  
+  for (i in seq_len(n)) { # i = 1
+    cvm <- xgb.cv(
+      as.list(paramGrid[i, -(1:2)]),
+      dtrain,
+      nrounds = 5000, # we use early stopping
+      nfold = 5,
+      stratified = FALSE,
+      showsd = FALSE,
+      early_stopping_rounds = 10,
+      verbose = 0
+    )
+    paramGrid[i, 1] <- bi <- cvm$best_iteration
+    paramGrid[i, 2] <- as.numeric(cvm$evaluation_log[bi, "test_rmse_mean"])
+    setTxtProgressBar(pb, i)
+    save(paramGrid, file = "gridsearch/diamonds_xgb_fine.RData")
+  }
+}
+
+# STEP 4: Fit with best parameter combination
+load("gridsearch/diamonds_xgb_fine.RData")
+paramGrid <- paramGrid[order(paramGrid$score), ]
+
+fit <- xgb.train(as.list(paramGrid[1, -(1:2)]), 
+                 data = dtrain, 
+                 nrounds = paramGrid[1, "iteration"])
+
+```
+Now, the model is ready to be inspected by evaluating its test performance, by looking at gain importance and a couple of partial dependence plots.
+
+```{r}
+library(MetricsWeighted)
+library(flashlight)
+
+# Performance on test data
+pred <- predict(fit, prep_xgb(diamonds[ix$test, ]))
+rmse(diamonds$price[ix$test], pred) # 539 USD
+
+# Variable importance regarding MSE improvement
+imp <- xgb.importance(model = fit)
+xgb.plot.importance(imp)
+
+# Effects on the prediction, averaged over all interactions
+fl <- flashlight(model = fit, 
+                 y = "price", 
+                 data = diamonds[ix$train, ], 
+                 label = "xgb", 
+                 predict_function = function(m, X) predict(m, prep_xgb(X)))
+
+plot(light_profile(fl, v = "carat", n_bins = 40)) +
+  labs(title = "Partial dependence plot for carat", y = "price")
+
+plot(light_profile(fl, v = "clarity")) +
+  labs(title = "Partial dependence plot for clarity", y = "price")
+
+plot(light_profile(fl, v = "cut")) +
+  labs(title = "Partial dependence plot for cut", y = "price")
+
+plot(light_profile(fl, v = "color")) +
+  labs(title = "Partial dependence plot for color", y = "price")
+
 ```
 
 
 ## Task
 
-1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
-2. Instead of taking logarithms of carat, model log(price). Do the results change compared to the example without logs?
+1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights by modifying Step 4 in the code above. How does the partial dependence plot for carat look now?
+2. Use the code in above example to "play through" the same situation but with log(price) as response.
 
-# Gradient boosting
-
-Schapire 1990; gradient boosting Friedman 199?
+Note: The titanic data set seems a bit too small to attack with tools like XGBoost, although it is possible.
 
 # Chapter References
 
 [1] L. Breiman, J. Friedman, R. Olshen, and C. Stone, “Classification and Regression Trees”, Wadsworth, Belmont, CA, 1984.
+
 [2] L. Breiman, "Random forests". In: Machine Learning, 2001, 45(1).
+
+[3] Y. Freund, R. E. Schapire, "A decision-theoretic generalization of on-line learning and an application to boosting". Journal of Computer and System Sciences. 1997, 55.
+
+[4] J. Friedman, "Greedy Function Approximation: A Gradient Boosting Machine", 1999.
