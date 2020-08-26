@@ -1,0 +1,117 @@
+---
+title: "Trees"
+author: "Michael Mayer"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Decision trees
+
+In our journey to estimate the model $f$ by $\hat f$, we have considered linearly parametrized functions $f$ so far. We now move to a different function class, namely decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others, see [1].
+
+A decision tree is a very simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their importance lies in the fact that they are the building bricks of two of the most successful ML algorithms as per today: random forests and gradient boosted trees. 
+
+(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen in a way that improves the chosen loss (e.g. MSE for regression and cross-entropy ("information gain") for classification) the most by asking the best "yes/no" question about one covariable. 
+
+Predictions are calculated by sending an observation "down" the tree, starting with the question at the "trunk" and ending in a "leaf". The prediction is the value associated with the leaf. For MSE loss, the leaf values equal the average response of all observations in the leaf. In classification settings, it may be the most frequent class of in the tree or the probabilities of all classes.
+
+The concept of a decision tree is best understood with an example.
+
+## Example: titanic
+
+```{r}
+library(titanic)
+library(rpart)
+library(rpart.plot)
+
+fit <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, 
+             data = titanic_train,
+             method = "class", 
+             parms = list(split = "information"),
+             xval = 0)
+
+prp(fit, type = 2, extra = 7, shadow.col = "gray",
+    faclen = 0, box.palette = "auto", branch.type = 4, 
+    varlen = 0, cex = 0.9, yesno = 2, digits = 3)
+
+titanic_train[1, c("Sex", "Fare", "Age")]
+predict(fit, titanic_train[1, ])
+```
+
+The first observation is a 22 year old male who paid 7.25 fare: all three questions send us to the left. We end up with a survival probability of only 10% as only.
+
+How was e.g. the first question (male/female?) chosen? The algorithm scans all covariables for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariable `Sex` reduced the loss most. 
+
+## Notes on feature construction
+
+- In contrast to linear models, outliers in *covariables* are not an issue as the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in *covariables* has no effect. Both statements do not hold for the response variable.
+- Some implementations can deal with missing values in the input.
+- Unordered categorical covariables are tricky to split as with $\ell$ levels you end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways.
+
+## Task
+
+Fit a regression tree for diamonds prices, using the four "C" variables as covariables. Optimize one paramter that controls tree size by cross-validation and evaluate the resulting best model on a test data set.
+
+# Random forests
+
+In 2001, Leo Breiman introduced a very powerful tree-based algorithm called *random forest*, see [2]. A random forest consists of many decision trees. To ensure that the trees differ, two sources or randomness are injected:
+
+1. Each *split* scans only a random selection "mtry" of the $m$ covariables to find the best split, usually about $\sqrt{m}$ or $m/3$. "mtry" is the main tuning parameter of a random forest.
+2. Each tree is calculated on a bootstrap sample of the data, i.e. on $n$ observations selected with replacement from the original $n$. This technique is called "bagging", from "**b**ootstrap **agg**regat**ing**". 
+
+Predictions are found by pooling the predictions of all trees, e.g. by averaging or majority voting.
+
+**Comments about random forests**
+
+- **Number of trees:** Usually, 100-1000 trees are grown. The more, the better. More trees also mean longer training time and larger models.
+- **Diversification:** Single trees in a random forest are usually very deep and overfitted. Its the diversity across trees that produces a good and stable model, just with a well diversivied stock portfolio. **Still, never trust performance on the training set.**
+- **OOB validation**: In each tree, about 1/3 of all observations are not in the bootstrap sample just by chance. Put differently: each observation is used in about 2/3 of all trees. If its prediction is calculated from the other 1/3 of the trees, we get an "out-of-sample" resp. "out-of-bag" prediction. These "OOB"-results are some sort of "free" validation result. **Use OOB results to judge performance on the training set**.
+- **Paramter tuning:** Random forests offer many tuning parameters. Since the results do not depend too much on their choice, untuned random forests are ideal benchmark models.
+
+## Interpretation
+
+In contrast to a single decision tree, a combination or *ensemble* of many trees is not easy to interprete. 
+
+## Example: diamonds
+
+```{r}
+library(ggplot2)
+library(splitTools)
+library(ranger)
+library(MetricsWeighted)
+
+ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2))
+
+fit <- ranger(price ~ carat + color + cut + clarity, 
+              data = diamonds[ix$train, ], 
+              seed = 83)
+fit
+
+# test performance
+pred <- predict(fit, diamonds[ix$test, ])$predictions
+rmse(diamonds$price[ix$test], pred)
+```
+
+
+## Task
+
+1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
+2. Instead of taking logarithms of carat, model log(price). Do the results change compared to the example without logs?
+
+# Gradient boosting
+
+Schapire 1990; gradient boosting Friedman 199?
+
+# Chapter References
+
+[1] L. Breiman, J. Friedman, R. Olshen, and C. Stone, “Classification and Regression Trees”, Wadsworth, Belmont, CA, 1984.
+[2] L. Breiman, "Random forests". In: Machine Learning, 2001, 45(1).
