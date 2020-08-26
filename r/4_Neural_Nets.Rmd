@@ -15,3 +15,81 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Introduction
+
+Artificial neural nets are extremely versatile and powerful. They can be used to
+
+1. **fit simple models like GLMs**,
+2. **learn interactions and transformations in an automatic way (like tree-based methods)**,
+3. fit data much larger than RAM (e.g. images),
+4. learn "online" (update the model with additional data),
+5. fit multiple response variables at the same time,
+6. model input of dimension higher than two (e.g. images, videos),
+7. fit data with sequential structure in both in- and output (e.g. a text translator),
+8. model data with spatial structure (images),
+9. fit models with many millions of parameters,
+10. ...
+
+In this chapter, we will deal with the first two aspects.
+
+# Basics and linear models
+
+Let us revisit the simple linear regression
+$$
+  E(\text{price}) = \alpha + \beta \cdot \text{carat}.
+$$
+In Chapter 1 we have found the solution $\hat\alpha = -2256.36$ and $\hat \beta = 7756.43$ by ordinary least-squares.
+
+Above situation can be viewed as a neural network with
+
+- an input layer having two nodes (`carat` and the intercept called "bias" with value 1),
+- a "fully connected" output layer with one node (`price`). Fully connected means that each node of a layer is a linear function of all node values of the previous layer. Each linear function has parameters or network *weights* that need to be estimated. In our case: $\alpha$ and $\beta$.
+
+Throughout this chapter, we will use Google's [TensorFlow](https://www.tensorflow.org/) (with [Keras](https://keras.io/) interface) - together with [PyTorch](https://pytorch.org/) one of the major neural net implementations. We want to show that the parameters estimated by the neural network will be quite similar to the ones learned by linear least-squares.
+
+```{r, cache=TRUE}
+library(ggplot2)
+library(keras)
+# use_python(path to python...)
+
+# input layer: we have 1 covariable
+input <- layer_input(shape = 1)
+
+# Output layer directly connects to the input layer. There are no hidden layers.
+output <- input %>%
+  layer_dense(units = 1, activation = 'linear')
+
+# Create and compile model
+nn <- keras_model(inputs = input, outputs = output)
+# summary(nn)
+nn %>% compile(
+  optimizer = optimizer_adam(lr = 1),
+  loss = 'mse'
+)
+
+# Fit model - naive without validation
+history <- nn %>% fit(
+  x = diamonds$carat,
+  y = diamonds$price,
+  epochs = 30,
+  batch_size = 100
+)
+
+plot(history)
+
+unlist(get_weights(nn))
+```
+
+Indeed: the solution of the tiny neural network is quite similar to the OLS solution. 
+
+Neural nets are usually fitted by "stochastic gradient descent" (SGD). It works as follows:
+
+1. Initiate the parameters with random values around 0. 
+2. Forward step: Use the parameters to predict all observations in a *batch*. A batch is a randomly selected subset of the full data set. This makes the algorithm "stochastic".
+3. Backpropagation: Change the parameters in the right direction, i.e. to make the loss on the current batch smaller. This involves calculating derivatives ("gradients") of the loss function (e.g. MSE) with respect to all parameters.
+4. Repeat Steps 2-3 until one *epoch* is over, i.e. each observation was used in a batch.
+5. Repeat Steps 2-4 for multiple epochs until the parameter estimates stabilize or validation performance stops improving.
+
+For *deep* neural nets, i.e. nets with multiple hidden layers, Step 3 requires differentiation of almost arbitrary deep compositions of linear and non-linear functions. This is the reason why frameworks like TensorFlow or PyTorch are called "auto-differentiators". In TensorFlow, it is the `compile` step that calculates all the symbolic derivatives for all parameters of the model.
+
+
+# Representation learning
