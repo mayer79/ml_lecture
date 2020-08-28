@@ -270,98 +270,37 @@ summary(fit)
 
 # Generalized linear models
 
-- We now switch to a binary classification situation. We use binary logistic regression to model titanic survival status in terms of covariables like gender, ...
+- We now switch to a binary classification situation. We use binary logistic regression to model claim (y/n) 
 - Poisson
 - Excercise Gamma?
 
 ```{r}
-claims <- read.csv("http://www.businessandeconomics.mq.edu.au/__data/assets/file/0011/232310/car.csv")
-# write.csv(claims, file = "../data/claims.csv")
-head(claims)
+library(insuranceData)
+data(dataCar)
+?dataCar
 
-# This data set is based on  one-year vehicle insurance
-# policies taken out in 2004 or 2005. There are 67856 policies, of
-# which  4624 (6.8%) had at least one claim. 
-# 
-# Variables:
-# 
-# veh_value	vehicle value, in $10,000s
-# exposure	0-1
-# clm		occurrence of claim (0 = no, 1 = yes)
-# numclaims	number of claims
-# claimcst0	claim amount (0 if no claim)
-# veh_body	vehicle body, coded as
-#               BUS
-#               CONVT = convertible  
-#               COUPE   
-#               HBACK = hatchback                  
-#               HDTOP = hardtop
-#               MCARA = motorized caravan
-#               MIBUS = minibus
-#               PANVN = panel van
-#               RDSTR = roadster
-#               SEDAN    
-#               STNWG = station wagon
-#               TRUCK           
-#               UTE - utility
-# veh_age	age of vehicle: 1 (youngest), 2, 3, 4
-# gender		gender of driver: M, F
-# area		driver's area of residence: A, B, C, D, E, F
-# agecat		driver's age category: 1 (youngest), 2, 3, 4, 5, 6
-
-barplot(table(claims$numclaims, useNA = "ifany"))
+barplot(table(dataCar$numclaims, useNA = "ifany"))
 
 
-barplot(table(claims$veh_body, useNA = "ifany"), horiz = TRUE)
+barplot(table(dataCar$veh_body, useNA = "ifany"), horiz = TRUE)
 
 
-with(claims, table(claimcst0, numclaims))
+with(dataCar, table(claimcst0, numclaims))
 
-with(claims, hist(veh_value))
+with(dataCar, hist(veh_value))
 
+library(ggplot2)
 library(splitTools)
 library(ranger)
 library(MetricsWeighted)
 library(flashlight)
 
-ix <- partition(claims$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
+
+ix <- partition(dataCar$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
 
 fit <- glm(clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
-           data = claims[ix$train, ], family = binomial)
-fit
+           data = dataCar[ix$train, ], family = binomial)
+summary(fit)
 
 
-fit <- ranger(clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
-              data = claims[ix$train, ], 
-              importance = "impurity",
-              probability = TRUE,
-              seed = 83)
-fit
-
-# Performance on test data
-pred <- predict(fit, claims[ix$test, ])$predictions[, 2]
-r_squared_bernoulli(claims$clm[ix$test], pred) # 557 USD
-
-# Variable importance regarding MSE improvement
-imp <- sort(importance(fit))
-imp <- round(imp / sum(imp) * 100, 1)
-barplot(imp, horiz = TRUE)
-
-# Effects on the prediction, averaged over all interactions
-fl <- flashlight(model = fit, 
-                 y = "price", 
-                 data = diamonds[ix$train, ], 
-                 label = "rf", 
-                 predict_function = function(m, X) predict(m, X)$predictions)
-plot(light_profile(fl, v = "carat", n_bins = 40)) +
-  labs(title = "Partial dependence plot for carat", y = "price")
-
-plot(light_profile(fl, v = "clarity")) +
-  labs(title = "Partial dependence plot for clarity", y = "price")
-
-plot(light_profile(fl, v = "cut")) +
-  labs(title = "Partial dependence plot for cut", y = "price")
-
-plot(light_profile(fl, v = "color")) +
-  labs(title = "Partial dependence plot for color", y = "price")
 ```

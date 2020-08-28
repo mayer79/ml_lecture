@@ -30,30 +30,33 @@ Predictions are calculated by sending an observation "down" the tree, starting w
 
 The concept of a decision tree is best understood with an example.
 
-## Example: titanic
+## Example: claims
 
 ```{r}
-library(titanic)
 library(rpart)
 library(rpart.plot)
+library(insuranceData)
+data(dataCar)
 
-fit <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, 
-             data = titanic_train,
+fit <- rpart(clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
+             data = dataCar,
              method = "class", 
              parms = list(split = "information"),
-             xval = 0)
+             xval = 0,
+             cp = -1,
+             maxdepth = 3)
 
 prp(fit, type = 2, extra = 7, shadow.col = "gray",
     faclen = 0, box.palette = "auto", branch.type = 4, 
-    varlen = 0, cex = 0.9, yesno = 2, digits = 3)
+    varlen = 0, cex = 0.9, digits = 3, split.cex = 0.8)
 
-titanic_train[1, c("Sex", "Fare", "Age")]
-predict(fit, titanic_train[1, ])
+dataCar[1, c("agecat", "veh_value", "veh_body")]
+predict(fit, dataCar[1, ])
 ```
 
-The first observation is a 22 year old male who paid 7.25 fare: all three questions send us to the left. We end up with a survival probability of only 10% as only.
+The first observation belongs to a person in age category 2 and has a $10'600 hatchback: the first question sends us to the right, the second to the left and the third to the right. This gives us a claim probability of 6.7%.
 
-How was e.g. the first question (male/female?) chosen? The algorithm scans all covariables for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariable `Sex` reduced the loss most. 
+How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all covariables for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariable `agecat` at the value 5 reduced the loss most. 
 
 **Comments about decision trees**
 
@@ -65,8 +68,8 @@ How was e.g. the first question (male/female?) chosen? The algorithm scans all c
 ## Task
 
 1. Study the documentation of the algorithm. What parameters will have an impact on tree size?
-2. Split the diamonds data set in train/valid/test sets. Fit a regression tree on the training data, using the four "C" variables as covariables. 
-3. Use performance on the validaiton data to optimize 1-2 of the parameters found in 1.
+2. Split the diamonds data set in train/valid/test sets. Fit a regression tree on the training data, using the four "C" variables as covariables and price as response. 
+3. Use performance on the validation data to optimize one of the parameters found in 1.
 
 # Random forests
 
@@ -152,7 +155,6 @@ plot(light_profile(fl, v = "color")) +
 0. In above example: How large is the out-of-bag RMSE? Is it similar to the test RMSE?
 1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
 2. Instead of taking logarithms of carat, model log(price). Interpret the results and compare with the model without logs.
-3. Fit a random forest on the titanic training data. Make sure to fit a probabilistic classification, not a regression.
 
 # Gradient boosted trees
 
@@ -194,7 +196,7 @@ All decisions (early stopping, grid search) should be done by cross-validation. 
 
 ## Example: diamonds
 
-We will revisit the titanic survival model and use XGBoost to fit it - following the four step strategy to select parameters described above.
+We will use XGBoost to fit diamond prices by following the four step strategy to select parameters described above.
 
 ```{r}
 library(ggplot2)
@@ -332,7 +334,11 @@ fit <- xgb.train(as.list(paramGrid[1, -(1:2)]),
                  nrounds = paramGrid[1, "iteration"])
 
 ```
-Now, the model is ready to be inspected by evaluating its test performance, by looking at gain importance and a couple of partial dependence plots.
+Now, the model is ready to be inspected by evaluating 
+
+- its test performance, 
+- by looking at gain importance and 
+- a couple of partial dependence plots.
 
 ```{r}
 library(MetricsWeighted)
@@ -370,10 +376,8 @@ plot(light_profile(fl, v = "color")) +
 
 ## Task
 
-1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights by modifying Step 4 in the code above. How does the partial dependence plot for carat look now?
-2. Use the code in above example to "play through" the same situation but with log(price) as response.
-
-Note: The titanic data set seems a bit too small to attack with tools like XGBoost, although it is possible.
+1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights by modifying just Step 4 in the code above. How does the partial dependence plot for carat look now?
+2. Make a good XGBoost model for the claims data set with binary response `clm` and covariables "veh_value", "veh_body", "veh_age", "gender", "area", "agecat". Use a clean train/cross-validation/test approach. Use logloss as evaluation metric.
 
 # Chapter References
 
