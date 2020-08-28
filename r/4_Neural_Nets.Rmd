@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 # Introduction
@@ -44,11 +44,13 @@ Above situation can be viewed as a neural network with
 - an input layer having two nodes (`carat` and the intercept called "bias" with value 1),
 - a "fully connected" (= "dense") output layer with one node (`price`). Fully connected means that each node of a layer is a linear function of all node values of the previous layer. Each linear function has parameters or network *weights* that need to be estimated. In our case just $\alpha$ and $\beta$.
 
-![simple linear regression](../figs/nn_simple_linear.PNG)
+Visualized, the situation looks as follows.
+
+![](../figs/nn_simple_linear.PNG)
 
 *Part of the figures were done with this cool [webtool](http://alexlenail.me/NN-SVG/index.html).*
 
-We want to show that the parameters estimated by the neural network will be quite similar to the ones learned by linear least-squares. To do so, we will use Google's [TensorFlow](https://www.tensorflow.org/) with its convenient [Keras](https://keras.io/) interface. 
+We want to show that the parameters estimated by such neural network will be quite similar to the ones learned by linear least-squares. To do so, we will use Google's [TensorFlow](https://www.tensorflow.org/) with its convenient [Keras](https://keras.io/) interface. 
 
 ## Example: simple linear regression
 ```{r, cache=TRUE}
@@ -102,8 +104,8 @@ Neural nets are fitted by **stochastic gradient descent (SGD)**. It works as fol
 
 1. Initiate the parameters with random values around 0. 
 2. Forward step: Use the parameters to predict all observations in a *batch*. A batch is a randomly selected subset of the full data set. This makes the algorithm "stochastic".
-3. Backpropagation: Change the parameters in the right direction, i.e. to make the loss on the current batch smaller. This involves calculating derivatives ("gradients") of the loss function (e.g. MSE) with respect to all parameters.
-4. Repeat Steps 2-3 until one *epoch* is over, i.e. each observation was used in a batch.
+3. Backpropagation: Change the parameters in the right direction, making the loss on the current batch smaller. This involves calculating derivatives ("gradients") of the loss function (e.g. MSE) with respect to all parameters.
+4. Repeat Steps 2-3 until one *epoch* is over, i.e. each observation appeared in a batch.
 5. Repeat Step 4 for multiple epochs until the parameter estimates stabilize or validation performance stops improving.
 
 In our simple example above, the derivatives can be easily calculated. The more layers a network has (see below), the more complex it gets to calculate derivatives of the loss with respect to each weight. TensorFlow is an "auto-differentiator". It calculates all symbolic derivatives in the `compile` step.
@@ -114,15 +116,22 @@ Our first neural network above consisted of only an input and an output layer. B
 
 Neural nets with more than one hidden layer are called "deep neural nets".
 
-We will now add a hidden layer with five nodes to our simple linear regression network. The architecture looks as follows:
+We will now add a hidden layer with five nodes to our simple linear regression network. The architecture now looks as follows:
 
-![simple linear regression with hidden layer](../figs/nn_1_hidden.PNG)
+![](../figs/nn_1_hidden.PNG)
 
-This network has 16 parameters (why?). Will it be more or less accurate than the simple network with just two parameters? In order to not fall in the overfitting trap, we use a 20% validation set.
+This network has 16 parameters (why?). How much better than our simple network with just two parameters will it be?
 
 ## Example: linear regression with hidden layer (I)
 ```{r, cache=TRUE}
-# Code continued from above 
+library(ggplot2)
+library(keras)
+# use_python(path to python...)
+
+# RMSE metric needs to be defined "by hand"
+metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
+  sqrt(k_mean(k_square(y_true - y_pred)))
+})
 
 # Input layer: we have 1 covariable
 input <- layer_input(shape = 1)
@@ -146,8 +155,7 @@ nn %>% fit(
   x = diamonds$carat,
   y = diamonds$price,
   epochs = 30,
-  batch_size = 100, 
-  validation_data = valid
+  batch_size = 100
 )
 
 # Plot effect of carat on average price
@@ -155,11 +163,12 @@ x <- seq(0.3, 3, by = 0.1)
 plot(x, predict(nn, x), type = "b", xlab = "carat", ylab = "price")
 
 ```
+
 Oops, it seems as if the extra hidden layer had no effect. The reason is that a linear function of a linear function is still a linear function. Adding the hidden layer did not really change the model.
 
 # Activation functions
 
-The missing magic component is the so called *activation* function after each layer, which transforms the values of the nodes. So far, we have used "linear activations", which - in neural network slang - is just the identity function. 
+The missing magic component is the so called [*activation* function](https://en.wikipedia.org/wiki/Activation_function) after each layer, which transforms the values of the nodes. So far, we have used "linear activations", which - in neural network slang - is just the identity function. 
 
 The activation of the *output* layer has the same purpose as the inverse of the link function of a corresponding GLM. It maps predictions to the scale of the response: 
 
@@ -168,16 +177,27 @@ The activation of the *output* layer has the same purpose as the inverse of the 
 - multinomial logistic regression -> softmax activation
 - log-linear regression -> exponential activation
 
-After all other layers, the purpose of the activation function is a different one: thanks to being non-linear, it adds small amounts of interactions and non-linearities that can be picked up by the neural net. Typical activation functions are
+For other layers, the purpose of the activation function is a different one: thanks to being non-linear, it adds small amounts of interactions and non-linearity. Typical activation functions are
 
 - the hyperbolic tangent ("S"-shaped function that maps real values to $[-1, 1]$),
 - the sigmoidal function ("S"-shaped function that maps real values to $[0, 1]$),
-- the linear rectangular function "ReLU" $f(x) = \text{max}(0, x)$ that sets negative values to 0. Often used for large neural networks to save computational resources.
+- the linear rectangular unit "ReLU" $f(x) = \text{max}(0, x)$ that sets negative values to 0. Often used for large neural networks to save computational resources.
 
 Let's add to the last example a non-linear activation after the hidden layer.
 
+![](../figs/nn_activation.PNG)
+
 ## Example: linear regression with hidden layer (II)
 ```{r, cache=TRUE}
+library(ggplot2)
+library(keras)
+# use_python(path to python...)
+
+# RMSE metric needs to be defined "by hand"
+metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
+  sqrt(k_mean(k_square(y_true - y_pred)))
+})
+
 # Input layer: we have 1 covariable
 input <- layer_input(shape = 1)
 
@@ -209,11 +229,13 @@ plot(x, predict(nn, x), type = "b", xlab = "carat", ylab = "price")
 
 ```
 
+Adding the non-linear activation after the hidden layer has changed the model. The effect of carat is now better representing the association between carat and price.
+
 # Practical considerations
 
 ## Validation
 
-So far, we have naively fitted the neural networks without splitting the data for test and validation. Don't do this! Usually, one sets a small test data (e.g. 10% of rows) aside to assess the final model performance. 
+So far, we have naively fitted the neural networks without splitting the data for test and validation. Don't do this! Usually, one sets a small test dataset (e.g. 10% of rows) aside to assess the final model performance and a validaton dataset for model tuning. 
 
 In order to choose the main tuning parameters, namely
 
@@ -222,7 +244,7 @@ In order to choose the main tuning parameters, namely
 - batch size, and
 - number of epochs, 
 
-one often uses a simple validation approach as cross-validation takes too much time.
+one uses a simple validation approach as cross-validation takes too much time.
 
 ## Missing values
 
@@ -230,48 +252,48 @@ A neural net does not accept missing values in the input. They need to be filled
 
 ## Input standardization
 
-SGD starts by random initialization of network weights. This step is optimized for standardized input. This has to be done manually by either
+Stochastic gradient descent starts by random initialization of parameters. This step is optimized for standardized input. Standardization has to be done manually by either
 
 - min/max scale the values of each input to the range -1 to 1,
 - standard scale the values of each input to mean 0 and standard deviation 1, or
 - use relative ranks.
 
-Note that the scaling transformation has to be *calculated* from the training data and then *applied* to the validation and test data. This usually requries a couple of lines of code.
+Note that the scaling transformation is *calculated* on the training data and then *applied* to the validation and test data. This usually requries a couple of lines of code.
 
 ## Categorical input
 
 There are three ways to represent categorical input variables. 
 
-1. Binary and ordinal categoricals are best represented by integers.
-2. Unordered categoricals are either one-hot-encoded (i.e. each category is represented by binary variable) or
-3. by an input embedding. Here, the categories are integer encoded and are compressed by a special *embedding layer* to a few (usually 1 or 2) dense features. This requires a more complex network architecture but saves a lot of memory and preprocessing. This approach is heavily used when the input consists of words (which is a categorical variable with thousands of levels - one level per word).
+1. Binary and ordinal categoricals are best represented by integers and then treated as numeric.
+2. Unordered categoricals are either one-hot-encoded (i.e. each category is represented by binary variable) or 
+3. they are represented by an input embedding. With an embedding, the categories are integer encoded and then compressed by a special *embedding layer* to a few (usually 1 or 2) dense features. This requires a more complex network architecture but saves a lot of memory and preprocessing. This approach is heavily used when the input consists of words (which is a categorical variable with thousands of levels - one level per word).
 
 For Option 2, input standardization is not required, for Option 3 it *must* not be applied as the embedding layer expects integers.
 
 ## Callbacks
 
-Sometimes, we want to intervene during training to 
+Sometimes, we want to do stuff during training, e.g.
 
 - stop training when validation performance starts worsening,
 - reduce the learning rate when the network seems to be stuck in a "plateau", or
 - save the network weights between epochs.
 
-Such elements are added by *callbacks*. We will see it in action in the example below.
+Such monitoring tasks are added by *callbacks*. We will see them in action in the example below.
 
 ## Types of layers
 
-So far, we have encountered only dense (and activation) layers. Here some further types of layers:
+So far, we have encountered only dense (=fully connected layers) and activation layers. Here some further types:
 
-- Embedding layers to represent integer encoded unordered categoricals,
-- Dropout layers to add regularization,
-- convolution and pooling layers for image data,
-- recurrent layers (lstm, gru) for sequence data,
-- concatenate layers to combine different branches of the network (like in a directed graph),
-- flatten layers to bring higher dimensional layers to dimension 1 (e.g. for emeddings, image and text data).
+- Embedding layers to represent integer encoded unordered categoricals.
+- Dropout layers to add regularization.
+- Convolution and pooling layers for image data.
+- Recurrent layers (long-short-term memory LSTM, gated recurrent unit GRU) for sequence data.
+- Concatenation layers to combine different branches of the network (like in a directed graph).
+- Flatten layers to bring higher dimensional layers to dimension 1 (e.g. for emeddings, image and text data).
 
 ## Optimizer
 
-There are different tweaks of SGD, called "optimizers". Good choices are usually "adam", "nadam" and "RMSProp". They have different options. The one to be changed by the user is the learning rate.
+Pure stochastic gradient descent is rarely applied. Usually, one works with variants that e.g. try to avoid being stuck in local minima. Modern optimizers are "adam", "nadam" and "RMSProp". They work usually out-of-the-box, except for the learning rate, which has to be manually chosen.
 
 ## Custom losses and metrics
 
@@ -279,14 +301,14 @@ Using TensorFlows backend functions, one can define its own metrics (see example
 
 ## Overfitting and regularization
 
-Like with linear models, the number of parameters to be fitted should be selected relative to the number of observations in order to prevent strong overfitting. Having about 50 to 100 observations per parameter is usually a good choice. (For image and text data, different rules apply). As with penalized regression or trees, there are ways to actively reduce effects of overfitting in neural nets. The two main options are
+Like with linear models, a model with too many parameters will overfit in an undesired amount. With about 50 to 100 observations per parameter, overfitting is usually unproblematic. (For image and text data, different rules apply). As with penalized regression or trees, there are ways to actively reduce effects of overfitting in neural nets. The two main options are
 
-- penalize the weights of a layer by L1 and/or L2 penalties (in Keras, this is an option of a dense layer),
-- add a dropout layer. A dropout layer randomly sets node values of the previous layer to 0, shutting them off. This is an elegant way to fight overfitting.
+- pull the parameters of a layer towards zero by L1 and/or L2 penalties,
+- add dropout layers. A dropout layer randomly sets node values of the previous layer to 0, switching them off. This is an elegant way to fight overfitting not unlike bagging.
 
 ## Choosing the architecture
 
-How many layers and number of nodes per layer to be chosen? For tabular data, using 1-3 hidden layers is usually a good choice. If we start with $m$ input variabels, the number of nodes in the first hidden layer is usually higher than $m$, e.g. $4m$ and contracts for later layers. There should not be a "representational bottleneck", i.e. an early hidden layer with too few parameters. 
+How many layers and number of nodes per layer to select? For tabular data, using 1-3 hidden layers is usually enough. If we start with $m$ input variabels, the number of nodes in the first hidden layer is usually higher than $m$ and reduces for later layers. There should not be a "representational bottleneck", i.e. an early hidden layer with too few parameters. 
 
 The number of parameters should not be too high compared to the number of rows, see "Overfitting and regularization" above. 
 
@@ -296,7 +318,22 @@ Variable importance of covariables in neural networks can be assessed by permuta
 
 # Example: diamonds
 
+We will now fit a neural net with two hidden layers (30 and 15 nodes) and a total of 631 parameters. Learning rate and batch size were chosen by validation data. The number of epochs is chosen by an early stopping callback.
+
+![](../figs/nn_2_hidden.PNG)
+
 ```{r, cache=TRUE}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(keras)
+# use_python(path to python...)
+
+# RMSE metric needs to be defined "by hand"
+metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
+  sqrt(k_mean(k_square(y_true - y_pred)))
+})
+
 # Response and covariables
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
@@ -315,9 +352,10 @@ X_train <- train[, x]
 X_valid <- valid[, x]
 
 # Standardize X using X_train
-sc <- list()
-sc$center <- attr(scale(data.matrix(X_train)), "scaled:center")
-sc$scale <- attr(scale(data.matrix(X_train)), "scaled:scale")
+sc <- list(
+  center = attr(scale(data.matrix(X_train)), "scaled:center"),
+  scale = attr(scale(data.matrix(X_train)), "scaled:scale")
+)
 
 # Function that maps data.frame to scaled network input
 prep_nn <- function(X, x = c("carat", "color", "cut", "clarity"), scaling = sc) {
@@ -330,22 +368,22 @@ input <- layer_input(shape = 4)
 
 # Three hidden layers with contracting number of nodes
 output <- input %>%
-  layer_dense(units = 20, activation = 'tanh') %>% 
-  layer_dense(units = 10, activation = 'tanh') %>% 
-  layer_dense(units = 5, activation = 'tanh') %>% 
+  layer_dense(units = 30, activation = 'relu') %>% 
+  layer_dense(units = 15, activation = 'relu') %>% 
   layer_dense(units = 1, activation = 'linear')
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 0.2),
-  loss = 'mse'
+  optimizer = optimizer_adam(lr = 0.3),
+  loss = 'mse',
+  metrics = metric_rmse
 )
 
 # Callbacks
 cb <- list(
-  callback_early_stopping(patience = 10),
+  callback_early_stopping(patience = 20),
   callback_reduce_lr_on_plateau(patience = 5)
 )
        
@@ -353,11 +391,18 @@ cb <- list(
 history <- nn %>% fit(
   x = prep_nn(X_train),
   y = y_train,
-  epochs = 200,
-  batch_size = 1000, 
+  epochs = 100,
+  batch_size = 400, 
   validation_data = list(prep_nn(X_valid), y_valid),
   callbacks = cb
 )
+
+history$metrics[c("rmse", "val_rmse")] %>% 
+  data.frame() %>% 
+  mutate(epoch = row_number()) %>% 
+  pivot_longer(cols = c("rmse", "val_rmse")) %>% 
+ggplot(aes(x = epoch, y = value, group = name, color = name)) +
+  geom_line(size = 1.4)
 
 # Interpret
 library(flashlight)
@@ -391,7 +436,19 @@ plot(light_profile(fl, v = "color")) +
 
 ```
 
+# Task
+
+1. Fit diamond prices by gamma loss (like a gamma GLM) with log-link, using the custom loss function defined below. Tune the model to achieve good performance.
+```{r}
+loss_gamma <- function(y_true, y_pred) {
+  -k_log(y_true / y_pred) + y_true / y_pred
+}
+```
+2. Fit a neural network on the claims data.
+
 # Neural network slang
+
+Here, we summarize some of the neural network slang.
 
 - Activation (function): The transformation applied on the node values.
 - Architecture: The layout of layers and nodes per layer.

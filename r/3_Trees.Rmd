@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 # Decision trees
@@ -58,7 +58,7 @@ How was e.g. the first question (male/female?) chosen? The algorithm scans all c
 **Comments about decision trees**
 
 - In contrast to linear models, outliers in *covariables* are not an issue as the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in *covariables* has no effect. Both statements do not hold for the response variable.
-- Some implementations can deal with missing values in the input.
+- Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller than the smallest non-missing value (e.g. -1 for a positive variable).
 - Unordered categorical covariables are tricky to split as with $\ell$ levels you end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways.
 - Regression trees cannot extrapolate by construction.
 
@@ -83,7 +83,7 @@ Predictions are found by pooling the predictions of all trees, e.g. by averaging
 
 - **Number of trees:** Usually, 100-1000 trees are grown. The more, the better. More trees also mean longer training time and larger models.
 - **Diversification:** Single trees in a random forest are usually very deep and overfitted. Its the diversity across trees that produces a good and stable model, just with a well diversivied stock portfolio. **Still, never trust performance on the training set.**
-- **OOB validation**: In each tree, about 1/3 of all observations are not in the bootstrap sample just by chance. Put differently: each observation is used in about 2/3 of all trees. If its prediction is calculated from the other 1/3 of the trees, we get an "out-of-sample" resp. "out-of-bag" prediction. These "OOB"-results are some sort of "free" validation result. **Use OOB results to judge performance on the training set**.
+- **OOB validation**: In each tree, about 1/3 of all observations are not in the bootstrap sample just by chance. Put differently: each observation is used in about 2/3 of all trees. If its prediction is calculated from the other 1/3 of the trees, we get an "out-of-sample" resp. "out-of-bag" prediction. These "OOB"-results are some sort of "free" validation result. **Use OOB results to judge performance on the training set**. Don't trust them when rows are not independent.
 - **Paramter tuning:** Random forests offer many tuning parameters. Since the results do not depend too much on their choice, untuned random forests are ideal benchmark models.
 
 ## Interpreting a "black box" model like a random forest
