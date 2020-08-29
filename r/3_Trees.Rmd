@@ -14,6 +14,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
+# Introduction
+
+In this chapter, we will go through methods based on decision trees. A single decision tree usually does not perform very well. Still trees are important as they work extremely well as "ensembles", i.e. combining many trees. There are two extremely successful tree-ensembling approaches: the random forest and gradient boosting. We will have a look at them after introducing the concept of a decision tree.
+
 # Decision trees
 
 ## How they work
@@ -65,7 +69,7 @@ How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all 
 - Unordered categorical covariables are tricky to split as with $\ell$ levels you end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways.
 - Regression trees cannot extrapolate by construction.
 
-## Task
+## Exercises
 
 1. Study the documentation of the algorithm. What parameters will have an impact on tree size?
 2. Split the diamonds data set in train/valid/test sets. Fit a regression tree on the training data, using the four "C" variables as covariables and price as response. 
@@ -150,11 +154,11 @@ plot(light_profile(fl, v = "color")) +
   labs(title = "Partial dependence plot for color", y = "price")
 ```
 
-## Task
+## Exercises
 
-0. In above example: How large is the out-of-bag RMSE? Is it similar to the test RMSE?
-1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
-2. Instead of taking logarithms of carat, model log(price). Interpret the results and compare with the model without logs.
+1. In above example: How large is the out-of-bag RMSE? Is it similar to the test RMSE?
+2. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
+3. Instead of taking logarithms of carat, model log(price). Interpret the results and compare with the model without logs.
 
 # Gradient boosted trees
 
@@ -374,7 +378,7 @@ plot(light_profile(fl, v = "color")) +
 ```
 
 
-## Task
+## Exercises
 
 1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights by modifying just Step 4 in the code above. How does the partial dependence plot for carat look now?
 2. Make a good XGBoost model for the claims data set with binary response `clm` and covariables "veh_value", "veh_body", "veh_age", "gender", "area", "agecat". Use a clean train/cross-validation/test approach. Use logloss as evaluation metric.

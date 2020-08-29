@@ -324,9 +324,7 @@ We will now fit a neural net with two hidden layers (30 and 15 nodes) and a tota
 ![](../figs/nn_2_hidden.PNG)
 
 ```{r, cache=TRUE}
-library(ggplot2)
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 library(keras)
 # use_python(path to python...)
 
@@ -442,9 +440,7 @@ plot(light_profile(fl, v = "color")) +
 Representing categorical input variables through embedding layers is extremely useful in practice. We will thus end this chapter with an example on how to do it. This example also shows how flexible neural network structures are.
 
 ```{r, cache=TRUE}
-library(ggplot2)
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 library(keras)
 library(splitTools)
 library(insuranceData)
@@ -568,7 +564,7 @@ plot(light_profile(fl, v = "agecat")) +
 
 ```
 
-# Task
+# Exercises
 
 1. Fit diamond prices by gamma loss with log-link, using the custom loss function defined below. Tune the model to achieve good performance.
 ```{r}
