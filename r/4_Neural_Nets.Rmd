@@ -181,7 +181,7 @@ For other layers, the purpose of the activation function is a different one: tha
 
 - the hyperbolic tangent ("S"-shaped function that maps real values to $[-1, 1]$),
 - the sigmoidal function ("S"-shaped function that maps real values to $[0, 1]$),
-- the linear rectangular unit "ReLU" $f(x) = \text{max}(0, x)$ that sets negative values to 0. Often used for large neural networks to save computational resources.
+- the linear rectangular unit "ReLU" $f(x) = \text{max}(0, x)$ that sets negative values to 0.
 
 Let's add to the last example a non-linear activation after the hidden layer.
 
@@ -240,6 +240,7 @@ So far, we have naively fitted the neural networks without splitting the data fo
 In order to choose the main tuning parameters, namely
 
 - network architecture,
+- activation functions,
 - learning rate, 
 - batch size, and
 - number of epochs, 
@@ -436,12 +437,9 @@ plot(light_profile(fl, v = "color")) +
 
 ```
 
-# Example: claims
+# Example: Embeddings (optional)
 
-In order to show how to work with categorical embeddings (they are extremely useful).
-We will now fit a neural net with two hidden layers (30 and 15 nodes) and a total of 631 parameters. Learning rate and batch size were chosen by validation data. The number of epochs is chosen by an early stopping callback.
-
-![](../figs/nn_2_hidden.PNG)
+Representing categorical input variables through embedding layers is extremely useful in practice. We will thus end this chapter with an example on how to do it. This example also shows how flexible neural network structures are.
 
 ```{r, cache=TRUE}
 library(ggplot2)
@@ -480,18 +478,18 @@ sc <- list(
 
 # Function that maps data.frame to scaled network input (a list with a dense part 
 # and each embedding as separat integer vector)
-prep_nn <- function(X, x_dense = x_dense, x_emb = x_emb, scaling = sc) {
-  dense <- data.matrix(X[, x_dense, drop = FALSE])
-  dense <- scale(dense, center = scaling$center, scale = scaling$scale)
-  emb <- lapply(X[x_emb], function(x) as.integer(x) - 1)
-  c(list(dense1 = dense), emb)
+prep_nn <- function(X, dense = x_dense, emb = x_emb, scaling = sc) {
+  X_dense <- data.matrix(X[, dense, drop = FALSE])
+  X_dense <- scale(X_dense, center = scaling$center, scale = scaling$scale)
+  emb <- lapply(X[emb], function(x) as.integer(x) - 1)
+  c(list(dense1 = X_dense), emb)
 }
 
-# Input layers
+# Inputs
 input_dense <- layer_input(shape = length(x_dense), name = "dense1")
 input_veh_body <- layer_input(shape = 1, name = "veh_body")
 
-# Embedding
+# Embedding of veh_body
 emb_veh_body <- input_veh_body %>% 
   layer_embedding(input_dim = nlevels(dataCar$veh_body) + 1, 
                   output_dim = 1) %>% 
@@ -500,9 +498,8 @@ emb_veh_body <- input_veh_body %>%
 # Combine dense input and embedding
 outputs <- list(input_dense, emb_veh_body) %>% 
       layer_concatenate() %>% 
-      layer_dense(30, activation="relu") %>% 
-      layer_dense(1, activation="relu") %>% 
-      layer_dense(1, activation="sigmoid", name = "output")
+      layer_dense(30, activation = "tanh") %>% 
+      layer_dense(1, activation = "sigmoid")
 
 # Input
 inputs <- list(dense1 = input_dense, 
@@ -512,7 +509,7 @@ inputs <- list(dense1 = input_dense,
 nn <- keras_model(inputs = inputs, outputs = outputs)
 summary(nn)
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 0.3),
+  optimizer = optimizer_adam(lr = 0.0001),
   loss = 'binary_crossentropy'
 )
 
@@ -524,11 +521,11 @@ cb <- list(
        
 # Fit model - naive without validation
 history <- nn %>% fit(
-  x = prep_nn(X_train, x_dense = x_dense),
+  x = prep_nn(X_train),
   y = y_train,
   epochs = 100,
   batch_size = 400, 
-  validation_data = list(prep_nn(X_valid, x_dense = x_dense), y_valid),
+  validation_data = list(prep_nn(X_valid), y_valid),
   callbacks = cb
 )
 
@@ -548,8 +545,7 @@ fl <- flashlight(model = nn,
                  data = dataCar[ix$valid, ], 
                  label = "nn", 
                  metrics = list(logLoss = logLoss, `R squared` = r_squared_bernoulli),
-                 predict_function = function(m, X) predict(m, prep_nn(X, x_dense = x_dense), 
-                                                           batch_size = 1000))
+                 predict_function = function(m, X) predict(m, prep_nn(X), batch_size = 1000))
 
 # Performance on validation data
 plot(light_performance(fl), fill = "orange")
@@ -559,28 +555,28 @@ plot(light_importance(fl, v = x), fill = "orange")
 
 # Partial dependence
 plot(light_profile(fl, v = "veh_value", n_bins = 40)) +
-  labs(title = "Partial dependence plot for carat", y = "price")
+  labs(title = "Partial dependence plot for veh_value", y = "price")
 
-plot(light_profile(fl, v = "veh_body")) +
-  labs(title = "Partial dependence plot for clarity", y = "price")
+plot(light_profile(fl, v = "veh_body"), rotate_x = TRUE) +
+  labs(title = "Partial dependence plot for veh_body", y = "price")
 
 plot(light_profile(fl, v = "area")) +
-  labs(title = "Partial dependence plot for cut", y = "price")
+  labs(title = "Partial dependence plot for area", y = "price")
 
 plot(light_profile(fl, v = "agecat")) +
-  labs(title = "Partial dependence plot for color", y = "price")
+  labs(title = "Partial dependence plot for agecat", y = "price")
 
 ```
 
 # Task
 
-1. Fit diamond prices by gamma loss (like a gamma GLM) with log-link, using the custom loss function defined below. Tune the model to achieve good performance.
+1. Fit diamond prices by gamma loss with log-link, using the custom loss function defined below. Tune the model to achieve good performance.
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
 }
 ```
-2. Fit a neural network on the claims data.
+2. Study either the optional claims data example or make your own neural net models predicting claim yes/no. For simplicity, you can represent the categorical feature `veh_body` by integers.
 
 # Neural network slang
 

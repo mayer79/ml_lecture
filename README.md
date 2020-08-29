@@ -29,6 +29,8 @@ The lecture is split into four parts, each of which is accompanied with an R and
     - Gradient boosting
 4. Neural Nets
 
+All examples are self-contained.
+
 ## Further Reading
 
 - James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). *An Introduction to Statistical Learning - with Applications in R*. New York, USA: Springer New York Inc.
