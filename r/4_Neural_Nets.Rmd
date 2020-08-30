@@ -566,7 +566,7 @@ plot(light_profile(fl, v = "agecat")) +
 
 # Exercises
 
-1. Fit diamond prices by gamma loss with log-link, using the custom loss function defined below. Tune the model to achieve good performance.
+1. Fit diamond prices by gamma loss with log-link, using the custom loss function defined below. Tune the model to achieve good performance. Interpret the model.
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred

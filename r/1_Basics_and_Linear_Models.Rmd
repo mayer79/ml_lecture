@@ -277,28 +277,69 @@ summary(fit)
 
 # Generalized linear models
 
-The basic linear model has many extensions, e.g.
+The basic linear regression model has many extensions, e.g.
 
 - quantile regression to model quantiles of the response instead of its expectation,
 - mixed-models to capture grouped data structures,
 - generlized least-squares to model time series data,
-- penalized regression, a group of methods to fight overfitting,
-- neural networks that automatically learn interactions and non-linearities,
+- penalized regression, an extention to fight overfitting (LASSO, Ridge-Regression, Elastic-Net),
+- neural networks that automatically learn interactions and non-linearities (see later),
 - **the generalized linear model (GLM)** that e.g. allows to model binary response variables in a natural way.
 
-Here, we will introduce the generalized linear model.
+Here, we will introduce the generalized linear model. Its model equation is
+$$
+  g(E(Y)) = X\beta
+$$
+resp.
+$$
+  E(Y) = g^{-1}(X\beta),
+$$
+
+where 
+
+- $X\beta$ is a linear function $\beta_0 + \beta_1 x_1 \dots \beta_m x_m$ just like in linear regression to represent covariable effects,
+- the link-function $g$ maps $E(Y)$ to the real line, i.e. to the scale of $X\beta$, and
+- $Y$ conditional on $X$ follows a distribution in the exponential dispersion family.
+
+The most typical choices are
 
 
+| Regression type | Distribution | Natural link| Typical link  |
+|-----------------|--------------|-------------|---------------|
+| Linear          | Normal       | Identity    | Identity      |
+| Binary          | Binary       | logit       | logit         |
+| Count           | Poisson      | log         | log           |
+| Log-linear      | Gamma        | 1/x         | log           |
+| multinomial     | Multinomial  | mlogit      | mlogit        |
 
+The first type (linear) corresponds to the linear regression model covered in the last section.
 
-- We now switch to a binary classification situation. We use binary logistic regression to model claim (y/n) 
-- Poisson
-- Excercise Gamma?
+The logit function is defined as 
+$$
+  \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right),
+$$
+and by "mlogit" we mean its multinomial extention (we suppress the formula here). 
+
+## Predictions on the scale of $Y$
+
+Predictions $\hat p$ on the scale of the response $Y$ are done by first calculating the value of the linear predictor $X\hat\beta$ and then applying the inverse link $g^{-1}$, i.e.
+$$
+  \hat p(X) = g^{-1}(X\hat \beta).
+$$
+These predictions are unbiased in the sense that their average on the data set used to fit the model equals the average response. *This important property only holds for the natural link function.* 
+
+## Interpretation of effects
+
+The interpretation of effects on the linear scale or for the identity link is as with linear regression: "A one-point increase in $X_m$ is associated with a $\beta_m$ increase in $g(E(y))$. Often, we want to be able to interpret the effects on $E(Y)$, i.e. with the equivalent model equation
+$$
+ E(y) = g^{-1}(X\beta)
+$$
+in mind. FOcus on log.
+
 
 ```{r}
 library(insuranceData)
 data(dataCar)
-?dataCar
 
 barplot(table(dataCar$numclaims, useNA = "ifany"))
 
@@ -310,17 +351,8 @@ with(dataCar, table(claimcst0, numclaims))
 
 with(dataCar, hist(veh_value))
 
-library(ggplot2)
-library(splitTools)
-library(ranger)
-library(MetricsWeighted)
-library(flashlight)
-
-
-ix <- partition(dataCar$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
-
 fit <- glm(clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
-           data = dataCar[ix$train, ], family = binomial)
+           data = dataCar, family = binomial)
 summary(fit)
 
 

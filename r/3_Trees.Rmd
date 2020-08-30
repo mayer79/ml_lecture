@@ -71,9 +71,9 @@ How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all 
 
 ## Exercises
 
-1. Study the documentation of the algorithm. What parameters will have an impact on tree size?
+1. Study the documentation of the tree-fitting algorithm. What parameters will have an impact on tree size?
 2. Split the diamonds data set in train/valid/test sets. Fit a regression tree on the training data, using the four "C" variables as covariables and price as response. 
-3. Use performance on the validation data to optimize one of the parameters found in 1.
+3. Use the performance on the validation data to optimize one of the parameters found in 1.
 
 # Random forests
 
