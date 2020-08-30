@@ -298,7 +298,8 @@ Pure stochastic gradient descent is rarely applied. Usually, one works with vari
 
 ## Custom losses and metrics
 
-Using TensorFlows backend functions, one can define its own metrics (see example above for the root-mean-squared error) and loss functions.
+Keras/TensorFlow offers many predefined loss functions and evaluation metrics. Choosing them is a crucial step.
+Using TensorFlows backend functions, one can even define its own metrics (see example above for the root-mean-squared error) and loss functions (see the Exercises below).
 
 ## Overfitting and regularization
 
@@ -319,7 +320,7 @@ Variable importance of covariables in neural networks can be assessed by permuta
 
 # Example: diamonds
 
-We will now fit a neural net with two hidden layers (30 and 15 nodes) and a total of 631 parameters. Learning rate and batch size were chosen by validation data. The number of epochs is chosen by an early stopping callback.
+We will now fit a neural net with two hidden layers (30 and 15 nodes) and a total of 631 parameters to model diamond prices. Learning rate and batch size were chosen by validation data. The number of epochs is being chosen by an early stopping callback.
 
 ![](../figs/nn_2_hidden.PNG)
 
@@ -437,7 +438,7 @@ plot(light_profile(fl, v = "color")) +
 
 # Example: Embeddings (optional)
 
-Representing categorical input variables through embedding layers is extremely useful in practice. We will thus end this chapter with an example on how to do it. This example also shows how flexible neural network structures are.
+Representing categorical input variables through embedding layers is extremely useful in practice. We will end this chapter with an example on how to do it with the claims data. This example also shows how flexible neural network structures are.
 
 ```{r, cache=TRUE}
 library(tidyverse)
@@ -572,7 +573,7 @@ loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
 }
 ```
-2. Study either the optional claims data example or make your own neural net models predicting claim yes/no. For simplicity, you can represent the categorical feature `veh_body` by integers.
+2. Study either the optional claims data example or make your own neural net, predicting claim yes/no. For simplicity, you can represent the categorical feature `veh_body` by integers.
 
 # Neural network slang
 

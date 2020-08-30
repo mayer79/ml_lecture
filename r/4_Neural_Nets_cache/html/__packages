@@ -7,3 +7,9 @@ MetricsWeighted
 dplyr
 tidyr
 insuranceData
+tidyverse
+tibble
+readr
+purrr
+stringr
+forcats

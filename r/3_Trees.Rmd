@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Introduction
 
-In this chapter, we will go through methods based on decision trees. A single decision tree usually does not perform very well. Still trees are important as they work extremely well as "ensembles", i.e. combining many trees. There are two extremely successful tree-ensembling approaches: the random forest and gradient boosting. We will have a look at them after introducing the concept of a decision tree.
+In this chapter, we will go through methods based on decision trees. A single decision tree usually does not perform very well. Still trees are important because they work extremely well as "ensembles", i.e. combinations of many trees: the random forest and gradient boosting. We will have a look at them after introducing the concept of a decision tree.
 
 # Decision trees
 
@@ -26,9 +26,9 @@ In our journey to estimate the model $f$ by $\hat f$, we have considered linearl
 
 A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and gradient boosted trees. 
 
-(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen in a way that optimizes the loss by asking the best "yes/no" question about a covariable.
+(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen in a way that optimizes the chosen loss function by asking the best "yes/no" question about a covariable.
 
-Typical loss functions are the MSE for regression problems and information (= cross-entropy = logloss) or gini impurity for classification. The latter can be viewed as a "variance" for categorical variables.
+Typical loss functions (= "objectives") are the MSE for regression problems and information (= cross-entropy = logloss) or gini impurity for classification. The latter can be viewed as a "variance" for categorical variables. Other interesting loss functions include the Poisson loss for count data, Gamma loss for right-skewed data, quantile loss for quantile regression, amongst many others.
 
 Predictions are calculated by sending an observation "down" the tree, starting with the question at the "trunk" and ending in a "leaf". The prediction is the value associated with the leaf. For MSE loss, the leaf values equal the average response of all observations in the leaf. In classification settings, it may be the most frequent class of in the tree or the probabilities of all classes.
 
@@ -66,14 +66,10 @@ How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all 
 
 - In contrast to linear models, outliers in *covariables* are not an issue as the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in *covariables* has no effect. Both statements do not hold for the response variable.
 - Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller than the smallest non-missing value (e.g. -1 for a positive variable).
-- Unordered categorical covariables are tricky to split as with $\ell$ levels you end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways.
+- Unordered categorical covariables are tricky to split as with $\ell$ levels you end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
 - Regression trees cannot extrapolate by construction.
 
-## Exercises
-
-1. Study the documentation of the tree-fitting algorithm. What parameters will have an impact on tree size?
-2. Split the diamonds data set in train/valid/test sets. Fit a regression tree on the training data, using the four "C" variables as covariables and price as response. 
-3. Use the performance on the validation data to optimize one of the parameters found in 1.
+These properties translate 1:1 to combinations of trees like random forests or gradient boosted trees.
 
 # Random forests
 
@@ -89,11 +85,11 @@ Predictions are found by pooling the predictions of all trees, e.g. by averaging
 **Comments about random forests**
 
 - **Number of trees:** Usually, 100-1000 trees are grown. The more, the better. More trees also mean longer training time and larger models.
-- **Diversification:** Single trees in a random forest are usually very deep and overfitted. Its the diversity across trees that produces a good and stable model, just with a well diversivied stock portfolio. **Still, never trust performance on the training set.**
+- **Diversification:** Single trees in a random forest are usually very deep and overfit. Its the diversity across trees that produces a good and stable model, just with a well diversivied stock portfolio. **Still, never trust performance on the training set for random forests.**
 - **OOB validation**: In each tree, about 1/3 of all observations are not in the bootstrap sample just by chance. Put differently: each observation is used in about 2/3 of all trees. If its prediction is calculated from the other 1/3 of the trees, we get an "out-of-sample" resp. "out-of-bag" prediction. These "OOB"-results are some sort of "free" validation result. **Use OOB results to judge performance on the training set**. Don't trust them when rows are not independent.
 - **Paramter tuning:** Random forests offer many tuning parameters. Since the results do not depend too much on their choice, untuned random forests are ideal benchmark models.
 
-## Interpreting a "black box" model like a random forest
+## Interpreting a "black box"
 
 In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any supervised model on tabular data to study at least *variable importance* and the strongest *effects*. A pure "prediction machine" is hardly of interest and might even contain errors like using covariables derived from the response. Model interpretation helps to fight such problems and thus to increase trust in a model.
 
@@ -158,7 +154,7 @@ plot(light_profile(fl, v = "color")) +
 
 1. In above example: How large is the out-of-bag RMSE? Is it similar to the test RMSE?
 2. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
-3. Instead of taking logarithms of carat, model log(price). Interpret the results and compare with the model without logs.
+3. Fit a random forest on the claims data, predicting the binary variable `clm` by the covariabes "veh_value", "veh_body", "veh_age", "gender", "area", "agecat". Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e. predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function(information/cross-entropy or Gini gain). Use a clean train/test split. Interpret the results by split gain importance and partial dependence plots.
 
 # Gradient boosted trees
 
@@ -166,21 +162,23 @@ Another tree ensembling approach is called gradient boosting or tree boosting. T
 
 ## How it works
 
-Tree boosting works as follows. A shallow tree (a "weak" learner) is fit to the data. The next tree corrects the errors from the first tree and so on, until some stopping criterion is reached. 
+Tree boosting works as follows. A shallow tree (a "weak" learner) is fit to the data. The next tree corrects the errors from the first tree and so on, until some stopping criterion is reached.
 
 Predictions are done similar to random forests.
+
+Implementations usually offer many different loss functions (called "objectives") to chose from. Select it wisely and in line with the relevant evaluation metric. 
 
 ## Parameters of boosted trees
 
 Boosted trees offer a quite a lot of parameters. Unlike with random forests, they need to be tuned to achieve good results. Here is a selection:
 
-- **Number of boosting rounds:** In contrast to random forests, more trees/rounds is not always beneficial as the model begins to overfit after some time. The optimal number of rounds is usually found by early-stopping, i.e. one lets the algorithm stop as soon as the (cross-)validation performance stops improving.
+- **Number of boosting rounds:** In contrast to random forests, more trees/rounds is not always beneficial because the model begins to overfit after some time. The optimal number of rounds is usually found by early stopping, i.e. one lets the algorithm stop as soon as the (cross-)validation performance stops improving.
 
 - **Learning rate:** The learning rate determines training speed resp. the impact of each tree. Typical values are between 0.05 and 0.5. In practical applications, it is set to a value that leads to a reasonable amount of trees (100-1000). Usually, halving the learning rate means twice as much rounds for similar performance.
 
 - **Regularization parameters:** Additional typical parameters include
     - the tree depth (often 3-7) or the number of leaves (often 7-63), 
-    - the strength of the L1 and L2 penalties (often between 0 and 5), 
+    - the strength of the L1 and/or L2 penalties (often between 0 and 5), 
     - the row subsampling rate (often between 0.8 and 1), 
     - the column subsampling rate (often between 0.6 and 1), and
     - additional parameters.
@@ -189,10 +187,10 @@ Boosted trees offer a quite a lot of parameters. Unlike with random forests, the
 
 The following strategy has to be proven to work well in many situations. It has four steps.
 
-- Step 1: With default parameters, select a learning rate that leads to a reasonable amount of boosting rounds by early stopping. Use a relatively high learning rate so that fitting is fast (about 100-200 boosting rounds).
+- Step 1: With default parameters, select a learning rate that leads to a reasonable amount of boosting rounds by early stopping. Use a relatively high learning rate so that fitting is fast (about 30-300 boosting rounds).
 - Step 2: Perform a randomized or fixed grid search on regularization parameters. The grid should be course enough.
 - Step 3: Based on the results of Step 2, customize the grid. Select a lower learning rate to aim at 200-1000 rounds. Perform the grid search again.
-- Step 4: Choose the best model from Step 3 and refit on the training data.
+- Step 4: Choose the best model from Step 3 and refit on the training data to get the final model.
 
 All decisions (early stopping, grid search) should be done by cross-validation. If this takes too long because the data set is too large, using a simple validation is fine as well.
 
@@ -200,7 +198,7 @@ All decisions (early stopping, grid search) should be done by cross-validation. 
 
 ## Example: diamonds
 
-We will use XGBoost to fit diamond prices by following the four step strategy to select parameters described above.
+We will use XGBoost to fit diamond prices by following the four-step strategy to select parameters described above. As loss and evaluation metric, we will use mean-squared error.
 
 ```{r}
 library(ggplot2)
@@ -381,7 +379,7 @@ plot(light_profile(fl, v = "color")) +
 ## Exercises
 
 1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights by modifying just Step 4 in the code above. How does the partial dependence plot for carat look now?
-2. Make a good XGBoost model for the claims data set with binary response `clm` and covariables "veh_value", "veh_body", "veh_age", "gender", "area", "agecat". Use a clean train/cross-validation/test approach. Use logloss as evaluation metric.
+2. Make a good XGBoost model for the claims data set with binary response `clm` and covariables "veh_value", "veh_body", "veh_age", "gender", "area", "agecat". Use a clean validation/test approach. Use logloss both as objective and evaluation metric.
 
 # Chapter References
 
