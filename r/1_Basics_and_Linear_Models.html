@@ -2900,28 +2900,27 @@ plot(price ~ carat, data = diamonds, pch = &quot;.&quot;, main = &quot;Price aga
 <h2><span class="header-section-number">2.4</span> The modeling task</h2>
 <p>In very general terms, we want to express a response variable <span class="math inline">\(y\)</span> by a function <span class="math inline">\(f\)</span> of covariables <span class="math inline">\(X = (X_1, ..., X_m)\)</span>, i.e. <span class="math display">\[
   y \approx f(X).
-\]</span> Unlike in physics, the function <span class="math inline">\(f\)</span> is unknown and we want to estimate it by <span class="math inline">\(\hat f\)</span> from observed data.</p>
-<p>Usually, we are interested in modeling a specific property of <span class="math inline">\(y\)</span>, usually its mean (= expectation). In that case, we can make above approximate relationship more explicit: <span class="math display">\[
+\]</span> The function <span class="math inline">\(f\)</span> is unknown and we want to estimate it by <span class="math inline">\(\hat f\)</span> from observed data.</p>
+<p>Usually, we are interested in modeling a specific property of <span class="math inline">\(y\)</span>, usually its expection <span class="math inline">\(E\)</span> (= theoretic mean). In that case, we can make above approximate relationship more explicit by writing down the <em>model equation</em> <span class="math display">\[
   E(y) = f(X).
 \]</span></p>
-<p>Once found, <span class="math inline">\(\hat f\)</span> serves as our prediction function that can be applied to fresh data. Furthermore, we can investigate its structure to gain insights on the relationship between response and covariables: what variables are especially important? how do they influence the response?</p>
+<p>Once found, <span class="math inline">\(\hat f\)</span> serves as our prediction function that can be applied to fresh data. Furthermore, we can investigate the structure of <span class="math inline">\(\hat f\)</span> to gain insights about the relationship between response and covariables: what variables are especially important? how do they influence the response?</p>
 <p><strong>Remark:</strong> Other terms for “response variable” are “output”, “target” or “dependent variable”. Other terms for “covariable” are “input”, “feature”, “independent variable” or “predictor”.</p>
 </div>
 </div>
 <div id="linear-regression" class="section level1">
 <h1><span class="header-section-number">3</span> Linear Regression</h1>
-<p>In order to get used to the terms mentioned above, we will look at linear regression.</p>
+<p>In order to get used to the terms mentioned above, we will look at the mother of all machine learning algorithms: (multiple) linear regression. It was first published by Legendre in 1805 and is still very frequently used thanks to its simplicity and interpretability. It further serves as a simple benchmark for more complex algorithms and is the starting point for extensions like generalized linear models.</p>
 <div id="model-equation" class="section level2">
 <h2><span class="header-section-number">3.1</span> Model equation</h2>
-<p>(Multiple) linear regression is the mother of all machine learning algorithms. It was first published by Legendre in 1805 and is still very frequently used thanks to its simplicity and interpretability. It further serves as a simple benchmark for more complex algorithms and is the starting point for extentions like generalized linear models.</p>
-<p>Starting point is the additive linear regression equation <span class="math display">\[
-  E(y) = f(X) = \beta_1 X_1 + \cdots + \beta_m X_m
-\]</span> that relates the regressors <span class="math inline">\(X_1, \dots, X_m\)</span> to the expected response <span class="math inline">\(E(y)\)</span> by an affine linear formula in the parameter vector <span class="math inline">\(\beta = (\beta_1, \dots, \beta_m)\)</span>. <span class="math inline">\(X_1\)</span> is an artificial variable with value 1 used for calibration. It is called <em>intercept</em>. The parameter <span class="math inline">\(\beta_i\)</span> tells us by how much <span class="math inline">\(y\)</span> is expected to change when <span class="math inline">\(X_i\)</span> is increased by 1, <strong>keeping all other predictors fixed</strong> (“Ceteris Paribus” clause): <span class="math display">\[
-  E(y | X_i = x + 1) - E(y | X_i = x) = \beta_i (x + 1) - \beta_i x = \beta_i.
+<p>The model equation of the linear regression is as follows: <span class="math display">\[
+  E(y) = f(X) = \beta_1 X_1 + \cdots + \beta_m X_m.
+\]</span> It relates the regressors <span class="math inline">\(X_1, \dots, X_m\)</span> to the expected response <span class="math inline">\(E(y)\)</span> by <em>linear</em> formula in the parameter vector <span class="math inline">\(\beta = (\beta_1, \dots, \beta_m)\)</span>. <span class="math inline">\(X_1\)</span> is an artificial variable with value 1 used for calibration. It is called <em>intercept</em>. The parameter <span class="math inline">\(\beta_i\)</span> tells us by how much <span class="math inline">\(y\)</span> is expected to change when <span class="math inline">\(X_i\)</span> is increased by 1, <strong>keeping all other predictors fixed</strong> (“Ceteris Paribus”): <span class="math display">\[
+  E(y \mid X_i = x + 1) - E(y \mid X_i = x) = \beta_i (x + 1) - \beta_i x = \beta_i.
 \]</span> The parameter <span class="math inline">\(\beta_i\)</span> is thus called <em>effect</em> of <span class="math inline">\(X_i\)</span> on the expected response.</p>
 <p><strong>Remarks</strong></p>
 <ul>
-<li>The model equation stresses the fact that our interest is not in modeling the full statistical distribution of the response but rather just one aspect, namely its expectation (= mean or average).</li>
+<li>The model equation stresses the fact that our interest is not in modeling the full statistical distribution of the response but rather just one aspect, namely its expectation.</li>
 <li>By <em>regressor</em>, we mean a <em>numeric</em> variable derived from our covariables, see a bit later.</li>
 <li>A linear regression with just one covariable is called a <em>simple</em> linear regression. Its model equation can be written as <span class="math inline">\(E(y) = \alpha + \beta X\)</span>.</li>
 </ul>
@@ -2930,8 +2929,8 @@ plot(price ~ carat, data = diamonds, pch = &quot;.&quot;, main = &quot;Price aga
 <h2><span class="header-section-number">3.2</span> Least-squares method</h2>
 <p>The optimal <span class="math inline">\(\hat f\)</span> to estimate <span class="math inline">\(f\)</span> is found by minimizing the sum of squared model errors <span class="math display">\[
   \sum_{i=1}^n (y_i - \hat f(X^{(i)}))^2
-\]</span> across our <span class="math inline">\(n\)</span> observations, a very frequently used optimization situation in regression settings. <span class="math inline">\(y_i\)</span> and <span class="math inline">\(X^{(i)}\)</span> are the observed response and regressor vector of observation <span class="math inline">\(1 \le i \le n\)</span>.</p>
-<p>In <em>linear</em> regression, the optimal <span class="math inline">\(\hat f\)</span> resp. <span class="math inline">\(\hat \beta\)</span> is found analytically by the famous least-squares method. It is one of the only ML algorithms with an explicit solution. It involves a little bit of linear algebra. In practice, we let software do the hard work, so we add it just for the sake of completeness: <span class="math display">\[
+\]</span> across our <span class="math inline">\(n\)</span> observations. <span class="math inline">\(y_i\)</span> and <span class="math inline">\(X^{(i)}\)</span> are the observed response and regressor vector of observation <span class="math inline">\(1 \le i \le n\)</span>.</p>
+<p>The optimal <span class="math inline">\(\hat f\)</span> resp. <span class="math inline">\(\hat \beta\)</span> is found analytically by the famous <em>least-squares</em> method with solution <span class="math display">\[
   \hat \beta = (X&#39;X)^{-1}X&#39;y.
 \]</span> Here, <span class="math inline">\(X\)</span> is the so-called <span class="math inline">\((n \times m)\)</span>-design matrix or model matrix representing the <span class="math inline">\(n\)</span> observations of the <span class="math inline">\(m\)</span> regressors and <span class="math inline">\(y\)</span> is the response vector. The prime (’) means the matrix transpose.</p>
 <p>Once the model is fitted, we can use <span class="math inline">\(\hat \beta\)</span> to make predictions and to study empirical effects of the covariables on the expected response.</p>
@@ -2977,12 +2976,12 @@ predict(fit, data.frame(carat = c(0.3, 1.3)))</code></pre>
 <pre><code>## [1] 7826.999</code></pre>
 <p><strong>Comments</strong></p>
 <ul>
-<li>In the equation <span class="math inline">\(E(\text{price}) = \alpha + \beta \text{carat}\)</span>, the intercept <span class="math inline">\(\alpha\)</span> is estimated by <span class="math inline">\(\hat \alpha = -2256\)</span>. Strictly speaking, this means that a 0 carat diamond costs -2256 USD, which is nonsensical but required for prediction.</li>
-<li>The slope <span class="math inline">\(\beta\)</span> is estimated by <span class="math inline">\(\hat \beta = 7756\)</span> USD. It means that a 1 carat increase goes along with an average increase in price of 7756 USD.</li>
+<li>In the equation <span class="math inline">\(E(\text{price}) = \alpha + \beta \cdot \text{carat}\)</span>, the intercept <span class="math inline">\(\alpha\)</span> is estimated by <span class="math inline">\(\hat \alpha = -2256\)</span>. Strictly speaking, this means that a 0 carat diamond costs -2256 USD, which is nonsensical but required for prediction.</li>
+<li>The slope <span class="math inline">\(\beta\)</span> is estimated by <span class="math inline">\(\hat \beta = 7756\)</span> USD. It means that a 1 carat increase goes along with an average increase in price of 7756 USD. Similarly, we could say that a 0.1 increase in carat is associated with an increase in the price of 775.6 USD.</li>
 <li>Predictions are made by using the fitted model equation. For a diamond of size 0.3 carat, we get <span class="math inline">\(-2256 + 0.3 \cdot 7756 \approx 71\)</span> USD, which seems a bit low. It might be a consequence of a too simple model.</li>
 <li>The standard error estimates the standard deviation of the estimated coefficients. They are small compared to the coefficients, reflecting the fact that the sample is large and thus the statistical sampling uncertainty is small.</li>
 <li>The residual standard error (“deviation” would be a better word) is 1549. This means that residuals (= prediction errors) are typically around 1549 USD.</li>
-<li>The R-squared is the proportion of variability explained by the covariables. Here, about 85% of the price variability is due to the fact that not all diamonds are equally large. The remaining 15% is yet unexplained.</li>
+<li>The R-squared is the proportion of variability explained by the covariables. Here, about 85% of the price variability can be explained by the variability in carat. The remaining 15% is yet unexplained.</li>
 </ul>
 </div>
 <div id="typical-problems" class="section level2">
@@ -2993,11 +2992,11 @@ predict(fit, data.frame(carat = c(0.3, 1.3)))</code></pre>
 </div>
 <div id="outliers" class="section level3">
 <h3><span class="header-section-number">3.4.2</span> Outliers</h3>
-<p>Gross outliers in covariables can distort the result of the linear regression. Don’t delete them, but try to reduce their effect by taking logarithms or look for a more robust alternative to least-squares regression.</p>
+<p>Gross outliers in covariables can distort the result of the linear regression. Do not delete them, but try to reduce their effect by taking logarithms or by using more robust regression techniques.</p>
 </div>
 <div id="overfitting" class="section level3">
 <h3><span class="header-section-number">3.4.3</span> Overfitting</h3>
-<p>If too many parameters are fitted in relation to the number of observations, the resulting model might look good but would not generalize well to new data. This is called overfitting. A small amound of it is unproblematic. But don’t fit a model with <span class="math inline">\(m=100\)</span> parameters on a data set with just <span class="math inline">\(n=200\)</span> rows as the resulting model would be garbage. A <span class="math inline">\(n/m\)</span> ratio of 50 is usually safe.</p>
+<p>If too many parameters are fitted in relation to the number of observations, the resulting model might look good but would not generalize well to new data. This is called overfitting. A small amound of it is unproblematic but do not fit a model with <span class="math inline">\(m=100\)</span> parameters on a data set with just <span class="math inline">\(n=200\)</span> rows. The resulting model would be garbage. A <span class="math inline">\(n/m\)</span> ratio of 50-100 is usually safe for stable estimation of parameters.</p>
 </div>
 <div id="collinearity" class="section level3">
 <h3><span class="header-section-number">3.4.4</span> Collinearity</h3>
@@ -3009,13 +3008,13 @@ predict(fit, data.frame(carat = c(0.3, 1.3)))</code></pre>
 <h2><span class="header-section-number">3.5</span> Representation of covariables</h2>
 <p>Depending on the specific situation, covariables might need to be transformed into one or multiple numeric <em>regressors</em>:</p>
 <ul>
-<li><strong>Dummy coding:</strong> Categoricals are usually dummy coded. This means that each category is represented by its own binary variable (“am I in this category yes/no?”). One of the dummy variables is already represented by the intercept and is thus dropped. This is often done implicitly by the software. For some ML algorithms, dropping the redundant dummy variable is not necessary/recommended. There, we speak of “one-hot-encoding”. Rare categories can be lumped together in order to not estimate too many parameters.<br />
+<li><strong>Dummy coding:</strong> Categoricals are usually dummy coded. This means that each category is represented by its own binary variable (“am I in this category yes/no?”). One of the dummy variables is already represented by the intercept and is thus dropped. This is often done implicitly by the software. For some ML algorithms, dropping the redundant dummy variable is not necessary/recommended. In that case we speak of “one-hot-encoding”. Rare categories can be lumped together in order to not estimate too many parameters and to reduce overfitting.<br />
 </li>
-<li><strong>Integer coding:</strong> Besides dummy coding, ordered categoricals are sometimes integer encoded for simplicity i.e. each category is represented by an integer number instead a of a binary variable. This assumes (approximate) equally spaced categories.</li>
-<li><strong>Log-tranformation:</strong> Positive numeric variables can be log-transformed to deal with large outliers and/or to bring it to a relative scale. When talking about logarithms, we usually mean the natural logarithm.</li>
-<li><strong>Non-linear terms:</strong> Important numeric covariables might be represented by more than just one parameter (= slope) to allow for a more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature. More flexible are regression splines. They can approximate arbitrary smooth relationships at the price of interpretability.</li>
-<li><strong>Decorrelation:</strong> Strongly related covariables can be* decorrelated to reduce negative consequences of collinearity. A typical example are house price models. There, number of rooms and living area are strongly related and therefore, it might help to represent living area by the derived variable “living area per room”.</li>
-<li><strong>Interactions:</strong> As a consequence of the additive model structure, each covariable acts independently on the response. This is not always realistic. E.g. being flawless means more to a large diamond than to a small diamond. In such cases, adding so-called interaction terms might be worth the effort. Since interaction terms complicate the interpretation of the results, they should be used with care and only for important covariables.</li>
+<li><strong>Integer coding:</strong> Besides dummy coding, ordinal categorical covariables are sometimes integer encoded for simplicity i.e. each category is represented by an integer number instead a of a binary variable. This assumes (approximate) equally spaced categories.</li>
+<li><strong>Log-tranformation:</strong> Positive numeric variables can be log-transformed to deal with large outliers and/or to bring it to a relative scale. When talking about logarithms, we mean the <em>natural</em> logarithm.</li>
+<li><strong>Non-linear terms:</strong> Important numeric covariables might be represented by more than just one parameter (= slope) to allow for a more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature. Especially flexible are regression splines that can approximate arbitrary smooth relationships at the price of interpretability.</li>
+<li><strong>Decorrelation:</strong> Strongly related covariables can be decorrelated to reduce negative consequences of collinearity. Instead of e.g. using number of rooms and living area in a house price model, it might help to represent living area by the derived variable “living area per room”.</li>
+<li><strong>Interactions:</strong> As a consequence of the additive model structure, each covariable is assumed to act independently on the response, keeping the other covariables fixed. This is not always realistic. E.g. being flawless means more to a large diamond than to a small diamond. In such cases, adding so-called interaction terms might be worth considerung. Since interaction terms complicate the interpretation of the results, they should be used with care and only for important covariables.</li>
 </ul>
 </div>
 <div id="example-diamonds-improved" class="section level2">
