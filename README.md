@@ -22,7 +22,7 @@ The lecture is split into four parts, each of which is accompanied with an R res
 1. Basics and Linear Models 
     - Basics
     - Linear regression
-    - Logistic regression
+    - Generalized linear models
 2. Model Selection
     - Performance metrics and loss functions
     - Simple validation, cross-validation
