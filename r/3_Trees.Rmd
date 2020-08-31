@@ -1,5 +1,6 @@
 ---
 title: "Trees"
+subtitle: "WORK IN PROGRESS"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
 output: 
@@ -8,6 +9,8 @@ output:
     toc_float: true
     number_sections: true
     df_print: paged
+    theme: united
+    highlight: zenburn
 ---
 
 ```{r setup, include=FALSE}
@@ -254,6 +257,7 @@ if (tune) {
     subsample = c(0.8, 1), 
     reg_lambda = 0:5,        # l2 penalty
     reg_alpha = 0:5,         # l1 penalty
+ #   tree_method = "hist",   # when data is large
     min_split_loss = c(0, 1e-04)
   )
   
@@ -296,6 +300,7 @@ if (tune) {
     subsample = 1, 
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
+#   tree_method = "hist",   # when data is large
     min_split_loss = c(0, 1e-04)
   )
   

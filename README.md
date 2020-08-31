@@ -1,5 +1,9 @@
 # Introduction to Machine Learning
 
+WORK IN PROGRESS: DRAFT READY FOR CHAPTERS 3 & 4
+
+## Michael Mayer
+
 ## Overview
 
 Welcome to this little lecture on machine learning (ML). 

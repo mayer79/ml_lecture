@@ -1,5 +1,6 @@
 ---
 title: "Basics and Linear Models"
+subtitle: "WORK IN PROGRESS"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
 output: 
@@ -8,10 +9,17 @@ output:
     toc_float: true
     number_sections: true
     df_print: paged
+    theme: united
+    highlight: zenburn
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning = FALSE,
+                      message = FALSE, 
+                      fig.height = 5,
+                      fig.width = 6)
 ```
 
 # Introduction
@@ -89,25 +97,55 @@ During or after the descriptive analysis, we usually do the *data preprocessing*
 Let's summarize the diamonds data set.
 
 ```{r}
+library(ggplot2)
+
 # Data size
 nrow(diamonds)  # 53940
 
 # Univariate description
 summary(diamonds[, c("price", "carat", "color", "cut", "clarity")])
 
-hist(diamonds$price, breaks = "FD")
-hist(diamonds$carat, breaks = "FD")
-barplot(table(diamonds$color), main = "Distribution of color")
-barplot(table(diamonds$cut), main = "Distribution of cut")
-barplot(table(diamonds$clarity), main = "Distribution of clarity")
+ggplot(diamonds, aes(x = price)) +
+  geom_histogram(fill = "orange") +
+  ggtitle("Distribution of 'price'")
+
+ggplot(diamonds, aes(x = carat)) +
+  geom_histogram(fill = "orange") +
+  ggtitle("Distribution of 'carat'")
+
+ggplot(diamonds, aes(x = color)) +
+  geom_bar(fill = "orange") +
+  ggtitle("Distribution of 'color'")
+
+ggplot(diamonds, aes(x = cut)) +
+  geom_bar(fill = "orange") +
+  ggtitle("Distribution of 'cut'")
+
+ggplot(diamonds, aes(x = clarity)) +
+  geom_bar(fill = "orange") +
+  ggtitle("Distribution of 'clarity'")
 
 # Selected bivariate descriptions
-plot(price ~ carat, data = diamonds, pch = ".", main = "Price against carat")
-plot(price ~ carat, data = diamonds, pch = ".", log = "xy",
-     main = "Price against carat - logarithmic scales")
-boxplot(price ~ color, data = diamonds, varwidth = TRUE, main = "Price against color")
-boxplot(price ~ cut, data = diamonds, varwidth = TRUE, main = "Price against cut")
-boxplot(price ~ clarity, data = diamonds, varwidth = TRUE, main = "Price against clarity")
+p <- ggplot(diamonds, aes(y = price, x = carat)) +
+  geom_point(alpha = 0.2, shape = ".")
+
+p + ggtitle("Price against carat")
+
+p + ggtitle("Price against carat - logarithmic scales") +
+  scale_y_log10() + 
+  scale_x_log10()
+
+ggplot(diamonds, aes(y = price, x = color)) +
+  geom_boxplot(fill = "orange", varwidth = TRUE) +
+  ggtitle("Price against color")
+
+ggplot(diamonds, aes(y = price, x = cut)) +
+  geom_boxplot(fill = "orange", varwidth = TRUE) +
+  ggtitle("Price against cut")
+
+ggplot(diamonds, aes(y = price, x = clarity)) +
+  geom_boxplot(fill = "orange", varwidth = TRUE) +
+  ggtitle("Price against clarity")
 
 ```
 
@@ -178,13 +216,19 @@ Once the model is fitted, we can use $\hat \beta$ to make predictions and to stu
 In order to study the typical output of a linear regression, we now model diamond prices by their size.
 
 ```{r}
+library(ggplot2)
+
 fit <- lm(price ~ carat, data = diamonds)
 summary(fit)
+intercept <- coef(fit)[1]
+slope <- coef(fit)[2]
 
 # Visualize the regression line
-plot(price ~ carat, data = diamonds, pch = ".", 
-     xlim = c(0, 3), ylim = c(-3000, 20000))
-abline(fit, col = "red")
+
+ggplot(diamonds, aes(x = carat, y = price)) + 
+  geom_point(alpha = 0.2, shape = ".") +
+  coord_cartesian(xlim = c(0, 3), ylim = c(-3000, 20000)) +
+  geom_abline(slope = slope, intercept = intercept, color = "orange", size = 1)
 
 # Predictions for diamonds with 0.3 and 1.3 carat?
 predict(fit, data.frame(carat = c(0.3, 1.3)))
@@ -335,22 +379,22 @@ in mind. FOcus on log.
 
 
 ```{r}
-library(insuranceData)
-data(dataCar)
-
-barplot(table(dataCar$numclaims, useNA = "ifany"))
-
-
-barplot(table(dataCar$veh_body, useNA = "ifany"), horiz = TRUE)
-
-
-with(dataCar, table(claimcst0, numclaims))
-
-with(dataCar, hist(veh_value))
-
-fit <- glm(clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
-           data = dataCar, family = binomial)
-summary(fit)
-
+# library(insuranceData)
+# data(dataCar)
+# 
+# barplot(table(dataCar$numclaims, useNA = "ifany"))
+# 
+# 
+# barplot(table(dataCar$veh_body, useNA = "ifany"), horiz = TRUE)
+# 
+# 
+# with(dataCar, table(clm, numclaims))
+# 
+# with(dataCar, hist(veh_value))
+# 
+# fit <- glm(clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
+#            data = dataCar, family = binomial)
+# summary(fit)
+# 
 
 ```

@@ -1,5 +1,6 @@
 ---
 title: "Model Selection"
+subtitle: "WORK IN PROGRESS"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
 output: 
@@ -8,6 +9,8 @@ output:
     toc_float: true
     number_sections: true
     df_print: paged
+    theme: united
+    highlight: zenburn
 ---
 
 ```{r setup, include=FALSE}
@@ -16,4 +19,4 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Introduction
 
-- glmnet
+...
