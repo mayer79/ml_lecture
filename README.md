@@ -53,6 +53,7 @@ In order to be able to follow the lectures, you should be familiar with
 - R version >= 3.6
 - Successfully installed packages:
     - `tidyverse`
+    - `FNN`
     - `rpart`
     - `rpart.plot`
     - `ranger`
