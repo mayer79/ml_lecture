@@ -26,38 +26,36 @@ Modeling means deciding:
 - Is a linear model suitable or do we need an other algorithm like nearest-neighbour, gradient boosting or a neural net?
 - Are there parameters to choose? E.g. the learning rate for a neural net or the size of a decision tree?
 
-Some of these decisions can be taken purely knowledge based (no, we don't use haircolor to predict claim amount), other require model comparison. To do this is in a fair manner is the purpose of this chapter.
+Some of these decisions can be taken purely knowledge based (no, we should not use haircolor to predict claim amount), other require model comparison. To do this is in a fair manner is the purpose of this chapter.
 
-## An alternative to linear models: k-nearest-neighbour
+# An alternative to linear models: k-nearest-neighbour
 
-A very simple and intuitive alternative to a linear model is the k-nearest-neighbour approach. It can be applied for both regression and classification tasks and works without fitting anything. The prediction of an observation is obtained by 
+A very simple and intuitive alternative to a linear model is the k-nearest-neighbour approach. It can be applied for both regression and classification and works without fitting anything. The prediction for an observation is obtained by 
 
 1. searching the closest $k\le 1$ neighbours in the data set and then 
 2. aggregating their response variable (mean or weighted mean for regression tasks, most frequent value or probabilities for classification tasks). 
 
 By "nearest" we usually mean Euclidean distance in the covariable space. If covariables are not on the same scale, it makes sense to *standardize* them first by subtracting the mean and dividing by the standard deviation. Categorical features need to be one-hot-encoded or integer-encoded first. Note that one-hot-encoded covariables may or may not be standardized.
 
-### Example: diamonds
+## Example: diamonds
 
-What prediction would we get with five-nearest-neighbour regression for observation 10'000?
+What prediction would we get with five-nearest-neighbour regression for the 10'000th row?
 ```{r}
 library(ggplot2)
 library(FNN)
 
+# Covariable matrix
 x <- c("carat", "color", "cut", "clarity")
-full <- data.matrix(diamonds[, x])
-scaled <- scale(full)
-apply(scaled, 2, mean)
-apply(scaled, 2, sd)
+X <- scale(data.matrix(diamonds[, x]))
 
 # The 10'000th observation
 diamonds[10000, c("price", x)]
 
 # Its prediction
-knn.reg(scaled, test = scaled[10000, ], k = 5, y = diamonds$price)
+knn.reg(X, test = X[10000, ], k = 5, y = diamonds$price)
 
 # Its five nearest neighbours
-neighbours <- knn.index(scaled, k = 5)[10000, ]
+neighbours <- knn.index(X, k = 5)[10000, ]
 neighbours
 diamonds[neighbours, c("price", x)]
 ```
@@ -67,22 +65,24 @@ diamonds[neighbours, c("price", x)]
 - The five nearest diamonds are extremely similar. Unsurprisingly, one of the five nearest neighbours is the observation of interest.
 - Their average price gives us the nearest-neighbour prediction for the 10'000th diamond.
 
-## Naive model comparison
+# Naive model comparison
 
 How well does a 1-nearest-neighbour regression perform against a linear regression? Much better. Why? Because each observation would be its own nearest neighbour, leading to perfect predictions. Such seemingly excellent performance would simply be a consequence of massive overfit. Overfit makes comparisons unfair and should be accounted for. The standard approach to do so is based on data splitting techniques. 
 
-## Data splitting
+# Data splitting
 
-### Simple validation
+## Simple validation
 
-With simple validation, the original data set is split into a *training* data used to fit the models and a separate *validation* data used to take decisions like those mentioned in the introduction. The validation data set consists usually of 10%-30% of data rows. A too small validation data set will lead to wrong decisions, while a too large validation data set are wasting data for model fitting.
+With simple validation, the original data set is split into a *training* data used to fit the models and a separate *validation* data used to calculate model performance and to take decisions. The validation data set consists usually of 10%-30% of data rows. A too small validation data set will lead to wrong decisions, while a too large validation data set leads to a too small training dataset.
 
-#### Example: diamonds
+We can use such strategy to compare different modeling algoritms (linear regression with k-nearest-neighbour) and also to choose *hyperparameters* like $k$ of k-nearest-neighbour. 
 
-Let's see what $k$ provides the best RMSE on both training and validation data using a 80%/20% split.
+### Example: diamonds
+
+What $k$ provides the best RMSE on 20% validation data?
 
 ```{r, cache=TRUE}
-library(ggplot2)
+library(tidyverse)
 library(FNN)
 library(splitTools)
 library(MetricsWeighted)
@@ -107,22 +107,25 @@ X_valid <- scale(data.matrix(valid[, x]),
                  center = attr(X_train, "scaled:center"),
                  scale = attr(X_train, "scaled:scale"))
 
-valid_rmse <- train_rmse <- numeric(20)
-
-for (k in 1:20) {
-  # Get performance on training data
-  pred_train <- knn.reg(X_train, test = X_train, k = k, y = y_train)$pred
-  train_rmse[k] <- rmse(y_train, pred_train)
+# Tuning grid with different values for parameter k
+paramGrid <- data.frame(train = NA, valid = NA, k = 1:20)
+    
+# Calculate performance for each row in the parameter grid
+for (i in 1:nrow(paramGrid)) {
+  k <- paramGrid[i, "k"]
   
-  # Get performance on valid data
+  # Performance on training data
+  pred_train <- knn.reg(X_train, test = X_train, k = k, y = y_train)$pred
+  paramGrid[i, "train"] <- rmse(y_train, pred_train)
+  
+  # Performance on valid data
   pred_valid <- knn.reg(X_train, test = X_valid, k = k, y = y_train)$pred
-  valid_rmse[k] <- rmse(y_valid, pred_valid)
+  paramGrid[i, "valid"] <- rmse(y_valid, pred_valid)
 }
 
-# Combine results to a table
-perf <- rbind(data.frame(k = 1:20, data = "train", rmse = train_rmse),
-              data.frame(k = 1:20, data = "valid", rmse = valid_rmse))
-ggplot(perf, aes(x = k, y = rmse, group = data, color = data)) +
+# Plot results
+pivot_longer(paramGrid, cols = -k, values_to = "RMSE") %>% 
+ggplot(aes(x = k, y = RMSE, group = name, color = name)) +
   geom_point() +
   geom_line()
 
@@ -133,11 +136,11 @@ ggplot(perf, aes(x = k, y = rmse, group = data, color = data)) +
 - The amount of overfitting (difference between validation and training performance) is large for small k and small for large k. This makes sense.
 - Selecting k based on training data would lead to a suboptimal model.
 - Based on validation data, we would choose $k=4$. It has a minimal RMSE of 602.
-- The peak at $k=1$ for the training set is unexpected. It is a consequence of the many diamonds with exactly the same covariable combination.
+- The peak at $k=1$ for the training set is unexpected. It is a consequence of diamonds with exactly the same covariable combination.
 
-### Cross-validation
+## Cross-validation
 
-If our training and validation data are large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is an alternative to simple validation which utilizes the data in a better way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
+If our training and validation data are large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a better way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
 
 1. Choose a relevant performance measure, e.g. MSE for regression.
 2. Split the data into $k$ pieces $D = \{D_1, \dots, D_m\}$ called "folds".
@@ -149,31 +152,37 @@ If our training and validation data are large and training takes long, then a si
 
 Use the result of the last step to choose your final model. Retrain the model on the full training data.
 
-Note: If cross-validation is fast, you can go for repeated cross-validation, where Steps 1 to 5 are repeated multiple times on different data splits in order to get an even more robust estimate of model performance.
+Note: If cross-validation is fast, you can repeat the process for additional data splits. Such *repeated* cross-validation leads to even more robust results.
 
-#### Example: diamonds
+### Example: diamonds
 
-We now use five-fold cross-validation on the diamonds data to find the best $k$.
+We now use five-fold cross-validation on the diamonds data to find the best $k$ regarding cross-validation RMSE.
 
 ```{r, cache=TRUE}
-library(ggplot2)
+library(tidyverse)
 library(FNN)
 library(splitTools)
 library(MetricsWeighted)
 
 # Response and scaled covariable matrix
 y <- diamonds$price
-x <- c("carat", "color", "cut", "clarity")
-X <- scale(data.matrix(diamonds[, x]))
+X <- diamonds %>% 
+  select(carat, color, cut, clarity) %>% 
+  data.matrix() %>% 
+  scale()
 
 # Split diamonds into folds
 nfolds <- 5
 folds <- create_folds(y, k = nfolds, seed = 9838, type = "basic")
 
-cv_rmse <- numeric(20)
-
-for (k in 1:20) {
-  rmse_per_fold <- c()
+# Tuning grid with different values for parameter k
+paramGrid <- data.frame(RMSE = NA, k = 1:20)
+    
+# Calculate performance for each row in the parameter grid
+for (i in 1:nrow(paramGrid)) {
+  k <- paramGrid[i, "k"]
+  
+  scores <- c()
   
   for (fold in folds) {
     y_train <- y[fold]
@@ -182,29 +191,31 @@ for (k in 1:20) {
     X_train <- X[fold, ]
     X_valid <- X[-fold, ]
 
-    pred_valid <- knn.reg(X_train, test = X_valid, k = k, y = y_train)$pred
-    rmse_valid <- rmse(y_valid, pred_valid)
-    rmse_per_fold <- c(rmse_per_fold, rmse_valid)
+    pred <- knn.reg(X_train, test = X_valid, k = k, y = y_train)$pred
+    scores[length(scores) + 1] <- rmse(y_valid, pred)
   }
-  cv_rmse[k] <- mean(rmse_per_fold)
+  paramGrid[i, "RMSE"] <- mean(scores)
 }
   
-# Combine results to a table
-perf <- data.frame(k = 1:20, rmse = cv_rmse)
-ggplot(perf, aes(x = k, y = rmse)) +
+ggplot(paramGrid, aes(x = k, y = RMSE)) +
   geom_point() +
   geom_line() +
   ggtitle("Performance by cross-validation")
 
 ```
+
 **Comment:** Now, $k=5$ seems to be the best choice. Its cross-validation RMSE is 619 USD.
 
-### Test data
+## Grid and randomized search
 
-Usually, many decisions are made based on (cross-)validation. Each decision tends to make the resulting model look better than it is in reality. Thus, it is often unclear how well the final model is expected to perform in reality. As a solution, one often sets aside another small *test* data set just to assess the performance of the final model. A size of 10% is usually sufficient. 
+In above example, we have systematically compared the performance of k-nearest-neighbour for different values of the hyperparameter k through cross-validation. This is an example of grid search cross-validation (CV). In the Chapter on decision trees, we will apply grid search also in situations with multiple hyperparameters. In such situations, to avoid too large grids, one often evaluates only a subset of parameter combinations. Then, we speak of *randomized search CV*.
+
+## Test data
+
+Usually, many decisions are made based on (cross-)validation. Each decision tends to make the resulting model look better than it is in reality. Thus, it is often unclear how well the final model is expected to perform in reality. As a solution, one often sets aside another small *test* data set just to assess the performance of the final model. A size of 5%-10% is usually sufficient. 
 It is important to look at the test data just once at the very end of the modeling process after each decision has been made.
 
-Depending on whether one does simple validation or cross-validation, the workflow is as follows:
+Depending on whether one does simple validation or cross-validation, the ideal workflow is as follows:
 
 **Workflow A**
 
@@ -218,12 +229,12 @@ Depending on whether one does simple validation or cross-validation, the workflo
 2. Evaluate different models by k-fold cross-validation on the training data. Choose the best model, retrain it on the full training data.
 3. Assess performance of the final model on the test data.
 
-#### Example: diamonds
+### Example: diamonds
 
 We will now go through Workflow B for our diamonds. This time, we will not only consider k-nearest-neighbour, but also linear regression. 
 
 ```{r, cache=TRUE}
-library(ggplot2)
+library(tidyverse)
 library(FNN)
 library(splitTools)
 library(MetricsWeighted)
@@ -240,7 +251,7 @@ test <- diamonds[ix$test, ]
 y_train <- train$price
 y_test <- test$price
 
-# Standarize training data
+# Standardize training data
 X_train <- scale(data.matrix(train[, x]))
 
 # Apply training scale to test data
@@ -248,44 +259,65 @@ X_test <- scale(data.matrix(test[, x]),
                 center = attr(X_train, "scaled:center"),
                 scale = attr(X_train, "scaled:scale"))
 
+# Split training data into folds
+nfolds <- 5
+folds <- create_folds(y_train, k = nfolds, seed = 9838, type = "basic")
+
 # Cross-validation performance of linear regression
-valid_rmse <- train_rmse <- numeric(20)
+rmse_reg <- c()
 
-for (k in 1:20) {
-  # Get performance on training data
-  pred_train <- knn.reg(X_train, test = X_train, k = k, y = y_train)$pred
-  train_rmse[k] <- rmse(y_train, pred_train)
-  
-  # Get performance on valid data
-  pred_valid <- knn.reg(X_train, test = X_valid, k = k, y = y_train)$pred
-  valid_rmse[k] <- rmse(y_valid, pred_valid)
+for (fold in folds) {
+  fit <- lm(price ~ log(carat) + color + cut + carat, 
+            data = train[fold, ])
+  pred <- predict(fit, newdata = train[-fold, ])
+  rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
 }
+(rmse_reg <- mean(rmse_reg))
 
-# Combine results to a table
-perf <- rbind(data.frame(k = 1:20, data = "train", rmse = train_rmse),
-              data.frame(k = 1:20, data = "valid", rmse = valid_rmse))
-ggplot(perf, aes(x = k, y = rmse, group = data, color = data)) +
-  geom_point() +
-  geom_line()
+# Cross-validation performance of k-nearest-neighbour for k = 1-20
+paramGrid <- data.frame(RMSE = NA, k = 1:20)
+
+for (i in 1:nrow(paramGrid)) {
+  k <- paramGrid[i, "k"]
+  scores <- c()
+  
+  for (fold in folds) {
+    pred <- knn.reg(X[fold, ], test = X[-fold, ], k = k, y = y[fold])$pred
+    scores[length(scores) + 1] <- rmse(y[-fold], pred)
+  }
+  paramGrid[i, "RMSE"] <- mean(scores)
+}
+paramGrid[order(paramGrid$RMSE)[1], ]
+
+# The overall best model is 6-nearest-neighbour
+pred <- knn.reg(X_train, test = X_test, k = 6, y = y_train)$pred
+
+# Test performance
+rmse(y_test, pred)
 ```
+**Comments** 
 
-## How to split the data
+- 6-nearest-neighbour regression performs much better than linear regression.
+- Its performance on the independent test data well corresponds to cross-validation performance. This is a sign that our cross-validation strategy did not introduce a lot of overfitting.
 
-Often, data is split randomly for validation/test and or cross-validation. If rows are independent from each other, this will lead to good results. In many cases, rows are not independent. In these cases....
+## Splitting strategies
 
-### Grouped k-fold
+So far, we have used random splitting of the data sets and to create cross-validation folds. There are three highly relevant alternatives.
 
-blabla
+Random splitting is only valid if the rows are independent. As soon as rows show additional structure such as clusters (multiple rows belonging to the same object) or even a time series structure, then special techniques have to be applied.
 
-#### Example: diamonds
+- **Grouped splitting:** For grouped/clustered data, it is essential to not "destroy" clusters. Grouped splitting samples *clusters* instead of rows into train/valid/test and/or cross-validation folds. Ignoring this problem is one of the most frequent reasons for too optimistic cross-validation or test performance. As such, it is also responsible for selecting suboptimal models.
+- **Time series splitting:** If the data set represents time series data, the data is split in a way that makes sure the validation fold is after the training fold.
 
-### Stratified k-fold
+If rows are independent, random splitting is okay. If the response is unbalanced (e.g. binary with a rare category) or a numeric variable with outliers, or if there is an extremely important covariable, then **stratified splitting* is recommended to produce folds/splits with similar distribution of that variable.
 
-blabla
+To summarize: *If the data shows cluster or time series structure, use grouped splitting. Otherwise, use stratified splitting by the response or a key feature.*
 
-#### Example: diamonds
+### Example: diamonds
 
-## Performance metrics and loss functions
+In the diamonds data, the diamonds are most probably independent from each other, thus random splitting is fine. Stratified splitting by the response `price` or the key feature `carat` is recommended.
+
+# Performance metrics and loss functions
 
 
 
