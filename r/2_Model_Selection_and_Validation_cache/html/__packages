@@ -1,8 +1,6 @@
 base
 ggplot2
 FNN
-splitTools
-MetricsWeighted
 tidyverse
 tibble
 tidyr
@@ -11,3 +9,5 @@ purrr
 dplyr
 stringr
 forcats
+splitTools
+MetricsWeighted

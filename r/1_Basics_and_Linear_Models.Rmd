@@ -173,7 +173,7 @@ Once found, $\hat f$ serves as our prediction function that can be applied to fr
 
 # Linear Regression
 
-In order to get used to the terms mentioned above, we will look at the mother of all machine learning algorithms: (multiple) linear regression. It was first published by Legendre in 1805 and is still very frequently used thanks to its simplicity and interpretability. It further serves as a simple benchmark for more complex algorithms and is the starting point for extensions like the generalized linear model.
+In order to get used to the terms mentioned above, we will look at the mother of all machine learning algorithms: (multiple) linear regression. It was first published by Adrien-Marie Legendre in 1805 [1] and is still very frequently used thanks to its simplicity and interpretability. It further serves as a simple benchmark for more complex algorithms and is the starting point for extensions like the generalized linear model.
 
 ## Model equation
 
@@ -463,7 +463,7 @@ The basic linear regression model has many extensions, e.g.
 - neural networks that automatically learn interactions and non-linearities (see later),
 - **the generalized linear model (GLM)** that e.g. allows to model binary response variables in a natural way.
 
-Here, we will introduce the generalized linear model. 
+Here, we will introduce the generalized linear model, introduced in 1972 by Nelder & Wedderburn [2]. 
 
 ## Definition
 
@@ -592,3 +592,9 @@ summary(fit)
 - An increase of 1 in `veh_value` (10'000 USD) increases the log-odds of having a claim by 0.051. On the odds scale, this is an increase of $e^{0.05098}-1 = 0.052 = 5.2\%$. Thus we can say that for every additional 10'000 USD vehicle value, the odds of having a claim is increased by 5.2%.
 - The odds that a male produces a claim is about 1% smaller than for females.
 - The deviance 33632 is only 0.4% smaller than the one of the null model 33767.
+
+# Chapter References
+
+[1] A. Legendre, "Nouvelles méthodes pour la détermination des orbites des comètes", 1805.
+
+[2] J. A. Nelder and R. W. M. Wedderburn, "Generalized Linear Models". Journal of the Royal Statistical Society. Series A, Vol. 135, No. 3 (1972).

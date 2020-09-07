@@ -19,13 +19,13 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Introduction
 
-In this chapter, we will go through methods based on decision trees. A single decision tree usually does not perform very well. Still trees are important because they work extremely well as "ensembles", i.e. combinations of many trees: the random forest and gradient boosting. We will have a look at them after introducing the concept of a decision tree.
+In this chapter, we will go through methods based on decision trees. A single decision tree usually does not perform very well. Still, trees are important because they work extremely well in groups. This is used by two of the most successful ML algorithms, namely the random forest and boosting. We will have a look at them after introducing the concept of a decision tree.
 
 # Decision trees
 
 ## How they work
 
-In our journey to estimate the model $f$ by $\hat f$, we have considered linearly parametrized functions $f$ so far. We now move to a different function class, namely decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others, see [1].
+In our journey to estimate the model $f$ by $\hat f$, we have considered mainly linear functions $f$ so far. We now move to a different function class, namely decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called "Classification and Regression Trees" (CART).
 
 A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and gradient boosted trees. 
 
@@ -159,15 +159,13 @@ plot(light_profile(fl, v = "color")) +
 2. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
 3. Fit a random forest on the claims data, predicting the binary variable `clm` by the covariabes "veh_value", "veh_body", "veh_age", "gender", "area", "agecat". Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e. predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function(information/cross-entropy or Gini gain). Use a clean train/test split. Interpret the results by split gain importance and partial dependence plots.
 
-# Gradient boosted trees
+# Boosting
 
-Another tree ensembling approach is called gradient boosting or tree boosting. The first implementation "AdaBoost" was published by Freund and Schapire in 1997, closely followed by the more general concept "gradient boosting" in the 1999 article [4] by Jerome Friedman that, as a remark, also introduced the famous partial dependence plots. Modern implementations and variants of his orginal idea are [XGBoost (2014)](https://xgboost.readthedocs.io/en/latest/), [LightGBM (2017)](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost (2017)](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [my comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences.
+The idea of (gradient) boosting was introduced by Schapire in 1990 [3] and works as follows: A simple model is fit to the data. Then, a next simple model tries to correct the errors from the first model and so on, until some stopping criterion is reached. As simple models, usually small decision trees are used, an idea pushed by Jerome Friedman in his famous 2001 article on gradient boosting [4].
 
-## How it works
+Modern implementations and variants of Friedman's idea are [XGBoost (2014)](https://xgboost.readthedocs.io/en/latest/), [LightGBM (2017)](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost (2017)](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Sept. 07, 2020 ![](../figs/comparison_boosting.PNG).
 
-Tree boosting works as follows. A shallow tree (a "weak" learner) is fit to the data. The next tree corrects the errors from the first tree and so on, until some stopping criterion is reached.
-
-Predictions are done similar to random forests.
+Predictions are done similar to random forests, i.e. by combining predictions of all trees.
 
 Implementations usually offer many different loss functions (called "objectives") to chose from. Select it wisely and in line with the relevant evaluation metric. 
 
@@ -388,10 +386,10 @@ plot(light_profile(fl, v = "color")) +
 
 # Chapter References
 
-[1] L. Breiman, J. Friedman, R. Olshen, and C. Stone, “Classification and Regression Trees”, Wadsworth, Belmont, CA, 1984.
+[1] L. Breiman, J. Friedman, R. Olshen, and C. Stone, "Classification and Regression Trees", Wadsworth, Belmont, CA, 1984.
 
 [2] L. Breiman, "Random forests". In: Machine Learning, 2001, 45(1).
 
-[3] Y. Freund, R. E. Schapire, "A decision-theoretic generalization of on-line learning and an application to boosting". Journal of Computer and System Sciences. 1997, 55.
+[3] R. Schapire, "The strength of weak learnability", Machine Learning, Vol 5, Nr. 2, 1990.
 
-[4] J. Friedman, "Greedy Function Approximation: A Gradient Boosting Machine", 1999.
+[4] J. Friedman, "Greedy Function Approximation: A Gradient Boosting Machine", 2001.

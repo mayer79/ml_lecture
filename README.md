@@ -1,8 +1,6 @@
 # Introduction to Machine Learning
 
-WORK IN PROGRESS: DRAFT READY FOR CHAPTERS 3 & 4
-
-## Michael Mayer
+#### Michael Mayer
 
 ## Overview
 
@@ -27,10 +25,10 @@ The lecture is split into four parts, each of which is accompanied with an R res
     - Basics
     - Linear regression
     - Generalized Linear Model
-2. Model Selection
-    - Performance metrics and loss functions
+2. Model Selection and Validation
     - Simple validation, cross-validation
     - Grid search
+    - Performance metrics and loss functions
 3. Trees
     - Decision trees
     - Random forests
@@ -39,14 +37,15 @@ The lecture is split into four parts, each of which is accompanied with an R res
 
 All examples are self-contained.
 
-Each chapter will take us about two hours to complete, including some exercise.
+Each chapter will take us about two hours, including some exercises.
 
 ## Prerequisites
 
 In order to be able to follow the lectures, you should be familiar with
 
-- basic descriptive statistics (what is a dataset, what is an arithmetic average, ...),
-- R resp. Python
+- Descriptive statistics
+- Linear regression
+- R/Python
 
 ### Software for the R version of the lecture
 

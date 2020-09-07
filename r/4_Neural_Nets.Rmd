@@ -32,6 +32,8 @@ Artificial neural nets are extremely versatile and powerful. They can be used to
 9. model data with spatial structure (images), and
 10. fit models with many millions of parameters.
 
+The first neural network was designed by Marvin Minsky in 1951. He called his algorithm SNARC ("stochastic neural-analog reinforcement calculator"). Modern neural networks are sometimes dated back to 1974 [1] to the dissertation of Paul J. Werbos, who had the idea to fit neural networks by the backpropagation algorithm, which is the gold standard as per today.
+
 In this chapter, we will mainly deal with the first two aspects. Since a lot of new terms are being used, we have collected a glossary in the last section.
 
 # Basics and linear models
@@ -103,11 +105,11 @@ Indeed: the solution of the tiny neural network is quite similar to the OLS solu
 
 # The optimization algorithm
 
-Neural nets are fitted by **stochastic gradient descent (SGD)**. It works as follows:
+Neural nets are fitted by **stochastic gradient descent (SGD)** resp. **backpropagation**. It works as follows:
 
 1. Initiate the parameters with random values around 0. 
 2. Forward step: Use the parameters to predict all observations in a *batch*. A batch is a randomly selected subset of the full data set. This makes the algorithm "stochastic".
-3. Backpropagation: Change the parameters in the right direction, making the loss on the current batch smaller. This involves calculating derivatives ("gradients") of the loss function (e.g. MSE) with respect to all parameters.
+3. Backpropagation step: Change the parameters in the right direction, making the loss on the current batch smaller. This involves calculating derivatives ("gradients") of the loss function (e.g. MSE) with respect to all parameters.
 4. Repeat Steps 2-3 until one *epoch* is over, i.e. each observation appeared in a batch.
 5. Repeat Step 4 for multiple epochs until the parameter estimates stabilize or validation performance stops improving.
 
@@ -596,3 +598,13 @@ Here, we summarize some of the neural network slang.
 - Stochastic gradient descent (SGD): The optimization algorithm of standard neural networks.
 - TensorFlow: An important implementation of neural networks.
 - Weights: The parameters of a neural net.
+
+# Closing Remarks
+
+In this lecture, we have met many ML algorithms and principles. To really get used to them, you will need a lot of practice. [Kaggle](kaggle.com) is a great place to do so and learn from the best. 
+
+A summary and comparison of the algorithms we have met is on [github](https://github.com/mayer79/ML_Algorithm_Comparison). Here is a screenshot as per Sept. 7, 2020: ![](../figs/comparison_ML.PNG).
+
+# Chapter References
+
+[1] P.J. Werbos, "Beyond Regression: New Tools for Prediction and Analysis in the Behavioral Sciences", Dissertation, 1974.
