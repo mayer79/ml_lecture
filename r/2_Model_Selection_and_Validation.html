@@ -2872,7 +2872,7 @@ div.tocify {
 <div id="introduction" class="section level1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
 <p>In the previous chapter, we have met performance measures like the RMSE or the deviance to measure how good our models are. Unfortunately, we cannot fully rely on these values due to overfitting: The more our models overfit, the less we can trust in their “insample” performance, i.e. the performance on the data used to calculate the models. <em>Selecting models</em> based on their insample performance is equally bad. Overfitting should not be rewarded!</p>
-<p>In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these, we will meet a competitor to the linear model.</p>
+<p>In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these techniques, we will meet a competitor of the linear model.</p>
 </div>
 <div id="k-nearest-neighbour" class="section level1">
 <h1><span class="header-section-number">2</span> k-Nearest-Neighbour</h1>
@@ -2922,11 +2922,11 @@ div.tocify {
 </div>
 <div id="data-splitting-techniques" class="section level1">
 <h1><span class="header-section-number">3</span> Data Splitting Techniques</h1>
-<p>Insample, a 1-nearest-neighbour regression predicts without errors and thus always outperforms linear regression, which is nonsensical. To correctly account for overfitting, we assess the performance of models on <em>fresh data not used for model calculation</em>.</p>
+<p><em>Insample</em>, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This extreme example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to <em>simple validation</em>.</p>
 <div id="simple-validation" class="section level2">
 <h2><span class="header-section-number">3.1</span> Simple validation</h2>
-<p>With simple validation, the original data set is split into a <em>training</em> data used to fit the models and a separate <em>validation</em> data used to evaluate model performance and to select models. Typically, 10%-30% of rows are used for validation.</p>
-<p>We can use the validation data to compare <em>algorithms</em> (e.g. regression versus k-nearest-neighbour) and also to choose <em>hyperparameters</em> like <span class="math inline">\(k\)</span> of k-nearest-neighbour. Furthermore, the performance difference between training and validation data indicates the amount of overfitting.</p>
+<p>With simple validation, the original data set is partitioned into <em>training</em> data used to calculate the models and a separate <em>validation</em> data set used to evaluate model performance and to select models. Typically, 10%-30% of rows are used for validation.</p>
+<p>We can use the validation performance to compare <em>algorithms</em> (e.g. regression versus k-nearest-neighbour) and also to choose <em>hyperparameters</em> like <span class="math inline">\(k\)</span> of k-nearest-neighbour. Furthermore, the performance difference between training and validation data indicates the amount of overfitting.</p>
 <div id="example-diamonds-1" class="section level3">
 <h3><span class="header-section-number">3.1.1</span> Example: diamonds</h3>
 <p>What <span class="math inline">\(k\)</span> provides the best RMSE on 20% validation data?</p>
@@ -2988,7 +2988,7 @@ div.tocify {
 </div>
 <div id="cross-validation-cv" class="section level2">
 <h2><span class="header-section-number">3.2</span> Cross-Validation (CV)</h2>
-<p>If our training and validation data are large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a better way and takes more robust decisions. It is called <strong>k-fold cross-validation</strong> and works as follows:</p>
+<p>If our data set is large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a more economic way and takes more robust decisions. It is called <strong>k-fold cross-validation</strong> and works as follows:</p>
 <ol style="list-style-type: decimal">
 <li>Split the data into <span class="math inline">\(k\)</span> pieces <span class="math inline">\(D = \{D_1, \dots, D_m\}\)</span> called “folds”.</li>
 <li>Set aside one of the pieces (<span class="math inline">\(D_j\)</span>) for validation.</li>
@@ -3056,12 +3056,12 @@ div.tocify {
 </div>
 <div id="grid-search" class="section level2">
 <h2><span class="header-section-number">3.3</span> Grid search</h2>
-<p>In above example, we have systematically compared the CV-performance of k-nearest-neighbour for different values of k. This strategy to <em>tune</em> models resp. to select hyperparameters of a model is called <strong>grid search CV</strong>. In the next chapter, we will also see examples where combinations of multiple parameters have to be evaluated. To avoid too large grids, one often evaluates only a subset of parameter combinations or sample parameter combinations at random. Then, we speak of <strong>randomized search CV</strong>.</p>
+<p>In above example, we have systematically compared the CV-performance of k-nearest-neighbour for different values of k. This strategy to <em>tune</em> models resp. to select hyperparameters of a model is called <strong>grid search CV</strong>. In the next chapter, we will also see examples where combinations of multiple parameters have to be evaluated. To avoid too large grids, one often evaluates only a subset of parameter combinations or samples parameter combinations at random. Then, we speak of <strong>randomized search CV</strong>.</p>
 </div>
 <div id="test-data" class="section level2">
 <h2><span class="header-section-number">3.4</span> Test data</h2>
-<p>Usually, one uses the validation data set or cross-validation to make many decisions. Each decision tends to make the resulting model look better than it is in reality. Thus, it is often unclear how well the final model is expected to perform in reality. As a solution, we can set aside a small <em>test</em> data set just to assess the performance of the final model. A size of 5%-10% is usually sufficient. It is important to look at the test data just once at the very end of the modeling process after each decision has been made.</p>
-<p>Depending on whether one does simple validation or cross-validation, the ideal workflow is as follows:</p>
+<p>Often, modeling involves many decisions. Even if guided by (cross-)validation, each decision tends to make the resulting final model look better than it is, an effect that can be called <em>overfitting on the validation data</em>. As a consequence, we often do not know how well the final model will perform in reality. As a solution, we can set aside a small <em>test</em> data set used to assess the performance of the <em>final</em> model. A size of 5%-10% is usually sufficient. It is important to look at the test data just once at the very end of the modeling process - after each decision has been made.</p>
+<p>Depending on whether one does simple validation or cross-validation, the workflow is thus as follows:</p>
 <p><strong>Workflow A</strong></p>
 <ol style="list-style-type: decimal">
 <li>Split data into train/valid/test, e.g. by ratios 70%/20%/10%.</li>
@@ -3151,22 +3151,81 @@ div.tocify {
 </div>
 <div id="random-splitting" class="section level2">
 <h2><span class="header-section-number">3.5</span> Random splitting?</h2>
-<p>So far, we have used random splitting of the data sets and to create cross-validation folds. There are three highly relevant alternatives.</p>
-<p>Random splitting is only valid if the rows are independent. As soon as rows show additional structure such as clusters (multiple rows belonging to the same object) or even a time series structure, then special techniques have to be applied.</p>
+<p>The data is often randomly split into partitions or folds. As long as rows are <em>independent</em>, this leads to honest estimates of model performance.</p>
+<p>When rows are not independent, e.g. with time series data or grouped data, such strategy is flawed and leads to too optimistic results. <strong>This is one of the most frequent reasons to end up with a bad model. It is essential to avoid it.</strong></p>
+<div id="time-series-data" class="section level3">
+<h3><span class="header-section-number">3.5.1</span> Time-series data</h3>
+<p>When data represents a time series, splitting is best done in a way that does not shuffle the row order, e.g. in blocks: For simple validation, e.g. the first 80% of rows could be used for training and the remaining 20% for validation.</p>
+</div>
+<div id="grouped-data" class="section level3">
+<h3><span class="header-section-number">3.5.2</span> Grouped data</h3>
+<p>Often, data is grouped or clustered, e.g.</p>
 <ul>
-<li><strong>Grouped splitting:</strong> For grouped/clustered data, it is essential to not “destroy” clusters. Grouped splitting samples <em>clusters</em> instead of rows into train/valid/test and/or cross-validation folds. Ignoring this problem is one of the most frequent reasons for too optimistic cross-validation or test performance. As such, it is also responsible for selecting suboptimal models.</li>
-<li><strong>Time series splitting:</strong> If the data set represents time series data, the data is split in a way that makes sure the validation fold is after the training fold.</li>
+<li>multiple rows belong to the same patient/customer or</li>
+<li>duplicated rows (accidental or not).</li>
 </ul>
-<p>If rows are independent, random splitting is okay. If the response is unbalanced (e.g. binary with a rare category) or a numeric variable with outliers, or if there is an extremely important covariable, then **stratified splitting* is recommended to produce folds/splits with similar distribution of that variable.</p>
-<p>To summarize: <em>If the data shows cluster or time series structure, use grouped splitting. Otherwise, use stratified splitting by the response or a key feature.</em></p>
-<div id="example-diamonds-4" class="section level3">
-<h3><span class="header-section-number">3.5.1</span> Example: diamonds</h3>
-<p>In the diamonds data, the diamonds are most probably independent from each other, thus random splitting is fine. Stratified splitting by the response <code>price</code> or the key feature <code>carat</code> is recommended.</p>
+<p>Then, instead of distributing <em>rows</em> into partitions, we should distribute <em>groups</em> to not destroy the data structure and to get honest performance estimates. We speak of <em>grouped splitting</em> and <em>group k-fold CV</em>.</p>
+</div>
+<div id="stratification" class="section level3">
+<h3><span class="header-section-number">3.5.3</span> Stratification</h3>
+<p><em>If rows are independent</em>, there is a variant of random splitting that often provides better results and is therefore often used by default: <em>stratified splitting</em>. With stratified splitting or <em>stratified k-fold CV</em>, rows are split to ensure approximately equal distribution of a key variable (the response or a deciding covariable) across partitions/folds.</p>
 </div>
 </div>
+<div id="exercises" class="section level2">
+<h2><span class="header-section-number">3.6</span> Exercises</h2>
+<p>Apply <em>stratified</em> splitting (using the response <code>price</code>) throughout the last example. Compare the results.</p>
 </div>
-<div id="performance-metrics" class="section level1">
-<h1><span class="header-section-number">4</span> Performance Metrics</h1>
+</div>
+<div id="performance-measures" class="section level1">
+<h1><span class="header-section-number">4</span> Performance Measures</h1>
+<p>Regressions are often compared by looking at mean-squared error <span class="math display">\[
+  \text{MSE}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n (y - \hat y)^2
+\]</span> or its root. Why not the mean <em>absolute error</em> (MAE) <span class="math display">\[
+  \text{MAE}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n |y - \hat y|
+\]</span> or even the median absolute error? Often, even before starting with the modeling task, one should choose one single, relevant <em>performance metric</em> or <em>scoring function</em>. It will guide you safely through the modeling process, eventually leading to a good model.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Response</th>
+<th>Property</th>
+<th>Scoring function</th>
+<th>Typical loss</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Symmetric</td>
+<td>E(Y)</td>
+<td>(R)MSE</td>
+<td>MSE</td>
+</tr>
+<tr class="even">
+<td>Right-skewed</td>
+<td>E(Y)</td>
+<td>Gamma deviance/(R)MSE</td>
+<td>Gamma deviance/MSE</td>
+</tr>
+<tr class="odd">
+<td>Count</td>
+<td>E(Y)</td>
+<td>Poisson deviance/(R)MSE</td>
+<td>Poisson deviance/MSE</td>
+</tr>
+<tr class="even">
+<td>Numeric</td>
+<td>Median(Y)</td>
+<td>MAE</td>
+<td>MAE</td>
+</tr>
+<tr class="odd">
+<td>Binary</td>
+<td>E(Y)</td>
+<td>log-loss*</td>
+<td>log-loss</td>
+</tr>
+</tbody>
+</table>
+<p>*Same as Bernoulli deviance or cross-entropy</p>
 </div>
 
 

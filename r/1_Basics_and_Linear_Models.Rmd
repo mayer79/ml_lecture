@@ -485,7 +485,7 @@ Thus, a GLM has three components:
 
 The following table lists some of the most used GLMs.
 
-| Regression type | Distribution | Natural link| Typical link  |Loss function      |
+| Model type      | Distribution | Natural link| Typical link  |Loss function      |
 |-----------------|--------------|-------------|---------------|-------------------|
 | Linear          | Normal       | Identity    | Identity      | Normal deviance   |
 | Binary          | Binary       | logit       | logit         | Binary deviance   |      

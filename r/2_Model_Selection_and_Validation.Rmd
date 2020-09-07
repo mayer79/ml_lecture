@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 In the previous chapter, we have met performance measures like the RMSE or the deviance to measure how good our models are. Unfortunately, we cannot fully rely on these values due to overfitting: The more our models overfit, the less we can trust in their "insample" performance, i.e. the performance on the data used to calculate the models. *Selecting models* based on their insample performance is equally bad. Overfitting should not be rewarded!
 
-In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these, we will meet a competitor to the linear model.
+In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these techniques, we will meet a competitor of the linear model.
 
 # k-Nearest-Neighbour
 
@@ -65,13 +65,13 @@ diamonds[neighbours, c("price", x)]
 
 # Data Splitting Techniques
 
-Insample, a 1-nearest-neighbour regression predicts without errors and thus always outperforms linear regression, which is nonsensical. To correctly account for overfitting, we assess the performance of models on *fresh data not used for model calculation*.
+*Insample*, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This extreme example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to *simple validation*.
 
 ## Simple validation
 
-With simple validation, the original data set is split into a *training* data used to fit the models and a separate *validation* data used to evaluate model performance and to select models. Typically, 10%-30% of rows are used for validation.
+With simple validation, the original data set is partitioned into *training* data used to calculate the models and a separate *validation* data set used to evaluate model performance and to select models. Typically, 10%-30% of rows are used for validation.
 
-We can use the validation data to compare *algorithms* (e.g. regression versus k-nearest-neighbour) and also to choose *hyperparameters* like $k$ of k-nearest-neighbour. Furthermore, the performance difference between training and validation data indicates the amount of overfitting.
+We can use the validation performance to compare *algorithms* (e.g. regression versus k-nearest-neighbour) and also to choose *hyperparameters* like $k$ of k-nearest-neighbour. Furthermore, the performance difference between training and validation data indicates the amount of overfitting.
 
 ### Example: diamonds
 
@@ -135,7 +135,7 @@ ggplot(aes(x = k, y = RMSE, group = Data, color = Data)) +
 
 ## Cross-Validation (CV)
 
-If our training and validation data are large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a better way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
+If our data set is large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a more economic way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
 
 1. Split the data into $k$ pieces $D = \{D_1, \dots, D_m\}$ called "folds".
 2. Set aside one of the pieces ($D_j$) for validation.
@@ -203,14 +203,14 @@ ggplot(paramGrid, aes(x = k, y = RMSE)) +
 
 ## Grid search
 
-In above example, we have systematically compared the CV-performance of k-nearest-neighbour for different values of k. This strategy to *tune* models resp. to select hyperparameters of a model is called **grid search CV**. In the next chapter, we will also see examples where combinations of multiple parameters have to be evaluated. To avoid too large grids, one often evaluates only a subset of parameter combinations or sample parameter combinations at random. Then, we speak of **randomized search CV**.
+In above example, we have systematically compared the CV-performance of k-nearest-neighbour for different values of k. This strategy to *tune* models resp. to select hyperparameters of a model is called **grid search CV**. In the next chapter, we will also see examples where combinations of multiple parameters have to be evaluated. To avoid too large grids, one often evaluates only a subset of parameter combinations or samples parameter combinations at random. Then, we speak of **randomized search CV**.
 
 ## Test data
 
-Usually, one uses the validation data set or cross-validation to make many decisions. Each decision tends to make the resulting model look better than it is in reality. Thus, it is often unclear how well the final model is expected to perform in reality. As a solution, we can set aside a small *test* data set just to assess the performance of the final model. A size of 5%-10% is usually sufficient. 
-It is important to look at the test data just once at the very end of the modeling process after each decision has been made.
+Often, modeling involves many decisions. Even if guided by (cross-)validation, each decision tends to make the resulting final model look better than it is, an effect that can be called *overfitting on the validation data*. As a consequence, we often do not know how well the final model will perform in reality. As a solution, we can set aside a small *test* data set used to assess the performance of the *final* model. A size of 5%-10% is usually sufficient. 
+It is important to look at the test data just once at the very end of the modeling process - after each decision has been made.
 
-Depending on whether one does simple validation or cross-validation, the ideal workflow is as follows:
+Depending on whether one does simple validation or cross-validation, the workflow is thus as follows:
 
 **Workflow A**
 
@@ -299,35 +299,51 @@ rmse(y_test, pred)
 
 ## Random splitting?
 
-The whole point of data splitting techniques is to generate *independent data sets*, so that model performance can be estimated in a fair way. If rows are independent, then random splitting is fine. 
+The data is often randomly split into partitions or folds. As long as rows are *independent*, this leads to honest estimates of model performance. 
 
+When rows are not independent, e.g. with time series data or grouped data, such strategy is flawed and leads to too optimistic results. **This is one of the most frequent reasons to end up with a bad model. It is essential to avoid it.**
 
-So far, we have split rows randomly into training/validation/test partitions or into cross-validation folds. Since data rows were independent for the diamonds data, 
+### Time-series data
 
-Validation and cross-validation provide good estimates of "true performance" as long as rows are independent
+When data represents a time series, splitting is best done in a way that does not shuffle the row order, e.g. in blocks: For simple validation, e.g. the first 80% of rows could be used for training and the remaining 20% for validation. 
 
-In our examples above, we have used random splitting to create data partitions and cross-validation folds. In this section, we will mention three alternatives. They 
+### Grouped data
 
-### Non-independent rows
+Often, data is grouped or clustered, e.g.
 
+- multiple rows belong to the same patient/customer or
+- duplicated rows (accidental or not). 
 
+Then, instead of distributing *rows* into partitions, we should distribute *groups* to not destroy the data structure and to get honest performance estimates. We speak of *grouped splitting* and *group k-fold CV*. 
 
+### Stratification
 
-Random splitting is only valid if the rows are independent. As soon as rows show additional structure such as clusters (multiple rows belonging to the same object) or even a time series structure, then special techniques have to be applied.
+*If rows are independent*, there is a variant of random splitting that often provides better results and is therefore often used by default: *stratified splitting*. With stratified splitting or *stratified k-fold CV*, rows are split to ensure approximately equal distribution of a key variable (the response or a deciding covariable) across partitions/folds.
 
-- **Grouped splitting:** For grouped/clustered data, it is essential to not "destroy" clusters. Grouped splitting samples *clusters* instead of rows into train/valid/test and/or cross-validation folds. Ignoring this problem is one of the most frequent reasons for too optimistic cross-validation or test performance. As such, it is also responsible for selecting suboptimal models.
-- **Time series splitting:** If the data set represents time series data, the data is split in a way that makes sure the validation fold is after the training fold.
+## Exercises
 
-If rows are independent, random splitting is okay. If the response is unbalanced (e.g. binary with a rare category) or a numeric variable with outliers, or if there is an extremely important covariable, then **stratified splitting* is recommended to produce folds/splits with similar distribution of that variable.
-
-To summarize: *If the data shows cluster or time series structure, use grouped splitting. Otherwise, use stratified splitting by the response or a key feature.*
-
-### Example: diamonds
-
-In the diamonds data, the diamonds are most probably independent from each other, thus random splitting is fine. Stratified splitting by the response `price` or the key feature `carat` is recommended.
+Apply *stratified* splitting (using the response `price`) throughout the last example. Compare the results.
 
 # Performance Measures
 
+Regressions are often compared by looking at mean-squared error
+$$
+  \text{MSE}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n (y - \hat y)^2
+$$
+or its root. Why not the mean *absolute error* (MAE)
+$$
+  \text{MAE}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n |y - \hat y|
+$$
+or even the median absolute error? Often, even before starting with the modeling task, one should choose one single, relevant *performance metric* or *scoring function*. It will guide you safely through the modeling process, eventually leading to a good model. 
 
+| Response        | Property    | Scoring function        | Typical loss          |
+|-----------------|-------------|-------------------------|-----------------------|
+| Symmetric       | E(Y)        | (R)MSE                  | MSE                   |
+| Right-skewed    | E(Y)        | Gamma deviance/(R)MSE   | Gamma deviance/MSE    |   
+| Count           | E(Y)        | Poisson deviance/(R)MSE | Poisson deviance/MSE  |
+| Numeric         | Median(Y)   | MAE                     | MAE                   |
+| Binary          | E(Y)        | log-loss*               | log-loss              |
+
+*Same as Bernoulli deviance or cross-entropy
 
 
