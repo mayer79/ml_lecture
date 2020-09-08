@@ -26,9 +26,6 @@ The lecture is split into four parts, each of which is accompanied with an R res
     - Linear regression
     - Generalized Linear Model
 2. Model Selection and Validation
-    - Simple validation, cross-validation
-    - Grid search
-    - Performance metrics and loss functions
 3. Trees
     - Decision trees
     - Random forests

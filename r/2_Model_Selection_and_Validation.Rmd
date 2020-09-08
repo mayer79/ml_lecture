@@ -322,28 +322,5 @@ Then, instead of distributing *rows* into partitions, we should distribute *grou
 
 ## Exercises
 
-Apply *stratified* splitting (using the response `price`) throughout the last example. Compare the results.
-
-# Performance Measures
-
-Regressions are often compared by looking at mean-squared error
-$$
-  \text{MSE}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n (y - \hat y)^2
-$$
-or its root. Why not the mean *absolute error* (MAE)
-$$
-  \text{MAE}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n |y - \hat y|
-$$
-or even the median absolute error? Often, even before starting with the modeling task, one should choose one single, relevant *performance metric* or *scoring function*. It will guide you safely through the modeling process, eventually leading to a good model. 
-
-| Response        | Property    | Scoring function        | Loss function         | 
-|-----------------|-------------|-------------------------|-----------------------|
-| Symmetric       | E(Y)        | (R)MSE                  | MSE                   |
-| Right-skewed    | E(Y)        | Gamma deviance/(R)MSE   | Gamma deviance/MSE    |   
-| Count           | E(Y)        | Poisson deviance/(R)MSE | Poisson deviance/MSE  |
-| Numeric         | Median(Y)   | MAE                     | MAE                   |
-| Binary          | E(Y)        | log-loss*               | log-loss              | 
-
-*Same as Bernoulli deviance or cross-entropy
-
+1. Apply *stratified* splitting (using the response `price`) throughout the last example. Compare the results.
 
