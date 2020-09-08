@@ -336,13 +336,13 @@ $$
 $$
 or even the median absolute error? Often, even before starting with the modeling task, one should choose one single, relevant *performance metric* or *scoring function*. It will guide you safely through the modeling process, eventually leading to a good model. 
 
-| Response        | Property    | Scoring function        | Typical loss          |
+| Response        | Property    | Scoring function        | Loss function         | 
 |-----------------|-------------|-------------------------|-----------------------|
 | Symmetric       | E(Y)        | (R)MSE                  | MSE                   |
 | Right-skewed    | E(Y)        | Gamma deviance/(R)MSE   | Gamma deviance/MSE    |   
 | Count           | E(Y)        | Poisson deviance/(R)MSE | Poisson deviance/MSE  |
 | Numeric         | Median(Y)   | MAE                     | MAE                   |
-| Binary          | E(Y)        | log-loss*               | log-loss              |
+| Binary          | E(Y)        | log-loss*               | log-loss              | 
 
 *Same as Bernoulli deviance or cross-entropy
 

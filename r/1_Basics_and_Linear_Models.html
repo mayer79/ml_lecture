@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2020-09-06" />
+<meta name="date" content="2020-09-08" />
 
 <title>Basics and Linear Models</title>
 
@@ -2864,7 +2864,7 @@ div.tocify {
 <h1 class="title toc-ignore">Basics and Linear Models</h1>
 <h3 class="subtitle">WORK IN PROGRESS</h3>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2020-09-06</h4>
+<h4 class="date">2020-09-08</h4>
 
 </div>
 
@@ -3016,7 +3016,7 @@ div.tocify {
 </div>
 <div id="linear-regression" class="section level1">
 <h1><span class="header-section-number">2</span> Linear Regression</h1>
-<p>In order to get used to the terms mentioned above, we will look at the mother of all machine learning algorithms: (multiple) linear regression. It was first published by Legendre in 1805 and is still very frequently used thanks to its simplicity and interpretability. It further serves as a simple benchmark for more complex algorithms and is the starting point for extensions like the generalized linear model.</p>
+<p>In order to get used to the terms mentioned above, we will look at the mother of all machine learning algorithms: (multiple) linear regression. It was first published by Adrien-Marie Legendre in 1805 [1] and is still very frequently used thanks to its simplicity and interpretability. It further serves as a simple benchmark for more complex algorithms and is the starting point for extensions like the generalized linear model.</p>
 <div id="model-equation" class="section level2">
 <h2><span class="header-section-number">2.1</span> Model equation</h2>
 <p>The model equation of the linear regression is as follows: <span class="math display">\[
@@ -3393,74 +3393,104 @@ E(Y\mid X = 1.01 \cdot x) - E(Y\mid X = x) = \alpha + \beta \cdot (1.01) \cdot x
 <li>neural networks that automatically learn interactions and non-linearities (see later),</li>
 <li><strong>the generalized linear model (GLM)</strong> that e.g. allows to model binary response variables in a natural way.</li>
 </ul>
-<p>Here, we will introduce the generalized linear model.</p>
+<p>This section covers the generalized linear model, introduced in 1972 by Nelder &amp; Wedderburn [2].</p>
 <div id="definition" class="section level2">
 <h2><span class="header-section-number">3.1</span> Definition</h2>
 <p>The model equation of the GLM is <span class="math display">\[
-  g(E(Y)) = \beta_0 + \beta_1 X_1 + \dots + + \beta_m X_m
-\]</span> resp. <span class="math display">\[
-  E(Y) = g^{-1}(\beta_0 + \beta_1 X_1 + \dots + + \beta_m X_m),
+  g(E(Y)) = \beta_0 + \beta_1 X_1 + \dots + + \beta_m X_m,
+\]</span> or similarly <span class="math display">\[
+  E(Y) = g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m),
 \]</span> where <span class="math inline">\(Y\)</span> conditional on the covariables belongs to the exponential dispersion family and the link function <span class="math inline">\(g\)</span> is a smooth transformation.</p>
 <p>Thus, a GLM has three components:</p>
 <ol style="list-style-type: decimal">
-<li>A linear function for the covariable effects, exactly as in the linear regression.</li>
+<li>A linear function for the covariable effects, exactly as in linear regression.</li>
 <li>The link function <span class="math inline">\(g\)</span>. Its purpose is to map <span class="math inline">\(E(Y)\)</span> to the scale of the linear function. Or the other way round: The inverse link <span class="math inline">\(g^{-1}\)</span> maps the linear part to the scale of the response.</li>
 <li>A distribution of <span class="math inline">\(Y\)</span> conditional on the covariables.</li>
 </ol>
 <p>The following table lists some of the most used GLMs.</p>
 <table>
+<colgroup>
+<col width="10%"></col>
+<col width="11%"></col>
+<col width="20%"></col>
+<col width="11%"></col>
+<col width="13%"></col>
+<col width="16%"></col>
+<col width="14%"></col>
+</colgroup>
 <thead>
 <tr class="header">
-<th>Regression type</th>
+<th>Regression</th>
 <th>Distribution</th>
+<th>Range of <span class="math inline">\(Y\)</span></th>
 <th>Natural link</th>
 <th>Typical link</th>
 <th>Loss function</th>
+<th>Loss of one row</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>Linear</td>
 <td>Normal</td>
+<td><span class="math inline">\((-\infty, \infty)\)</span></td>
 <td>Identity</td>
 <td>Identity</td>
-<td>Normal deviance</td>
+<td>MSE</td>
+<td><span class="math inline">\((y - \hat y)^2\)</span></td>
 </tr>
 <tr class="even">
+<td>Logistic</td>
 <td>Binary</td>
-<td>Binary</td>
+<td><span class="math inline">\(\{0, 1\}\)</span></td>
 <td>logit</td>
 <td>logit</td>
-<td>Binary deviance</td>
+<td>Binary cross-entropy</td>
+<td><span class="math inline">\(-y\log(\hat y) - (1-y) \log(1-\hat y)\)</span></td>
 </tr>
 <tr class="odd">
-<td>Count</td>
 <td>Poisson</td>
+<td>Poisson</td>
+<td><span class="math inline">\(\{0, 1, \dots\}\)</span></td>
 <td>log</td>
 <td>log</td>
 <td>Poisson deviance</td>
+<td><span class="math inline">\(2(y \log(y / \hat y) - (y - \hat y))\)</span></td>
 </tr>
 <tr class="even">
-<td>Log-linear</td>
 <td>Gamma</td>
+<td>Gamma</td>
+<td><span class="math inline">\((0, \infty)\)</span></td>
 <td>1/x</td>
 <td>log</td>
 <td>Gamma deviance</td>
+<td><span class="math inline">\(2 ((y - \hat y) / \hat y - \log(y / \hat y))\)</span></td>
+</tr>
+<tr class="odd">
+<td>Multinomial</td>
+<td>Multinomial</td>
+<td><span class="math inline">\(\{C_1, \dots, C_m\}\)</span></td>
+<td>mlogit</td>
+<td>mlogit</td>
+<td>Categorical cross-entropy</td>
+<td><span class="math inline">\(\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)\)</span></td>
 </tr>
 </tbody>
 </table>
-<p>The logit function is defined as <span class="math display">\[
-  \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right)
-\]</span> It maps probabilities to the real line. The inverse logit (“sigmoidal transformation”) reverts this: It maps real values to the range from 0 to 1. In the context of GLMs, <span class="math inline">\(p = \text{Prob}(Y = 1) = E(Y)\)</span>.</p>
-<p><strong>Comments regarding above table</strong></p>
+<p><strong>Some explanations</strong></p>
 <ul>
-<li>The first type (linear) corresponds to the normal linear model.</li>
-<li>The second type (binary) is the famous logistic regression for binary (0/1) responses.</li>
-<li>The normal, Poisson and Gamma GLMs are special cases of the Tweedie GLM.</li>
-<li>To find predictions <span class="math inline">\(\hat y\)</span> on the scale of <span class="math inline">\(Y\)</span>, one evaluates the linear function and then applies the inverse link <span class="math inline">\(g^{-1}\)</span>.</li>
-<li>Any smooth and monotone transformation can be used as link <span class="math inline">\(g\)</span>. However, only the <em>natural</em> or <em>canonical</em> link has the relevant property of providing unbiased predictions on the scale of <span class="math inline">\(Y\)</span>. Thus, one usually works with the natural link with the notable exeption of the Gamma GLM, which is often applied with the log link.</li>
-<li>Parameters of a GLM are estimated to minimize a distribution specific criterion called <em>deviance</em> derived from maximum likelihood estimation. For the normal linear model, this criterion equals the MSE. Thus, the deviance plays the same role as the MSE for linear regression.</li>
+<li><p>To find predictions <span class="math inline">\(\hat y\)</span> on the scale of <span class="math inline">\(Y\)</span>, one evaluates the linear function and then applies the inverse link <span class="math inline">\(g^{-1}\)</span>.</p></li>
+<li><p>Any smooth and monotone transformation can be used as link <span class="math inline">\(g\)</span>. However, only the <em>natural</em>/<em>canonical</em> link has the relevant property of providing unbiased predictions on the scale of <span class="math inline">\(Y\)</span> in the sense <span class="math inline">\(E(\hat y) = E(y)\)</span>. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link in order to simplify interpretation.</p></li>
+<li><p>Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective or loss function called <em>deviance</em>.</p></li>
+<li><p>The deviance of the normal distribution equals the MSE. Deviance plays the same role for GLMs as MSE for linear regression.</p></li>
+<li><p>The deviance of logistic regression is equivalent to cross-entropy and log loss.</p></li>
+<li><p>The logit function is defined as <span class="math display">\[
+\text{logit}(p) = \log (\text{Odds}(p)) = \log\left(\frac{p}{1-p}\right)
+\]</span> It maps probabilities to the real line. The inverse logit (“sigmoidal transformation” or “logistic function”) reverts this: It maps real values to the range from 0 to 1. In the context of GLMs, <span class="math inline">\(p = \text{Prob}(Y = 1) = E(Y)\)</span>.</p></li>
+<li><p>The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability <span class="math inline">\(\text{Prob}(Y=1)\)</span>, the multinomial model predicts a probability <span class="math inline">\(\hat y_j\)</span> for each of the m categories.</p></li>
+<li><p>The normal, Poisson and Gamma GLMs are special cases of the Tweedie GLM.</p></li>
 </ul>
+<p><strong>Outlook:</strong> The loss functions used in the context of GLMs are used one-to-one as objective functions for other ML methods like gradient boosting or neural networks. The “appropriate” loss function is chosen from the context. E.g. if the response is binary, most ML algorithms try to minimize cross-entropy, just like in logistic regression.</p>
 </div>
 <div id="why-do-we-need-glms" class="section level2">
 <h2><span class="header-section-number">3.2</span> Why do we need GLMs?</h2>
@@ -3645,6 +3675,11 @@ E(Y\mid X = 1.01 \cdot x) - E(Y\mid X = x) = \alpha + \beta \cdot (1.01) \cdot x
 <li>The deviance 33632 is only 0.4% smaller than the one of the null model 33767.</li>
 </ul>
 </div>
+</div>
+<div id="chapter-references" class="section level1">
+<h1><span class="header-section-number">4</span> Chapter References</h1>
+<p>[1] A. Legendre, “Nouvelles méthodes pour la détermination des orbites des comètes”, 1805.</p>
+<p>[2] J. A. Nelder and R. W. M. Wedderburn, “Generalized Linear Models”. Journal of the Royal Statistical Society. Series A, Vol. 135, No. 3 (1972).</p>
 </div>
 
 

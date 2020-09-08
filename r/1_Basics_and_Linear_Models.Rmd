@@ -95,7 +95,7 @@ During or after the descriptive analysis, we usually do the *data preprocessing*
 
 Let's summarize the diamonds data set.
 
-```{r}
+```{r, cache = TRUE}
 library(ggplot2)
 
 # Data size
@@ -209,7 +209,7 @@ $$
   E(\text{price}) = \alpha + \beta \cdot \text{carat}.
 $$
 
-```{r}
+```{r, cache = TRUE}
 library(ggplot2)
 
 fit <- lm(price ~ carat, data = diamonds)
@@ -349,7 +349,7 @@ $$
 E(Y\mid X = 1.01 \cdot x) - E(Y\mid X = x) = \alpha + \beta \cdot (1.01) \cdot x - \alpha - \beta x = \beta/100.
 $$
 
-```{r}
+```{r, cache = TRUE}
 library(ggplot2)
 
 fit <- lm(price ~ log(carat), data = diamonds)
@@ -395,7 +395,7 @@ exp(intercept + slope * 1.3)
 
 ### Logarithm of covariable and response
 
-```{r}
+```{r, cache = TRUE}
 library(ggplot2)
 
 fit <- lm(log(price) ~ log(carat), data = diamonds)
@@ -423,7 +423,7 @@ Now, we try to improve our simple linear regression in two ways.
 
 2. We model logarithmic price and carat. (Remember the scatter plot with logarithmic axes with a relatively strong linear relationship.)
 
-```{r}
+```{r, cache = TRUE}
 dia <- transform(diamonds,
                  color_ = factor(color, ordered = FALSE),
                  cut_ = factor(cut, ordered = FALSE),
@@ -463,49 +463,53 @@ The basic linear regression model has many extensions, e.g.
 - neural networks that automatically learn interactions and non-linearities (see later),
 - **the generalized linear model (GLM)** that e.g. allows to model binary response variables in a natural way.
 
-Here, we will introduce the generalized linear model, introduced in 1972 by Nelder & Wedderburn [2]. 
+This section covers the generalized linear model, introduced in 1972 by Nelder & Wedderburn [2]. 
 
 ## Definition
 
 The model equation of the GLM is
 $$
-  g(E(Y)) = \beta_0 + \beta_1 X_1 + \dots + + \beta_m X_m
+  g(E(Y)) = \beta_0 + \beta_1 X_1 + \dots + + \beta_m X_m,
 $$
-resp.
+or similarly
 $$
-  E(Y) = g^{-1}(\beta_0 + \beta_1 X_1 + \dots + + \beta_m X_m),
+  E(Y) = g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m),
 $$
 where $Y$ conditional on the covariables belongs to the exponential dispersion family and the link function $g$ is a smooth transformation. 
 
 Thus, a GLM has three components:
 
-1. A linear function for the covariable effects, exactly as in the linear regression.
+1. A linear function for the covariable effects, exactly as in linear regression.
 2. The link function $g$. Its purpose is to map $E(Y)$ to the scale of the linear function. Or the other way round: The inverse link $g^{-1}$ maps the linear part to the scale of the response.
 3. A distribution of $Y$ conditional on the covariables.
 
 The following table lists some of the most used GLMs.
 
-| Model type      | Distribution | Natural link| Typical link  |Loss function      |
-|-----------------|--------------|-------------|---------------|-------------------|
-| Linear          | Normal       | Identity    | Identity      | Normal deviance   |
-| Binary          | Binary       | logit       | logit         | Binary deviance   |      
-| Count           | Poisson      | log         | log           | Poisson deviance  |
-| Log-linear      | Gamma        | 1/x         | log           | Gamma deviance    |
+| Regression | Distribution| Range of $Y$          | Natural link| Typical link  | Loss function    | Loss of one row
+|------------|-------------|-----------------------|-------------|---------------|------------------|----------------
+| Linear     | Normal      | $(-\infty, \infty)$   | Identity    | Identity      | MSE              | $(y - \hat y)^2$
+| Logistic   | Binary      | $\{0, 1\}$            | logit       | logit         | Binary cross-entropy    | $-y\log(\hat y) - (1-y) \log(1-\hat y)$
+| Poisson    | Poisson     | $\{0, 1, \dots\}$     | log         | log           | Poisson deviance | $2(y \log(y / \hat y) - (y - \hat y))$
+| Gamma      | Gamma       | $(0, \infty)$         | 1/x         | log           | Gamma deviance   | $2 ((y - \hat y) / \hat y - \log(y / \hat y))$
+| Multinomial| Multinomial | $\{C_1, \dots, C_m\}$ | mlogit      | mlogit        | Categorical cross-entropy    | $\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$
 
-The logit function is defined as 
-$$
-  \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right)
-$$
-It maps probabilities to the real line. The inverse logit ("sigmoidal transformation") reverts this: It maps real values to the range from 0 to 1. In the context of GLMs, $p = \text{Prob}(Y = 1) = E(Y)$.
+**Some explanations**
 
-**Comments regarding above table**
-
-- The first type (linear) corresponds to the normal linear model.
-- The second type (binary) is the famous logistic regression for binary (0/1) responses.
-- The normal, Poisson and Gamma GLMs are special cases of the Tweedie GLM.
 - To find predictions $\hat y$ on the scale of $Y$, one evaluates the linear function and then applies the inverse link $g^{-1}$.
-- Any smooth and monotone transformation can be used as link $g$. However, only the *natural* or *canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$. Thus, one usually works with the natural link with the notable exeption of the Gamma GLM, which is often applied with the log link.
-- Parameters of a GLM are estimated to minimize a distribution specific criterion called *deviance* derived from maximum likelihood estimation. For the normal linear model, this criterion equals the MSE. Thus, the deviance plays the same role as the MSE for linear regression.
+- Any smooth and monotone transformation can be used as link $g$. However, only the *natural*/*canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link in order to simplify interpretation.
+- Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective or loss function called *deviance*. 
+- The deviance of the normal distribution equals the MSE. Deviance plays the same role for GLMs as MSE for linear regression.
+- The deviance of logistic regression is equivalent to cross-entropy and log loss.
+- The logit function is defined as 
+$$
+  \text{logit}(p) = \log (\text{Odds}(p)) = \log\left(\frac{p}{1-p}\right)
+$$
+It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. In the context of GLMs, $p = \text{Prob}(Y = 1) = E(Y)$.
+
+- The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the m categories.
+- The normal, Poisson and Gamma GLMs are special cases of the Tweedie GLM.
+
+**Outlook:** The loss functions used in the context of GLMs are used one-to-one as objective functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
 
 ## Why do we need GLMs?
 
