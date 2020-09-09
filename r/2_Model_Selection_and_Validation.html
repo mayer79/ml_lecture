@@ -2989,7 +2989,7 @@ div.tocify {
 <h1><span class="header-section-number">4</span> Cross-Validation (CV)</h1>
 <p>If our data set is large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a more economic way and takes more robust decisions. It is called <strong>k-fold cross-validation</strong> and works as follows:</p>
 <ol style="list-style-type: decimal">
-<li>Split the data into k pieces <span class="math inline">\(D = \{D_1, \dots, D_k\}\)</span> called “folds”.</li>
+<li>Split the data into k pieces <span class="math inline">\(D = \{D_1, \dots, D_k\}\)</span> called “folds”. Typical values for k are five or ten.</li>
 <li>Set aside one of the pieces (<span class="math inline">\(D_j\)</span>) for validation.</li>
 <li>Fit the model on all other pieces, i.e. on <span class="math inline">\(D \setminus D_j\)</span>.</li>
 <li>Calculate the model performance on the validation data <span class="math inline">\(D_j\)</span>.</li>

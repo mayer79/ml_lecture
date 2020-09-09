@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2020-09-08" />
+<meta name="date" content="2020-09-09" />
 
 <title>Basics and Linear Models</title>
 
@@ -2864,7 +2864,7 @@ div.tocify {
 <h1 class="title toc-ignore">Basics and Linear Models</h1>
 <h3 class="subtitle">WORK IN PROGRESS</h3>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2020-09-08</h4>
+<h4 class="date">2020-09-09</h4>
 
 </div>
 
@@ -3490,7 +3490,7 @@ E(Y\mid X = 1.01 \cdot x) - E(Y\mid X = x) = \alpha + \beta \cdot (1.01) \cdot x
 <li><p>The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability <span class="math inline">\(\text{Prob}(Y=1)\)</span>, the multinomial model predicts a probability <span class="math inline">\(\hat y_j\)</span> for each of the m categories.</p></li>
 <li><p>The normal, Poisson and Gamma GLMs are special cases of the Tweedie GLM.</p></li>
 </ul>
-<p><strong>Outlook:</strong> The loss functions used in the context of GLMs are used one-to-one as objective functions for other ML methods like gradient boosting or neural networks. The “appropriate” loss function is chosen from the context. E.g. if the response is binary, most ML algorithms try to minimize cross-entropy, just like in logistic regression.</p>
+<p><strong>Outlook:</strong> The loss functions used in the context of GLMs are used one-to-one as objective functions for other ML methods like gradient boosting or neural networks. There, the “appropriate” loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.</p>
 </div>
 <div id="why-do-we-need-glms" class="section level2">
 <h2><span class="header-section-number">3.2</span> Why do we need GLMs?</h2>

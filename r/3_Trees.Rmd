@@ -19,15 +19,13 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Introduction
 
-In this chapter, we will go through methods based on decision trees. A single decision tree usually does not perform very well. Still, trees are important because they work extremely well in groups. This is used by two of the most successful ML algorithms, namely the random forest and tree boosting. We will have a look at them after introducing the concept of a decision tree.
+A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and boosted trees. In this chapter, we will introduce these tree-based methods.
 
 # Decision trees
 
 ## How they work
 
-In our journey to estimate the model $f$ by $\hat f$, we have considered mainly linear functions $f$ so far. We now move to a different function class, namely decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called "Classification and Regression Trees" (CART).
-
-A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and boosted trees. 
+In our journey to estimate the model $f$ by $\hat f$, we have considered mainly linear functions $f$ so far. We now move to a different function class: decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called "Classification and Regression Trees" (CART). 
 
 (Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen to optimize the given loss by asking the best "yes/no" question about the covariables, e.g. "is carat < 1?" or "is color better than F?".
 
@@ -71,6 +69,7 @@ How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all 
 - **Missing values:** Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller/larger than the smallest non-missing value (e.g. -1 for a positive variable).
 - **Categorical covariables:** Unordered categorical covariables are tricky to split as with $\ell$ levels you end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
 - **Greedy:** Partitions are made in a greedy way to optimize the objective in *one step*. Looking ahead more than one step would lead to better models but are too computationally demanding in practice.
+- **Interactions:** By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large. This is a big advantage of tree-based methods compared to linear models where these elements have to  carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.
 
 These properties translate 1:1 to combinations of trees like random forests or boosted trees.
 
@@ -201,7 +200,7 @@ Choosing above parameters is tricky: Grid search is unrealistic due to the high 
 The following strategy has to be proven to work well in many situations. It has four steps.
 
 - Step 1: With default parameters, select a learning rate that leads to a reasonable amount of boosting rounds by early stopping. Use a relatively high learning rate so that fitting is fast (about 30-300 boosting rounds).
-- Step 2: Perform a randomized or grid search on regularization parameters. The grid should be course enough to search at the right place.
+- Step 2: Perform a randomized or grid search on regularization parameters. The grid should be coarse enough to search at the right place.
 - Step 3: Based on the results of Step 2, customize the grid by making it more narrow. Select a lower learning rate to aim at 200-1000 rounds. Perform the grid search again.
 - Step 4: Choose the best model from Step 3 and refit on the training data to get the final model.
 
@@ -236,7 +235,45 @@ dtrain <- xgb.DMatrix(X_train, label = y_train)
 
 # If model parameters should be tuned again, set tune <- TRUE
 tune <- FALSE
+
 if (tune) {
+  
+  # Helper function for Steps 2 & 3 (grid or randomized search CV)
+  fit_grid <- function(X, grid, size = 20, file = NULL, seed = NULL) {
+    # grid search or randomized search?
+    n <- nrow(grid)
+    if (n > size) {
+      if (!is.null(seed)) {
+        set.seed(seed)
+      }
+      grid <- grid[sample(n, size), ]
+      n <- size
+    }
+    pb <- txtProgressBar(0, n, style = 3)
+  
+    # Loop over grid and fit XGBoost with five-fold CV
+    for (i in seq_len(n)) {
+      cvm <- xgb.cv(
+        as.list(grid[i, -(1:2)]),
+        X,
+        nrounds = 5000,
+        nfold = 5,
+        early_stopping_rounds = 10,
+        verbose = 0
+      )
+      
+      # Keep track of the CV result
+      grid[i, 1] <- cvm$best_iteration
+      grid[i, 2] <- as.numeric(cvm$evaluation_log[cvm$best_iteration, "test_rmse_mean"])
+      setTxtProgressBar(pb, i)
+    
+      # Save grid over and over to survive crashs
+      if (!is.null(file)) {
+        save(grid, file = file)
+      }
+    }
+    return(grid)
+  }
   
   # STEP 1: Manually select reasonable learning rate
   params <- list(objective = "reg:squarederror",
@@ -251,13 +288,11 @@ if (tune) {
   
   fit
   
-  # STEP 2: Run a course grid search with above learning rate
-  max_grid <- 20
-  
-  paramGrid <- expand.grid(
-    iteration = NA_integer_, # filled by algorithm
-    score = NA_real_,        # "
-    learning_rate = 0.2,    # found in Step 1
+  # STEP 2: Run a coarse grid search with above learning rate
+  coarse_grid <- expand.grid(
+    iteration = NA,
+    score = NA,
+    learning_rate = 0.2,     # found in Step 1
     objective = "reg:squarederror",
     max_depth = 3:7, 
     min_child_weight = c(1, 10),
@@ -269,37 +304,14 @@ if (tune) {
     min_split_loss = c(0, 1e-04)
   )
   
-  n <- nrow(paramGrid)
-  
-  # If grid is too large, switch to randomized search
-  if (n > max_grid) {
-    set.seed(342267)
-    paramGrid <- paramGrid[sample(n, max_grid), ]
-    n <- max_grid
-  }
-  
-  pb <- txtProgressBar(0, n, style = 3)
-  
-  for (i in seq_len(n)) { # i = 1
-    cvm <- xgb.cv(
-      as.list(paramGrid[i, -(1:2)]),
-      dtrain,
-      nrounds = 5000, # we use early stopping
-      nfold = 5,
-      early_stopping_rounds = 10,
-      verbose = 0
-    )
-    paramGrid[i, 1] <- bi <- cvm$best_iteration
-    paramGrid[i, 2] <- as.numeric(cvm$evaluation_log[bi, "test_rmse_mean"])
-    setTxtProgressBar(pb, i)
-    save(paramGrid, file = "gridsearch/diamonds_xgb_course.RData")
-  }
+  coarse_grid <- fit_grid(dtrain, coarse_grid, file = "gridsearch/diamonds_xgb_coarse.RData")
+  coarse_grid[order(coarse_grid$score), ]
   
   # STEP 3: Run a finer grid search based on the results of Step 2
-  paramGrid <- expand.grid(
-    iteration = NA_integer_, # filled by algorithm
-    score = NA_real_,        # "
-    learning_rate = 0.05,    # found in Step 2
+  fine_grid <- expand.grid(
+    iteration = NA,
+    score = NA,
+    learning_rate = 0.05,
     objective = "reg:squarederror",
     max_depth = 6:7, 
     min_child_weight = c(1, 10),
@@ -307,44 +319,20 @@ if (tune) {
     subsample = 1, 
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
-#   tree_method = "hist",   # when data is large
     min_split_loss = c(0, 1e-04)
   )
-  
-  n <- nrow(paramGrid)
-  
-  # If grid is too large, switch to randomized search
-  if (n > max_grid) {
-    set.seed(342267)
-    paramGrid <- paramGrid[sample(n, max_grid), ]
-    n <- max_grid
-  }
-  
-  pb <- txtProgressBar(0, n, style = 3)
-  
-  for (i in seq_len(n)) { # i = 1
-    cvm <- xgb.cv(
-      as.list(paramGrid[i, -(1:2)]),
-      dtrain,
-      nrounds = 5000, # we use early stopping
-      nfold = 5,
-      early_stopping_rounds = 10,
-      verbose = 0
-    )
-    paramGrid[i, 1] <- bi <- cvm$best_iteration
-    paramGrid[i, 2] <- as.numeric(cvm$evaluation_log[bi, "test_rmse_mean"])
-    setTxtProgressBar(pb, i)
-    save(paramGrid, file = "gridsearch/diamonds_xgb_fine.RData")
-  }
+
+  fine_grid <- fit_grid(dtrain, fine_grid, file = "gridsearch/diamonds_xgb_fine.RData")
+  fine_grid[order(fine_rid$score), ]
 }
 
 # STEP 4: Fit with best parameter combination
 load("gridsearch/diamonds_xgb_fine.RData")
-paramGrid <- paramGrid[order(paramGrid$score), ]
+fine_grid <- fine_grid[order(fine_grid$score), ]
 
-fit <- xgb.train(as.list(paramGrid[1, -(1:2)]), 
+fit <- xgb.train(as.list(fine_grid[1, -(1:2)]), 
                  data = dtrain, 
-                 nrounds = paramGrid[1, "iteration"])
+                 nrounds = fine_grid[1, "iteration"])
 
 ```
 Now, the model is ready to be inspected by evaluating 
@@ -359,7 +347,7 @@ library(flashlight)
 
 # Performance on test data
 pred <- predict(fit, prep_xgb(diamonds[ix$test, ]))
-rmse(diamonds$price[ix$test], pred)       # 539 USD
+rmse(diamonds$price[ix$test], pred)       # 540 USD
 r_squared(diamonds$price[ix$test], pred)  # 0.982
 
 # Variable importance regarding MSE improvement
@@ -396,7 +384,7 @@ plot(light_profile(fl, v = "color")) +
 
 # Chapter Summary
 
-In this chapter, we have met decision trees, random forests and tree boosting. Single decision trees are very easy to interpret but do not perform too well. On the other hand, tree ensembles like the random forest or tree boosting usually perform well but are tricky to interpret. We have met interpretation tools to look into such "black boxes". 
+In this chapter, we have met decision trees, random forests and tree boosting. Single decision trees are very easy to interpret but do not perform too well. On the other hand, tree ensembles like the random forest or tree boosting usually perform well but are tricky to interpret. We have introduced interpretation tools to look into such "black boxes". The main reason why random forests and boosted trees often provide more accurate models than a linear model lies in the ability of trees to automatically learn interaction and other non-linear effects.
 
 # Chapter References
 

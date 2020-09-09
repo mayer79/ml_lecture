@@ -2871,14 +2871,13 @@ div.tocify {
 
 <div id="introduction" class="section level1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>In this chapter, we will go through methods based on decision trees. A single decision tree usually does not perform very well. Still, trees are important because they work extremely well in groups. This is used by two of the most successful ML algorithms, namely the random forest and tree boosting. We will have a look at them after introducing the concept of a decision tree.</p>
+<p>A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and boosted trees. In this chapter, we will introduce these tree-based methods.</p>
 </div>
 <div id="decision-trees" class="section level1">
 <h1><span class="header-section-number">2</span> Decision trees</h1>
 <div id="how-they-work" class="section level2">
 <h2><span class="header-section-number">2.1</span> How they work</h2>
-<p>In our journey to estimate the model <span class="math inline">\(f\)</span> by <span class="math inline">\(\hat f\)</span>, we have considered mainly linear functions <span class="math inline">\(f\)</span> so far. We now move to a different function class, namely decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called “Classification and Regression Trees” (CART).</p>
-<p>A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and boosted trees.</p>
+<p>In our journey to estimate the model <span class="math inline">\(f\)</span> by <span class="math inline">\(\hat f\)</span>, we have considered mainly linear functions <span class="math inline">\(f\)</span> so far. We now move to a different function class: decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called “Classification and Regression Trees” (CART).</p>
 <p>(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen to optimize the given loss by asking the best “yes/no” question about the covariables, e.g. “is carat &lt; 1?” or “is color better than F?”.</p>
 <p>Typical loss functions (= “objectives”) are the MSE for regression problems and information (= cross-entropy = log loss = logistic deviance) or gini impurity for classification. The latter can be viewed as a “variance” for categorical variables.</p>
 <p>Predictions are calculated by sending an observation through the tree, starting with the question at the “trunk” and ending in a “leaf”. The prediction is the value associated with the leaf. For MSE loss, the leaf values equal the average response of all observations in the leaf. In classification settings, it may be the most frequent class in the leaf or all class probabilities.</p>
@@ -2920,6 +2919,7 @@ div.tocify {
 <li><strong>Missing values:</strong> Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller/larger than the smallest non-missing value (e.g. -1 for a positive variable).</li>
 <li><strong>Categorical covariables:</strong> Unordered categorical covariables are tricky to split as with <span class="math inline">\(\ell\)</span> levels you end up with <span class="math inline">\(2^\ell\)</span> possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.</li>
 <li><strong>Greedy:</strong> Partitions are made in a greedy way to optimize the objective in <em>one step</em>. Looking ahead more than one step would lead to better models but are too computationally demanding in practice.</li>
+<li><strong>Interactions:</strong> By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.</li>
 </ul>
 <p>These properties translate 1:1 to combinations of trees like random forests or boosted trees.</p>
 </div>
@@ -3252,7 +3252,7 @@ div.tocify {
 </div>
 <div id="chapter-summary" class="section level1">
 <h1><span class="header-section-number">5</span> Chapter Summary</h1>
-<p>In this chapter, we have met decision trees, random forests and tree boosting. Single decision trees are very easy to interpret but do not perform too well. On the other hand, tree ensembles like the random forest or tree boosting usually perform well but are tricky to interpret. We have met interpretation tools to look into such “black boxes”.</p>
+<p>In this chapter, we have met decision trees, random forests and tree boosting. Single decision trees are very easy to interpret but do not perform too well. On the other hand, tree ensembles like the random forest or tree boosting usually perform well but are tricky to interpret. We have introduced interpretation tools to look into such “black boxes”. The main reason why random forests and boosted trees often provide more accurate models than a linear model lies in the ability of trees to automatically learn interaction and other non-linear effects.</p>
 </div>
 <div id="chapter-references" class="section level1">
 <h1><span class="header-section-number">6</span> Chapter References</h1>
