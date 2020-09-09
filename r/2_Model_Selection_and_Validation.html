@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2020-09-07" />
+<meta name="date" content="2020-09-09" />
 
 <title>Model Selection and Validation</title>
 
@@ -2864,7 +2864,7 @@ div.tocify {
 <h1 class="title toc-ignore">Model Selection and Validation</h1>
 <h3 class="subtitle">WORK IN PROGRESS</h3>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2020-09-07</h4>
+<h4 class="date">2020-09-09</h4>
 
 </div>
 
@@ -2874,14 +2874,14 @@ div.tocify {
 <p>In the previous chapter, we have met performance measures like the RMSE or the deviance to measure how good our models are. Unfortunately, we cannot fully rely on these values due to overfitting: The more our models overfit, the less we can trust in their “insample” performance, i.e. the performance on the data used to calculate the models. <em>Selecting models</em> based on their insample performance is equally bad. Overfitting should not be rewarded!</p>
 <p>In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these techniques, we will meet a competitor of the linear model.</p>
 </div>
-<div id="k-nearest-neighbour" class="section level1">
-<h1><span class="header-section-number">2</span> k-Nearest-Neighbour</h1>
+<div id="nearest-neighbour" class="section level1">
+<h1><span class="header-section-number">2</span> Nearest-Neighbour</h1>
 <p>A very simple and intuitive alternative to the linear model is the k-nearest-neighbour approach, originally introduced by Evelyn Fix and J. L. Hodges in an upublished technical report in 1951. It can be applied for both regression and classification and works without fitting anything. The prediction for an observation is obtained by</p>
 <ol style="list-style-type: decimal">
 <li>searching the closest k neighbours in the data set and then</li>
-<li>combining their response.</li>
+<li>combining their responses.</li>
 </ol>
-<p>By “nearest” we usually mean Euclidean distance in the covariable space. If covariables are not on the same scale, it makes sense to <em>standardize</em> them first by subtracting the mean and dividing by the standard deviation. Categorical features need to be one-hot-encoded or integer-encoded first. Note that one-hot-encoded covariables may or may not be standardized.</p>
+<p>By “nearest” we usually mean Euclidean distance in the covariable space. If covariables are not on the same scale, it makes sense to <em>standardize</em> them first by subtracting the mean and dividing by the standard deviation. Otherwise, distances would be dominated by the covariable with the largest scale. Categorical features need to be one-hot- or integer-encoded first. Note that one-hot-encoded covariables may or may not be standardized.</p>
 <p>For regression tasks, responses are often combined by computing the arithmetic mean. For classification tasks, the responses of the k neighbours are condensed by their most frequent value (the mode) or class probabilities.</p>
 <div id="example-diamonds" class="section level2">
 <h2><span class="header-section-number">2.1</span> Example: diamonds</h2>
@@ -2918,18 +2918,17 @@ div.tocify {
 <li>The average price of these five observations gives us the nearest-neighbour prediction for the 10’000th diamond.</li>
 <li>Would we get better results for a different choice of the number of neighbours k?</li>
 </ul>
+<p><strong>Motivation for this chapter:</strong> Insample, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This hypothetical example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to <em>simple validation</em>.</p>
 </div>
 </div>
-<div id="data-splitting-techniques" class="section level1">
-<h1><span class="header-section-number">3</span> Data Splitting Techniques</h1>
-<p><em>Insample</em>, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This extreme example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to <em>simple validation</em>.</p>
-<div id="simple-validation" class="section level2">
-<h2><span class="header-section-number">3.1</span> Simple validation</h2>
-<p>With simple validation, the original data set is partitioned into <em>training</em> data used to calculate the models and a separate <em>validation</em> data set used to evaluate model performance and to select models. Typically, 10%-30% of rows are used for validation.</p>
-<p>We can use the validation performance to compare <em>algorithms</em> (e.g. regression versus k-nearest-neighbour) and also to choose <em>hyperparameters</em> like <span class="math inline">\(k\)</span> of k-nearest-neighbour. Furthermore, the performance difference between training and validation data indicates the amount of overfitting.</p>
-<div id="example-diamonds-1" class="section level3">
-<h3><span class="header-section-number">3.1.1</span> Example: diamonds</h3>
-<p>What <span class="math inline">\(k\)</span> provides the best RMSE on 20% validation data?</p>
+<div id="simple-validation" class="section level1">
+<h1><span class="header-section-number">3</span> Simple validation</h1>
+<p>With simple validation, the original data set is partitioned into <em>training</em> data used to calculate the models and a separate <em>validation</em> data set used to evaluate model performance and/or to select models. Typically, 10%-30% of rows are used for validation.</p>
+<p>We can use the validation performance to compare <em>algorithms</em> (e.g. regression versus k-nearest-neighbour) and also to choose <em>hyperparameters</em> like the “k” of k-nearest-neighbour.</p>
+<p><strong>Furthermore, the performance difference between training and validation data indicates the amount of overfitting.</strong></p>
+<div id="example-diamonds-1" class="section level2">
+<h2><span class="header-section-number">3.1</span> Example: diamonds</h2>
+<p>What k provides the best RMSE on 20% validation data?</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">library</span>(tidyverse)</span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="kw">library</span>(FNN)</span>
 <span id="cb5-3"><a href="#cb5-3"></a><span class="kw">library</span>(splitTools)</span>
@@ -2986,22 +2985,22 @@ div.tocify {
 </ul>
 </div>
 </div>
-<div id="cross-validation-cv" class="section level2">
-<h2><span class="header-section-number">3.2</span> Cross-Validation (CV)</h2>
+<div id="cross-validation-cv" class="section level1">
+<h1><span class="header-section-number">4</span> Cross-Validation (CV)</h1>
 <p>If our data set is large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a more economic way and takes more robust decisions. It is called <strong>k-fold cross-validation</strong> and works as follows:</p>
 <ol style="list-style-type: decimal">
-<li>Split the data into <span class="math inline">\(k\)</span> pieces <span class="math inline">\(D = \{D_1, \dots, D_m\}\)</span> called “folds”.</li>
+<li>Split the data into k pieces <span class="math inline">\(D = \{D_1, \dots, D_k\}\)</span> called “folds”.</li>
 <li>Set aside one of the pieces (<span class="math inline">\(D_j\)</span>) for validation.</li>
 <li>Fit the model on all other pieces, i.e. on <span class="math inline">\(D \setminus D_j\)</span>.</li>
 <li>Calculate the model performance on the validation data <span class="math inline">\(D_j\)</span>.</li>
 <li>Repeat Steps 2-4 until each piece was used for validation once.</li>
-<li>Average the <span class="math inline">\(k\)</span> model performances to get an estimate of the model performance.</li>
+<li>Average the k model performances to estimate the model performance. The standard deviation gives an impression on the stability of that estimate.</li>
 </ol>
 <p>Step 6 provides the <em>CV performance</em> of the model, a good basis to choose the best and final model. The final model is finally retrained on all folds.</p>
 <p>Note: If cross-validation is fast, you can repeat the process for additional data splits. Such <em>repeated</em> cross-validation leads to even more robust results.</p>
-<div id="example-diamonds-2" class="section level3">
-<h3><span class="header-section-number">3.2.1</span> Example: diamonds</h3>
-<p>We now use five-fold CV on the diamonds data to find the optimal <span class="math inline">\(k\)</span>, i.e. to <em>tune</em> our nearest-neighbour approach.</p>
+<div id="example-diamonds-2" class="section level2">
+<h2><span class="header-section-number">4.1</span> Example: diamonds</h2>
+<p>We now use five-fold CV on the diamonds data to find the optimal k, i.e. to <em>tune</em> our nearest-neighbour approach.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">library</span>(tidyverse)</span>
 <span id="cb6-2"><a href="#cb6-2"></a><span class="kw">library</span>(FNN)</span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="kw">library</span>(splitTools)</span>
@@ -3051,16 +3050,17 @@ div.tocify {
 <span id="cb7-3"><a href="#cb7-3"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
 <span id="cb7-4"><a href="#cb7-4"></a><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Performance by cross-validation&quot;</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" width="672" /></p>
-<p><strong>Comment:</strong> Using 5-fold CV, <span class="math inline">\(k=5\)</span> seems to be the best choice with a RMSE of 619 USD.</p>
+<p><strong>Comment:</strong> Using 5 neighbours seems to be the best choice with a CV RMSE of 619 USD.</p>
 </div>
 </div>
-<div id="grid-search" class="section level2">
-<h2><span class="header-section-number">3.3</span> Grid search</h2>
+<div id="grid-search" class="section level1">
+<h1><span class="header-section-number">5</span> Grid search</h1>
 <p>In above example, we have systematically compared the CV-performance of k-nearest-neighbour for different values of k. This strategy to <em>tune</em> models resp. to select hyperparameters of a model is called <strong>grid search CV</strong>. In the next chapter, we will also see examples where combinations of multiple parameters have to be evaluated. To avoid too large grids, one often evaluates only a subset of parameter combinations or samples parameter combinations at random. Then, we speak of <strong>randomized search CV</strong>.</p>
 </div>
-<div id="test-data" class="section level2">
-<h2><span class="header-section-number">3.4</span> Test data</h2>
-<p>Often, modeling involves many decisions. Even if guided by (cross-)validation, each decision tends to make the resulting final model look better than it is, an effect that can be called <em>overfitting on the validation data</em>. As a consequence, we often do not know how well the final model will perform in reality. As a solution, we can set aside a small <em>test</em> data set used to assess the performance of the <em>final</em> model. A size of 5%-10% is usually sufficient. It is important to look at the test data just once at the very end of the modeling process - after each decision has been made.</p>
+<div id="test-data" class="section level1">
+<h1><span class="header-section-number">6</span> Test data</h1>
+<p>Often, modeling involves many decisions. Even if guided by (cross-)validation, each decision tends to make the resulting final model look better than it is, an effect that can be called <em>overfitting on the validation data</em>. As a consequence, we often do not know how well the final model will perform in reality. As a solution, we can set aside a small <em>test</em> data set used to assess the performance of the <em>final</em> model. A size of 5%-20% is usually sufficient. It is important to look at the test data just once at the very end of the modeling process - after each decision has been made.</p>
+<p>Note: Such additional test data set is only necessary if one uses the validation data set to <em>make decisions</em>. If the validation data set is just used to assess the true performance of a model, then we do not need this extra data set. <strong>Then, we can use the terms “validation data” and “test data” interchangeably.</strong></p>
 <p>Depending on whether one does simple validation or cross-validation, the workflow is thus as follows:</p>
 <p><strong>Workflow A</strong></p>
 <ol style="list-style-type: decimal">
@@ -3075,8 +3075,8 @@ div.tocify {
 <li>Assess performance of the final model on the test data.</li>
 </ol>
 <p>The only difference across the two workflows is whether to use simple validation or cross-validation for making decisions.</p>
-<div id="example-diamonds-3" class="section level3">
-<h3><span class="header-section-number">3.4.1</span> Example: diamonds</h3>
+<div id="example-diamonds-3" class="section level2">
+<h2><span class="header-section-number">6.1</span> Example: diamonds</h2>
 <p>We will now go through Workflow B for our diamond price model. We will (1) tune the “k” of our nearest-neighbour regression and (2) compete with a linear regression.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">library</span>(tidyverse)</span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="kw">library</span>(FNN)</span>
@@ -3149,16 +3149,16 @@ div.tocify {
 </ul>
 </div>
 </div>
-<div id="random-splitting" class="section level2">
-<h2><span class="header-section-number">3.5</span> Random splitting?</h2>
-<p>The data is often randomly split into partitions or folds. As long as rows are <em>independent</em>, this leads to honest estimates of model performance.</p>
+<div id="random-splitting" class="section level1">
+<h1><span class="header-section-number">7</span> Random splitting?</h1>
+<p>The data is often randomly split into partitions or folds. As long as rows are <em>independent</em>, this leads to honest estimates of model performance as it ensures independent data partitions.</p>
 <p>When rows are not independent, e.g. with time series data or grouped data, such strategy is flawed and leads to too optimistic results. <strong>This is one of the most frequent reasons to end up with a bad model. It is essential to avoid it.</strong></p>
-<div id="time-series-data" class="section level3">
-<h3><span class="header-section-number">3.5.1</span> Time-series data</h3>
+<div id="time-series-data" class="section level2">
+<h2><span class="header-section-number">7.1</span> Time-series data</h2>
 <p>When data represents a time series, splitting is best done in a way that does not shuffle the row order, e.g. in blocks: For simple validation, e.g. the first 80% of rows could be used for training and the remaining 20% for validation.</p>
 </div>
-<div id="grouped-data" class="section level3">
-<h3><span class="header-section-number">3.5.2</span> Grouped data</h3>
+<div id="grouped-data" class="section level2">
+<h2><span class="header-section-number">7.2</span> Grouped data</h2>
 <p>Often, data is grouped or clustered, e.g.</p>
 <ul>
 <li>multiple rows belong to the same patient/customer or</li>
@@ -3166,66 +3166,22 @@ div.tocify {
 </ul>
 <p>Then, instead of distributing <em>rows</em> into partitions, we should distribute <em>groups</em> to not destroy the data structure and to get honest performance estimates. We speak of <em>grouped splitting</em> and <em>group k-fold CV</em>.</p>
 </div>
-<div id="stratification" class="section level3">
-<h3><span class="header-section-number">3.5.3</span> Stratification</h3>
+<div id="stratification" class="section level2">
+<h2><span class="header-section-number">7.3</span> Stratification</h2>
 <p><em>If rows are independent</em>, there is a variant of random splitting that often provides better results and is therefore often used by default: <em>stratified splitting</em>. With stratified splitting or <em>stratified k-fold CV</em>, rows are split to ensure approximately equal distribution of a key variable (the response or a deciding covariable) across partitions/folds.</p>
 </div>
 </div>
-<div id="exercises" class="section level2">
-<h2><span class="header-section-number">3.6</span> Exercises</h2>
-<p>Apply <em>stratified</em> splitting (using the response <code>price</code>) throughout the last example. Compare the results.</p>
+<div id="chapter-summary" class="section level1">
+<h1><span class="header-section-number">8</span> Chapter Summary</h1>
+<p>In this chapter, we have met strategies to estimate model performance in a fair way. These strategies are also used for model selection and tuning. They are an essential part of the full modeling process. Often, ML models without appropriate validation strategy are not to be trusted.</p>
 </div>
-</div>
-<div id="performance-measures" class="section level1">
-<h1><span class="header-section-number">4</span> Performance Measures</h1>
-<p>Regressions are often compared by looking at mean-squared error <span class="math display">\[
-  \text{MSE}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n (y - \hat y)^2
-\]</span> or its root. Why not the mean <em>absolute error</em> (MAE) <span class="math display">\[
-  \text{MAE}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n |y - \hat y|
-\]</span> or even the median absolute error? Often, even before starting with the modeling task, one should choose one single, relevant <em>performance metric</em> or <em>scoring function</em>. It will guide you safely through the modeling process, eventually leading to a good model.</p>
-<table>
-<thead>
-<tr class="header">
-<th>Response</th>
-<th>Property</th>
-<th>Scoring function</th>
-<th>Typical loss</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Symmetric</td>
-<td>E(Y)</td>
-<td>(R)MSE</td>
-<td>MSE</td>
-</tr>
-<tr class="even">
-<td>Right-skewed</td>
-<td>E(Y)</td>
-<td>Gamma deviance/(R)MSE</td>
-<td>Gamma deviance/MSE</td>
-</tr>
-<tr class="odd">
-<td>Count</td>
-<td>E(Y)</td>
-<td>Poisson deviance/(R)MSE</td>
-<td>Poisson deviance/MSE</td>
-</tr>
-<tr class="even">
-<td>Numeric</td>
-<td>Median(Y)</td>
-<td>MAE</td>
-<td>MAE</td>
-</tr>
-<tr class="odd">
-<td>Binary</td>
-<td>E(Y)</td>
-<td>log-loss*</td>
-<td>log-loss</td>
-</tr>
-</tbody>
-</table>
-<p>*Same as Bernoulli deviance or cross-entropy</p>
+<div id="exercises" class="section level1">
+<h1><span class="header-section-number">9</span> Exercises</h1>
+<ol style="list-style-type: decimal">
+<li>Apply <em>stratified</em> splitting (using the response <code>price</code>) throughout the last example. Compare the results.</li>
+<li>Compare the linear regression model for <code>price</code> with a corresponding Gamma GLM with log-link. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?</li>
+<li>Use cross-validation to select the best polynomial degree to represent <code>log(carat)</code> in the linear regression model for <code>price</code>.</li>
+</ol>
 </div>
 
 

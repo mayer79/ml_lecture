@@ -23,14 +23,14 @@ In the previous chapter, we have met performance measures like the RMSE or the d
 
 In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these techniques, we will meet a competitor of the linear model.
 
-# k-Nearest-Neighbour
+# Nearest-Neighbour
 
 A very simple and intuitive alternative to the linear model is the k-nearest-neighbour approach, originally introduced by Evelyn Fix and J. L. Hodges in an upublished technical report in 1951. It can be applied for both regression and classification and works without fitting anything. The prediction for an observation is obtained by 
 
 1. searching the closest k neighbours in the data set and then 
-2. combining their response. 
+2. combining their responses. 
 
-By "nearest" we usually mean Euclidean distance in the covariable space. If covariables are not on the same scale, it makes sense to *standardize* them first by subtracting the mean and dividing by the standard deviation. Categorical features need to be one-hot-encoded or integer-encoded first. Note that one-hot-encoded covariables may or may not be standardized.
+By "nearest" we usually mean Euclidean distance in the covariable space. If covariables are not on the same scale, it makes sense to *standardize* them first by subtracting the mean and dividing by the standard deviation. Otherwise, distances would be dominated by the covariable with the largest scale. Categorical features need to be one-hot- or integer-encoded first. Note that one-hot-encoded covariables may or may not be standardized.
 
 For regression tasks, responses are often combined by computing the arithmetic mean. For classification tasks, the responses of the k neighbours are condensed by their most frequent value (the mode) or class probabilities.
 
@@ -63,19 +63,19 @@ diamonds[neighbours, c("price", x)]
 - The average price of these five observations gives us the nearest-neighbour prediction for the 10'000th diamond.
 - Would we get better results for a different choice of the number of neighbours k?
 
-# Data Splitting Techniques
+**Motivation for this chapter:** Insample, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This hypothetical example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to *simple validation*.
 
-*Insample*, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This extreme example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to *simple validation*.
+# Simple validation
 
-## Simple validation
+With simple validation, the original data set is partitioned into *training* data used to calculate the models and a separate *validation* data set used to evaluate model performance and/or to select models. Typically, 10%-30% of rows are used for validation.
 
-With simple validation, the original data set is partitioned into *training* data used to calculate the models and a separate *validation* data set used to evaluate model performance and to select models. Typically, 10%-30% of rows are used for validation.
+We can use the validation performance to compare *algorithms* (e.g. regression versus k-nearest-neighbour) and also to choose *hyperparameters* like the "k" of k-nearest-neighbour. 
 
-We can use the validation performance to compare *algorithms* (e.g. regression versus k-nearest-neighbour) and also to choose *hyperparameters* like $k$ of k-nearest-neighbour. Furthermore, the performance difference between training and validation data indicates the amount of overfitting.
+**Furthermore, the performance difference between training and validation data indicates the amount of overfitting.**
 
-### Example: diamonds
+## Example: diamonds
 
-What $k$ provides the best RMSE on 20% validation data?
+What k provides the best RMSE on 20% validation data?
 
 ```{r, cache=TRUE}
 library(tidyverse)
@@ -133,24 +133,24 @@ ggplot(aes(x = k, y = RMSE, group = Data, color = Data)) +
 - Based on the validation data, we would choose $k=4$. It has a minimal RMSE of 602.
 - Why is the RMSE on the training data not 0 for 1-nearest-neighbour?
 
-## Cross-Validation (CV)
+# Cross-Validation (CV)
 
 If our data set is large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a more economic way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
 
-1. Split the data into $k$ pieces $D = \{D_1, \dots, D_m\}$ called "folds".
+1. Split the data into k pieces $D = \{D_1, \dots, D_k\}$ called "folds". Typical values for k are five or ten.
 2. Set aside one of the pieces ($D_j$) for validation.
 3. Fit the model on all other pieces, i.e. on $D \setminus D_j$.
 4. Calculate the model performance on the validation data $D_j$.
 5. Repeat Steps 2-4 until each piece was used for validation once.
-6. Average the $k$ model performances to get an estimate of the model performance.
+6. Average the k model performances to estimate the model performance. The standard deviation gives an impression on the stability of that estimate.
 
 Step 6 provides the *CV performance* of the model, a good basis to choose the best and final model. The final model is finally retrained on all folds.
 
 Note: If cross-validation is fast, you can repeat the process for additional data splits. Such *repeated* cross-validation leads to even more robust results.
 
-### Example: diamonds
+## Example: diamonds
 
-We now use five-fold CV on the diamonds data to find the optimal $k$, i.e. to *tune* our nearest-neighbour approach.
+We now use five-fold CV on the diamonds data to find the optimal k, i.e. to *tune* our nearest-neighbour approach.
 
 ```{r, cache=TRUE}
 library(tidyverse)
@@ -199,16 +199,18 @@ ggplot(paramGrid, aes(x = k, y = RMSE)) +
   ggtitle("Performance by cross-validation")
 ```
 
-**Comment:** Using 5-fold CV, $k=5$ seems to be the best choice with a RMSE of 619 USD.
+**Comment:** Using 5 neighbours seems to be the best choice with a CV RMSE of 619 USD.
 
-## Grid search
+# Grid search
 
 In above example, we have systematically compared the CV-performance of k-nearest-neighbour for different values of k. This strategy to *tune* models resp. to select hyperparameters of a model is called **grid search CV**. In the next chapter, we will also see examples where combinations of multiple parameters have to be evaluated. To avoid too large grids, one often evaluates only a subset of parameter combinations or samples parameter combinations at random. Then, we speak of **randomized search CV**.
 
-## Test data
+# Test data
 
-Often, modeling involves many decisions. Even if guided by (cross-)validation, each decision tends to make the resulting final model look better than it is, an effect that can be called *overfitting on the validation data*. As a consequence, we often do not know how well the final model will perform in reality. As a solution, we can set aside a small *test* data set used to assess the performance of the *final* model. A size of 5%-10% is usually sufficient. 
+Often, modeling involves many decisions. Even if guided by (cross-)validation, each decision tends to make the resulting final model look better than it is, an effect that can be called *overfitting on the validation data*. As a consequence, we often do not know how well the final model will perform in reality. As a solution, we can set aside a small *test* data set used to assess the performance of the *final* model. A size of 5%-20% is usually sufficient. 
 It is important to look at the test data just once at the very end of the modeling process - after each decision has been made.
+
+Note: Such additional test data set is only necessary if one uses the validation data set to *make decisions*. If the validation data set is just used to assess the true performance of a model, then we do not need this extra data set. **Then, we can use the terms "validation data" and "test data" interchangeably.**
 
 Depending on whether one does simple validation or cross-validation, the workflow is thus as follows:
 
@@ -226,7 +228,7 @@ Depending on whether one does simple validation or cross-validation, the workflo
 
 The only difference across the two workflows is whether to use simple validation or cross-validation for making decisions.
 
-### Example: diamonds
+## Example: diamonds
 
 We will now go through Workflow B for our diamond price model. We will (1) tune the "k" of our nearest-neighbour regression and (2) compete with a linear regression.
 
@@ -297,17 +299,17 @@ rmse(y_test, pred)
 - 6-nearest-neighbour regression performs much better than linear regression.
 - Its performance on the independent test data well corresponds to cross-validation performance. This is a sign that our cross-validation strategy did not introduce a lot of overfitting.
 
-## Random splitting?
+# Random splitting?
 
-The data is often randomly split into partitions or folds. As long as rows are *independent*, this leads to honest estimates of model performance. 
+The data is often randomly split into partitions or folds. As long as rows are *independent*, this leads to honest estimates of model performance as it ensures independent data partitions. 
 
 When rows are not independent, e.g. with time series data or grouped data, such strategy is flawed and leads to too optimistic results. **This is one of the most frequent reasons to end up with a bad model. It is essential to avoid it.**
 
-### Time-series data
+## Time-series data
 
 When data represents a time series, splitting is best done in a way that does not shuffle the row order, e.g. in blocks: For simple validation, e.g. the first 80% of rows could be used for training and the remaining 20% for validation. 
 
-### Grouped data
+## Grouped data
 
 Often, data is grouped or clustered, e.g.
 
@@ -316,11 +318,17 @@ Often, data is grouped or clustered, e.g.
 
 Then, instead of distributing *rows* into partitions, we should distribute *groups* to not destroy the data structure and to get honest performance estimates. We speak of *grouped splitting* and *group k-fold CV*. 
 
-### Stratification
+## Stratification
 
 *If rows are independent*, there is a variant of random splitting that often provides better results and is therefore often used by default: *stratified splitting*. With stratified splitting or *stratified k-fold CV*, rows are split to ensure approximately equal distribution of a key variable (the response or a deciding covariable) across partitions/folds.
 
-## Exercises
+# Chapter Summary
+
+In this chapter, we have met strategies to estimate model performance in a fair way. These strategies are also used for model selection and tuning. They are an essential part of the full modeling process. Often, ML models without appropriate validation strategy are not to be trusted. 
+
+# Exercises
 
 1. Apply *stratified* splitting (using the response `price`) throughout the last example. Compare the results.
+2. Compare the linear regression model for `price` with a corresponding Gamma GLM with log-link. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?
+3. Use cross-validation to select the best polynomial degree to represent `log(carat)` in the linear regression model for `price`.
 
