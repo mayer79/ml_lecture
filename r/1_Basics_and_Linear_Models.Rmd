@@ -190,7 +190,7 @@ The parameter $\beta_i$ is thus called *effect* of $X_i$ on the expected respons
 
 A linear regression with just one covariable is called a *simple* linear regression with equation $E(Y) = \alpha + \beta X$.
 
-## Least-squares method
+## Least-squares
 
 The optimal $\hat f$ to estimate $f$ is found by minimizing the sum of squared *prediction errors* resp. *residuals*
 $$
@@ -203,7 +203,7 @@ $$
 
 Once the model is fitted, we can use the coefficients $\hat\beta_0, \dots, \hat\beta_m$ to make predictions and to study empirical effects of the covariables on the expected response.
 
-## Example: diamonds
+### Example: simple linear regression
 
 In order to discuss the typical output of a linear regression, we now model diamond prices by their size. The model equation is
 $$
@@ -228,16 +228,14 @@ ggplot(diamonds, aes(x = carat, y = price)) +
 predict(fit, data.frame(carat = c(0.3, 1.3)))
 
 # By hand
-(p1 <- intercept + slope * 0.3)
-(p2 <- intercept + slope * 1.3)
-(p2 <- p1 + slope * 1)
+intercept + slope * 1.3
 ```
 
 **Comments**
 
 - **Regression coefficients:** The intercept $\alpha$ is estimated by $\hat \alpha = -2256$ and the effect of carat $\beta$ by $\hat \beta = 7756$ USD. This means that a 1 carat increase goes along with an average increase in price of 7756 USD. Similarly, we could say that a 0.1 increase in carat is associated with an increase in the price of 775.6 USD.
 - **Regression line:** For a simple linear regression, the estimated regression coefficients $\hat \alpha$ and $\hat \beta$ can be visualized by the regression line. The latter represents the scatterplot as good as possible in the sense that the sum of squared vertical distances from the points to the line are minimal. The $y$-value at $x = 0$ equals $\hat \alpha = -2256$ and the slope of the line is $\hat \beta = 7756$.
-- **Predictions:** Model predictions are made by using the fitted model equation $-2256 + 7756 \cdot \text{carat}$. For a diamond of size 0.3 carat, we get 71 USD. For 1.3 carat, we get $-2256 + 1.3 \cdot 7756 \approx 7827$. These values correspond to the values on the regression line.
+- **Predictions:** Model predictions are made by using the fitted model equation $-2256 + 7756 \cdot \text{carat}$. For a diamond of size 1.3 carat, we get $-2256 + 1.3 \cdot 7756 \approx 7827$. These values correspond to the values on the regression line.
 
 ## Quality of the model
 
@@ -325,23 +323,25 @@ Strong collinearity can be detected by looking at correlations across (numeric) 
 
 Often, collinearity can be reduced by transforming the covariables in a way that makes the Ceteris Paribus clause natural. Instead of e.g. using number of rooms and living area in a house price model, it might help to represent living area by the derived variable "living area per room".
 
+Note: Perfectly collinear covariables (e.g. $X$ and $2X$) cannot be used for algorithmic reasons.
+
 ## Categorical covariables
 
-Since algorithms usually only understand numbers, categorical variables are encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) is being dropped and its level is represented by the intercept. This variant of OHE is called **dummy coding**.
+Since algorithms usually only understand numbers, categorical variables are encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) needs to be dropped due to perfect collinearity (for each row, the sum of OHE dummies is always 1). Its level is represented by the intercept. This variant of OHE is called **dummy coding**.
 
-For our diamonds data set, OHE for the variable `color` looks as follows:
+For our diamonds data set, OHE for the variable `color` looks as follows (the first column is the original categorical variable, the other columns are the dummy variables):
 
 ![](../figs/ohe.PNG)
 
 **Comments**
 
-- Interpreting the regression coefficient $\beta_k$ of the dummy variable $D_k$ is nothing special: It tells us how much $E(Y)$ changes when switching from the reference category (the one without dummy) to category $k$.
+- Interpreting the regression coefficient $\beta_k$ of the dummy variable $D_k$ is nothing special: It tells us how much $E(Y)$ changes when the dummy variable switches from 0 to 1. This amounts to switching from the reference category (the one without dummy) to category $k$.
 - Ordinal categorical covariables are sometimes integer encoded for simplicity i.e. each category is represented by an integer number.
 - In order to reduce overfitting, small categories are often combined to a level "Other" or are added to the largest category.
 
-### Example: diamonds
+### Example: dummy coding
 
-Let us now extend the simple linear regression by adding dummy variables for the categorical covariable `color`.
+Let us now extend the simple linear regression for diamond prices by adding dummy variables for the categorical covariable `color`.
 
 ```{r}
 library(ggplot2)
@@ -351,8 +351,8 @@ summary(fit)
 **Comments**
 
 - Adding covariable `color` has changed the slope of `carat` from 7756 in the simple linear regression to 8067. This is the effect of `carat` *adjusted* for `color`.
-- Each dummy variable of `color` has received its coefficient. Switching from the reference color "D" to "E" is associated with a price reduction of 94 USD.
-- In contrast to the unintuitive descriptive result (worse colors tend to higher prices), we now see that worse colors are associated with lower prices. Adjusting for carat has solved the mistery. It seems that the diamond size has confounded the association between color and price.
+- Each dummy variable of `color` has received its own coefficient. Switching from the reference color "D" to "E" is associated with a price reduction of 94 USD.
+- In contrast to the unintuitive descriptive result (worse colors tend to higher prices), we now see that worse colors are associated with lower prices. Adjusting for carat has solved the mistery. It seems that the diamond size had confounded the association between color and price. A regression model accounts for such confounding effects.
 
 ## Linear regression is flexible
 
@@ -366,18 +366,18 @@ We will briefly look into these.
 
 ### Non-linear terms
 
-Important numeric covariables might be represented by more than just one parameter (= linear slope) to allow for a more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature, adding multiple polynomial terms can approximate any smooth relationship. An alternative to polynomial terms are regression *splines*, i.e. piecewise polynomials.
+Important numeric covariables might be represented by more than just one parameter (= linear slope) to allow for more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature, adding multiple polynomial terms can approximate any smooth relationship. An alternative to polynomial terms are regression *splines*, i.e. piecewise polynomials.
 
 For our diamonds data set, polynomial terms up to degree three for `carat` would look like this:
 
 ![](../figs/cubic.PNG)
 
-#### Example: diamonds
+#### Example: cubic regression
 
 How would a cubic regression approximate the relationship between diamond prices and carat?
 
 ```{r}
-library(ggplot2)
+library(tidyverse)
 fit <- lm(price ~ poly(carat, 3), data = diamonds)
 
 # Plot effect of carat on average price
@@ -396,7 +396,44 @@ ggplot(aes(x = carat, y = price)) +
 
 ### Interaction terms
 
-As a consequence of the additive model structure, each covariable is assumed to act independently on the response, keeping the other covariables fixed. This is not always realistic. E.g. being flawless might mean more to a large diamond than to a small diamond. In such cases, adding so-called interaction terms might be worth considerung. Since interaction terms complicate the interpretation of the results, they should be used with care and only for important covariables. Adding interaction terms between a covariable $X$ and a categorical covariable $Z$ provides an effect of $X$ for each value of $Z$.
+Once fitted, the effect of a covariable does not depend on the values of the other covariables. This is a direct consequence of the additivity of the model equation. This assumption is sometimes too strict. E.g. treatment effects might be larger for younger patients than for older. Or an extra 0.1 carat of diamond weight is worth more for a beautiful white diamond compared to an unspectacular yellow one. In such cases, adding *interaction terms* provides the necessary flexibility. Mathematically, an interaction term between covariables $X$ and $Z$ equals their product. Practically, it means that the effect $X$ depends on the value of $Z$. 
+
+**Comments**
+
+- Adding interaction terms make model interpretation difficult. They should thus be used with care.
+- Interaction terms mean more parameters, thus there is a danger of overfitting.
+- Finding the right interaction terms without introducing overfitting is impossible.
+- Neural networks and tree-based models automatically find interactions, even between more than two variables. This is one of their main strengths.
+
+#### Example: interactions
+
+Let us now fit a linear regression for diamond prices with the two covariables `carat` and `color`. How would a model with interaction between the two variables look compared to the model without interactions from our example on dummy coding?
+
+```{r}
+library(tidyverse)
+
+no_interaction <- lm(price ~ carat + factor(color, ordered = FALSE), data = diamonds)
+with_interaction <- lm(price ~ carat * factor(color, ordered = FALSE), data = diamonds)
+
+# Plot effect of carat grouped by color
+to_plot <- expand.grid(carat = seq(0.3, 2.5, by = 0.1), 
+            color = levels(diamonds$color)) %>% 
+  mutate(no_interaction = predict(no_interaction, .),
+         with_interaction = predict(with_interaction, .)) %>% 
+  pivot_longer(ends_with("interaction"), names_to = "model", values_to = "prediction")
+
+ggplot(to_plot, aes(x = carat, y = prediction, group = color, color = color)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ model)
+
+```
+
+**Comments**
+
+- The left image shows an additive model: the slope of `carat` does not depend on the color. Similarly, the effect of `color` does not depend on the size. This is not very realistic as color effects are expected to be larger for large diamonds.
+- In the model with interactions (image right), we get different slopes and intercepts per color, just as if we would have fitted a simple linear regression *per color*. The larger the diamonds, the larger the color effects.
+- The slopes are not very much different across colors, so the interaction effects are small.
 
 ### Transformations
 

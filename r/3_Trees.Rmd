@@ -191,24 +191,20 @@ Boosted trees offer a quite a lot of parameters. Unlike with random forests, the
     - the row subsampling rate (often between 0.8 and 1), 
     - the column subsampling rate (often between 0.6 and 1), and
     - additional parameters.
+    
+Reasonable ragularization parameters are chosen by randomized or grid search CV. Usually, this takes a couple of iterations.
 
-## Strategy to choose parameters
+Note on **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, tune parameters and select models. Ideally, it is consistent with the loss function of the specific algorithm (e.g. RMSE as metric and MSE as loss), but in some cases it might differ.
 
-Choosing above parameters is tricky: Grid search is unrealistic due to the high number of parameters and randomized search will usually miss the very good combinations due to parameter dependencies. (A low learning rate or small trees go along with a high number of boosting rounds etc.) 
+## Example: XGBoost
 
-The following strategy has to be proven to work well in many situations. It has four steps.
+We will use XGBoost to fit diamond prices. As loss and evaluation metric, we will use MSE.
 
-- Step 1: With default parameters, select a learning rate that leads to a reasonable amount of boosting rounds by early stopping. Use a relatively high learning rate so that fitting is fast (about 30-300 boosting rounds).
-- Step 2: Perform a randomized or grid search on regularization parameters. The grid should be coarse enough to search at the right place.
-- Step 3: Based on the results of Step 2, customize the grid by making it more narrow. Select a lower learning rate to aim at 200-1000 rounds. Perform the grid search again.
-- Step 4: Choose the best parameter combination from Step 3 and refit to get the final model.
+The basic strategy was as follows:
 
-All these decisions (early stopping, grid search) should be done by cross-validation (or simple validation if CV takes too long), just as we have seen in the last chapter. 
-Note about **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance and to tune parameters. Theoretically, it can be different from the loss function like e.g. using MSE as loss and mean absolute error (MAE) as performance metric. This usually does not make much sense. It is better to select the loss in line with the performance measure of interest.
-
-## Example: diamonds
-
-We will use XGBoost to fit diamond prices by above four-step strategy to select parameters. As loss and evaluation metric, we will use MSE.
+1. Using default regularization and early stopping, a learning rate of 5% provided a convenient amount of about 160 boosting rounds.
+2. Randomized search CV was run a couple of times until good ranges for the regularization parameters were found. The final search is kept for later.
+3. Use the best parameter combination to fit the model on the training data.
 
 ```{r}
 library(ggplot2)
@@ -231,82 +227,12 @@ X_train <- prep_xgb(diamonds[ix$train, ])
 # XGBoost data handler
 dtrain <- xgb.DMatrix(X_train, label = y_train)
 
-# If model parameters should be tuned again, set tune <- TRUE
+# If grid search is to be run again, set tune <- TRUE
 tune <- FALSE
 
 if (tune) {
-  
-  # Helper function for Steps 2 & 3 (grid or randomized search CV)
-  fit_grid <- function(X, grid, size = 20, file = NULL, seed = NULL) {
-    # grid search or randomized search?
-    n <- nrow(grid)
-    if (n > size) {
-      if (!is.null(seed)) {
-        set.seed(seed)
-      }
-      grid <- grid[sample(n, size), ]
-      n <- size
-    }
-    pb <- txtProgressBar(0, n, style = 3)
-  
-    # Loop over grid and fit XGBoost with five-fold CV
-    for (i in seq_len(n)) {
-      cvm <- xgb.cv(
-        as.list(grid[i, -(1:2)]),
-        X,
-        nrounds = 5000,
-        nfold = 5,
-        early_stopping_rounds = 10,
-        verbose = 0
-      )
-      
-      # Keep track of the CV result
-      grid[i, 1] <- cvm$best_iteration
-      grid[i, 2] <- cvm$evaluation_log[[4]][cvm$best_iteration]
-      setTxtProgressBar(pb, i)
-    
-      # Save grid over and over to survive crashs
-      if (!is.null(file)) {
-        saveRDS(grid, file = file)
-      }
-    }
-    return(grid)
-  }
-  
-  # STEP 1: Manually select reasonable learning rate
-  params <- list(objective = "reg:squarederror",
-                 learning_rate = 0.2)
-  
-  fit <- xgb.cv(params = params, 
-                data = dtrain,
-                nrounds = 1000, # selected by early stopping
-                nfold = 5, 
-                verbose = FALSE,
-                early_stopping_rounds = 10)
-  
-  fit
-  
-  # STEP 2: Run a coarse grid search with above learning rate
-  coarse_grid <- expand.grid(
-    iteration = NA,
-    score = NA,
-    learning_rate = 0.2,     # found in Step 1
-    objective = "reg:squarederror",
-    max_depth = 3:7, 
-    min_child_weight = c(1, 10),
-    colsample_bytree = c(0.8, 1), 
-    subsample = c(0.8, 1), 
-    reg_lambda = 0:5,        # l2 penalty
-    reg_alpha = 0:5,         # l1 penalty
- #   tree_method = "hist",   # when data is large
-    min_split_loss = c(0, 1e-04)
-  )
-  
-  coarse_grid <- fit_grid(dtrain, coarse_grid, file = "gridsearch/diamonds_xgb_coarse.rds")
-  coarse_grid[order(coarse_grid$score), ]
-  
-  # STEP 3: Run a finer grid search based on the results of Step 2
-  fine_grid <- expand.grid(
+  # Final grid search after some iterations
+  grid <- expand.grid(
     iteration = NA,
     score = NA,
     learning_rate = 0.05,
@@ -314,21 +240,48 @@ if (tune) {
     max_depth = 6:7, 
     min_child_weight = c(1, 10),
     colsample_bytree = c(0.8, 1), 
-    subsample = 1, 
+    subsample = c(0.8, 1), 
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
+     #   tree_method = "hist",   # when data is large
     min_split_loss = c(0, 1e-04)
   )
 
-  fine_grid <- fit_grid(dtrain, fine_grid, file = "gridsearch/diamonds_xgb_fine.rds")
-  fine_grid[order(fine_grid$score), ]
+ # Grid search or randomized search if grid is too large
+  max_size <- 20
+  grid_size <- nrow(grid)
+  if (grid_size > max_size) {
+    grid <- grid[sample(grid_size, max_size), ]
+    grid_size <- max_size
+  }
+  pb <- txtProgressBar(0, grid_size, style = 3)
+
+  # Loop over grid and fit XGBoost with five-fold CV and early stopping
+  for (i in seq_len(grid_size)) {
+    cvm <- xgb.cv(
+      as.list(grid[i, -(1:2)]),
+      dtrain,
+      nrounds = 5000,
+      nfold = 5,
+      early_stopping_rounds = 10,
+      verbose = 0
+    )
+    
+    # Store result
+    grid[i, 1] <- cvm$best_iteration
+    grid[i, 2] <- cvm$evaluation_log[[4]][cvm$best_iteration]
+    setTxtProgressBar(pb, i)
+  
+    # Save grid to surviva hard crashs
+    saveRDS(grid, file = "gridsearch/diamonds_xgb.rds")
+  }
 }
 
-# STEP 4: Fit with best parameter combination
-fine_grid <- readRDS("gridsearch/diamonds_xgb_fine.rds")
-fine_grid <- fine_grid[order(fine_grid$score), ]
+# Load grid
+grid <- readRDS("gridsearch/diamonds_xgb.rds")
+grid <- fine_grid[order(fine_grid$score), ]
 
-fit <- xgb.train(as.list(fine_grid[1, -(1:2)]), 
+fit <- xgb.train(as.list(grid[1, -(1:2)]), 
                  data = dtrain, 
                  nrounds = fine_grid[1, "iteration"])
 
@@ -378,7 +331,7 @@ plot(light_profile(fl, v = "color")) +
 
 ## Exercises
 
-1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights by modifying just Step 4 in the last example. How does the partial dependence plot for carat look now?
+1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning grid search in last example. How does the partial dependence plot for carat look now?
 2. Make a good XGBoost model for the claims data set with binary response `clm` and covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean CV/test approach. Use log loss both as objective and evaluation metric.
 
 # Chapter Summary
