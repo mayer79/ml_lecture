@@ -279,11 +279,13 @@ if (tune) {
 
 # Load grid
 grid <- readRDS("gridsearch/diamonds_xgb.rds")
-grid <- fine_grid[order(fine_grid$score), ]
+grid <- grid[order(grid$score), ]
 
-fit <- xgb.train(as.list(grid[1, -(1:2)]), 
-                 data = dtrain, 
-                 nrounds = fine_grid[1, "iteration"])
+fit <- xgb.train(
+  as.list(grid[1, -(1:2)]), 
+  data = dtrain, 
+  nrounds = grid[1, "iteration"]
+)
 
 ```
 
