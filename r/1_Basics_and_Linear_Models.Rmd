@@ -48,7 +48,7 @@ library(ggplot2)
 head(diamonds)
 ```
 
-The data set is neatly structured. It seems to be sorted by price.
+**Comment:** The data set is neatly structured. It seems to be sorted by price.
 
 ## Data types
 
@@ -215,8 +215,8 @@ library(ggplot2)
 
 fit <- lm(price ~ carat, data = diamonds)
 summary(fit)
-intercept <- coef(fit)[1]
-slope <- coef(fit)[2]
+intercept <- coef(fit)[[1]]
+slope <- coef(fit)[[2]]
 
 # Visualize the regression line
 ggplot(diamonds, aes(x = carat, y = price)) + 
@@ -237,7 +237,7 @@ predict(fit, data.frame(carat = c(0.3, 1.3)))
 
 - **Regression coefficients:** The intercept $\alpha$ is estimated by $\hat \alpha = -2256$ and the effect of carat $\beta$ by $\hat \beta = 7756$ USD. This means that a 1 carat increase goes along with an average increase in price of 7756 USD. Similarly, we could say that a 0.1 increase in carat is associated with an increase in the price of 775.6 USD.
 - **Regression line:** For a simple linear regression, the estimated regression coefficients $\hat \alpha$ and $\hat \beta$ can be visualized by the regression line. The latter represents the scatterplot as good as possible in the sense that the sum of squared vertical distances from the points to the line are minimal. The $y$-value at $x = 0$ equals $\hat \alpha = -2256$ and the slope of the line is $\hat \beta = 7756$.
-- **Predictions:** Model predictions are made by using the fitted model equation $-2256 + 7756 \cdot \text{carat}$. For a diamond of size 0.3 carat, we get 71 USD. For 1.3 carat, we get $-2256 + 1.3 \cdot 7756 \approx 7827$. These values correspond to the value on the regression line.
+- **Predictions:** Model predictions are made by using the fitted model equation $-2256 + 7756 \cdot \text{carat}$. For a diamond of size 0.3 carat, we get 71 USD. For 1.3 carat, we get $-2256 + 1.3 \cdot 7756 \approx 7827$. These values correspond to the values on the regression line.
 
 ## Quality of the model
 
@@ -256,7 +256,7 @@ or, equivalently by the *mean-squared-error*
 $$
   \text{MSE} = \frac{1}{n}\sum_{i = 1}^n (y_i - \hat y_i)^2.
 $$
-To quantify the size of the typical prediction error on the same scale as $Y$, we take the square-root of the MSE and get the *root-mean-squared error* (RMSE). 
+To quantify the size of the typical prediction error on the same scale as $Y$, we can take the square-root of the MSE and study the *root-mean-squared error* (RMSE). 
 
 Besides an *absolute* performance measure like the RMSE, we gain additional insights by studying a relative performance measure like the **R-squared**. It measures the relative decrease in MSE compared to the MSE of the "empty" model
 $$
@@ -289,13 +289,13 @@ MSE_empty <- mse(diamonds$price, predict(empty_model, diamonds))
 
 ### Model assumptions
 
-The main assumption of linear regression is that the **model equation is correctly specified** in the sense that predictions are not systematically too high or too small for certain values of the covariables. In a simple regression setting, this means that the points in the scatterplot are located *around* the regression line for all $x$ values. 
+The main assumption of linear regression is a **correctly specified model equation** in the sense that predictions are not systematically too high or too small for certain values of the covariables. In a simple regression setting, this means that the points in the scatterplot are located *around* the regression line for all $x$ values. 
 
 Additional assumptions like independence of rows, constant variance of the error term $\varepsilon$ in the equation
 $$
   Y = f(X_1, \dots, X_m) + \varepsilon
 $$
-and normal distribution of $\varepsilon$ guarantee optimality of the least-squares estimator $\hat \beta_0, \dots, \hat\beta_m$ and the correctness of inferential statistics (standard errors, p values, confidence intervals). If all these assumptions are made, we talk of the *normal linear model*.
+and normal distribution of $\varepsilon$ guarantee optimality of the least-squares estimator $\hat \beta_0, \dots, \hat\beta_m$ and the correctness of inferential statistics (standard errors, p values, confidence intervals). In that case, we talk of the *normal linear model*.
 
 #### Example: diamonds continued
 
@@ -321,20 +321,88 @@ If too many parameters are used in relation to the number of observations, the r
 
 If the association between two or more covariables is strong, their coefficients are difficult to interpret because the Ceteris Paribus clause is usually unnatural in such situations. E.g. in a house price model, it is unnatural to study the effect of an additional room, keeping living area fixed. This is even more problematic for causally dependent covariables: imagine a model with $x$ and $x^2$ as covariables. It would certainly not make sense to study the effect of $x$ while keeping $x^2$ fixed. 
 
-Strong collinearity can be detected by looking at correlations across regressors. It is mainly a problem when interpreting effects or testing statistical hypotheses. Predictions or other "global" model characteristics like the R-squared are not affected.
+Strong collinearity can be detected by looking at correlations across (numeric) covariables. It is mainly a problem when interpreting effects or testing statistical hypotheses. Predictions or other "global" model characteristics like the R-squared are not affected.
 
-## Representation of covariables
+Often, collinearity can be reduced by transforming the covariables in a way that makes the Ceteris Paribus clause natural. Instead of e.g. using number of rooms and living area in a house price model, it might help to represent living area by the derived variable "living area per room".
 
-Depending on the specific situation, covariables might need to be transformed before using them in a regression:
+## Categorical covariables
 
-- **Dummy coding:** Algorithms usually only understand numbers, not categories. Thus, each category of a categorical covariable can be represented by its own "dummy" covariable ("am I in this category yes/no?"). Since exactly one dummy variable has the value 1, one of them is redundant and is dropped from linear regression. Other ML algorithms such as neural nets would require all dummy variable (including the redundant one). In this case we speak of "one-hot-encoding (OHE)".
-Note: Rare categories can be lumped together in order to not estimate too many parameters and to reduce overfitting.  
-- **Integer coding:** Besides dummy coding, ordinal categorical covariables are sometimes integer encoded for simplicity i.e. each category is represented by an integer number instead a of a binary variable. This assumes (approximate) equally spaced categories.
+Since algorithms usually only understand numbers, categorical variables are encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) is being dropped and its level is represented by the intercept. This variant of OHE is called **dummy coding**.
+
+For our diamonds data set, OHE for the variable `color` looks as follows:
+
+![](../figs/ohe.PNG)
+
+**Comments**
+
+- Interpreting the regression coefficient $\beta_k$ of the dummy variable $D_k$ is nothing special: It tells us how much $E(Y)$ changes when switching from the reference category (the one without dummy) to category $k$.
+- Ordinal categorical covariables are sometimes integer encoded for simplicity i.e. each category is represented by an integer number.
+- In order to reduce overfitting, small categories are often combined to a level "Other" or are added to the largest category.
+
+### Example: diamonds
+
+Let us now extend the simple linear regression by adding dummy variables for the categorical covariable `color`.
+
+```{r}
+library(ggplot2)
+fit <- lm(price ~ carat + factor(color, ordered = FALSE), data = diamonds)
+summary(fit)
+```
+**Comments**
+
+- Adding covariable `color` has changed the slope of `carat` from 7756 in the simple linear regression to 8067. This is the effect of `carat` *adjusted* for `color`.
+- Each dummy variable of `color` has received its coefficient. Switching from the reference color "D" to "E" is associated with a price reduction of 94 USD.
+- In contrast to the unintuitive descriptive result (worse colors tend to higher prices), we now see that worse colors are associated with lower prices. Adjusting for carat has solved the mistery. It seems that the diamond size has confounded the association between color and price.
+
+## Linear regression is flexible
+
+Linear regression is flexible regarding *how* covariables are represented in the linear equation. Possibilities include
+
+- using non-linear terms,
+- interactions, and
+- transformations.
+
+We will briefly look into these.
+
+### Non-linear terms
+
+Important numeric covariables might be represented by more than just one parameter (= linear slope) to allow for a more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature, adding multiple polynomial terms can approximate any smooth relationship. An alternative to polynomial terms are regression *splines*, i.e. piecewise polynomials.
+
+For our diamonds data set, polynomial terms up to degree three for `carat` would look like this:
+
+![](../figs/cubic.PNG)
+
+#### Example: diamonds
+
+How would a cubic regression approximate the relationship between diamond prices and carat?
+
+```{r}
+library(ggplot2)
+fit <- lm(price ~ poly(carat, 3), data = diamonds)
+
+# Plot effect of carat on average price
+data.frame(carat = seq(0.3, 4.5, by = 0.1)) %>% 
+  mutate(price = predict(fit, .)) %>% 
+ggplot(aes(x = carat, y = price)) +
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_line() +
+  geom_point()
+```
+
+**Comments**
+
+- In the dense part (carats up to 2), the cubic polynomial seems to provide better results than a simple linear regression.
+- Extrapolation to diamonds above 2 carat provides catastrophic results. Thus, never use polynomial terms if extrapolation is required.
+
+### Interaction terms
+
+As a consequence of the additive model structure, each covariable is assumed to act independently on the response, keeping the other covariables fixed. This is not always realistic. E.g. being flawless might mean more to a large diamond than to a small diamond. In such cases, adding so-called interaction terms might be worth considerung. Since interaction terms complicate the interpretation of the results, they should be used with care and only for important covariables. Adding interaction terms between a covariable $X$ and a categorical covariable $Z$ provides an effect of $X$ for each value of $Z$.
+
+### Transformations
+
+
 - **Log-tranformation:** Positive numeric variables can be log-transformed to deal with large outliers and/or to bring it to a relative scale. When talking about logarithms, we mean the *natural* logarithm.
-- **Non-linear terms:** Important numeric covariables might be represented by more than just one parameter (= slope) to allow for a more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature. Especially flexible are regression splines that can approximate arbitrary smooth relationships at the price of interpretability.
-- **Decorrelation:** Strongly related covariables can be decorrelated to reduce negative consequences of collinearity. Instead of e.g. using number of rooms and living area in a house price model, it might help to represent living area by the derived variable "living area per room".
-- **Interactions:** As a consequence of the additive model structure, each covariable is assumed to act independently on the response, keeping the other covariables fixed. This is not always realistic. E.g. being flawless might mean more to a large diamond than to a small diamond. In such cases, adding so-called interaction terms might be worth considerung. Since interaction terms complicate the interpretation of the results, they should be used with care and only for important covariables. Adding interaction terms between a covariable $X$ and a categorical covariable $Z$ provides an effect of $X$ for each value of $Z$.
-
+- **Interactions:** 
 ## Logarithms are important
 
 We have already mentioned that (natural) logarithms help to reduce the effects of outliers. They also make effects "relative", which is often very useful for both the response and/or a covariable.
