@@ -437,9 +437,48 @@ ggplot(to_plot, aes(x = carat, y = prediction, group = color, color = color)) +
 
 ### Transformations
 
+Not surprisingly, covariables are often transformed before entering the model:
 
-- **Log-tranformation:** Positive numeric variables can be log-transformed to deal with large outliers and/or to bring it to a relative scale. When talking about logarithms, we mean the *natural* logarithm.
-- **Interactions:** 
+- categorical covariables are dummy coded,
+- collinear covariables are decorrelated by forming ratios,
+- logarithms neutralize gross outliers.
+
+Model coefficients of course explain how the *transformed* variable $X$ acts on the expected response. In this respect, logarithms are special: In a model equation of
+$$
+  E(Y) = \alpha + \beta \log(X),
+$$
+we can say: A 1% increase in $X$ leads to an increase in $E(Y)$ of about $\beta/100$:
+$$
+  E(Y\mid X = 1.01 \cdot x) - E(Y\mid X = x) = \alpha + \beta \log (1.01 \cdot x) - \alpha - \beta \log(x) = \beta \log(1.01) \approx \beta/100.
+$$
+Thus, taking logarithms of covariables does not only deal with outliers, it also offers us the possibility to talk about percentages.
+
+#### Example: log(carat)
+
+What would our simple linear regression give with logarithmic carat as single covariable?
+
+```{r}
+library(ggplot2)
+
+fit <- lm(price ~ log(carat), data = diamonds)
+fit
+
+# Plot effect of carat on average price
+data.frame(carat = seq(0.3, 4.5, by = 0.1)) %>% 
+  mutate(price = predict(fit, .)) %>% 
+ggplot(aes(x = carat, y = price)) +
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_line() +
+  geom_point()
+```
+**Comments** 
+
+- Indeed, we have fitted a logarithmic relationship between carat and price. The scatterplot reveals that this does not make much sense. The model looks wrong.
+- As usual, we can say that a one-point increase in `log(carat)` leads to a expected price increase of 5836 USD.
+- Backtransformed, this amounts to saying that a 1% increase in `carat` is associated with a price increase of about 5836/100 = 60 CHF.
+
+
+
 ## Logarithms are important
 
 We have already mentioned that (natural) logarithms help to reduce the effects of outliers. They also make effects "relative", which is often very useful for both the response and/or a covariable.
@@ -451,9 +490,7 @@ For simplicity, we study this for the simple linear regression.
 The coefficient $\beta$ of 
 If we represent a covariable $X$ by its logarithm, then its effect $\beta$ :
 
-$$
-E(Y\mid X = 1.01 \cdot x) - E(Y\mid X = x) = \alpha + \beta \cdot (1.01) \cdot x - \alpha - \beta x = \beta/100.
-$$
+
 
 ```{r, cache = TRUE}
 library(ggplot2)
@@ -569,7 +606,7 @@ The basic linear regression model has many extensions, e.g.
 - neural networks that automatically learn interactions and non-linearities (see later),
 - **the generalized linear model (GLM)** that e.g. allows to model binary response variables in a natural way.
 
-This section covers the generalized linear model, introduced in 1972 by Nelder & Wedderburn [2]. 
+This section covers the generalized linear model. It was introduced in 1972 by Nelder & Wedderburn [2]. 
 
 ## Definition
 
@@ -627,15 +664,14 @@ The normal linear model allows us to model $E(Y)$ by an additive linear function
 
 However, in such cases, an additive linear model equation is usually not realistic. As such, the main assumption of the linear regression are violated. 
 
-Here two examples:
+Here some examples:
 
-1. Covariables often act on counts response in a multiplicative manner
-
-- Binary: A jump from 0.5 to 0.6 success probability is less impressive than from 0.8 to 0.9. 
+- Binary: A jump from 0.5 to 0.6 success probability is less impressive than from 0.89 to 0.99. 
 - Count: A jump from 2 to 3 is less impressive than a jump from 0.1 to 1.1. 
 - Right-skewed: Also here, a jump from 1 Mio to 1.1 Mio is conceived as larger than the jump from 2 Mio to 2.1 Mio.
 
-The main advantage of a GLM is...
+In these examples, one could think of transforming the response variable e.g. by a logarithm to produce a multiplicative model. This, however fails due to the simple fact that logarithms of 0 are not possible.
+
 
 Additionally, thanks to the inverse link, predictions on the scale of $Y$ respect the range of $Y$. E.g. probabilities predicted by a logistic regression are always between 0 an 1. Another technical advantage is that standard errors, hypothesis tests etc. are approximately correct even if the error variance is non-constant.
 

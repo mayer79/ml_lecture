@@ -18,7 +18,9 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Introduction
 
-In this chapter, we dive into artificial neural networks. The first neural net was designed by Marvin Minsky in 1951. He called his algorithm SNARC ("stochastic neural-analog reinforcement calculator"). Modern neural networks are sometimes dated back to 1974 [1] to the dissertation of Paul J. Werbos, who had the idea to fit neural networks by the backpropagation algorithm, which is still a core element of modern neural networks.
+In this chapter, we dive into artificial neural networks, one of the main drivers of artificial intelligence. 
+
+Neural networks are around since many decades. The first such model might be attributed to Marvin Minsky in 1951. He called his algorithm SNARC ("stochastic neural-analog reinforcement calculator"). A milestone in the development of modern neural networks was the idea of Paul J. Werbos to fit deep neural networks by "backpropagation" in 1974 [1], an algorithm still used as per today.
 
 Artificial neural nets are extremely versatile and powerful. They can be used to
 
@@ -119,19 +121,19 @@ ggplot(aes(x = carat, y = price)) +
 
 ### The optimization algorithm
 
-Neural nets are fitted by **stochastic gradient descent (SGD)** resp. **backpropagation**. It works as follows:
+Neural nets are typically fitted by **mini-batch gradient descent**, using **backpropagation** to efficiently calculate gradients. It works as follows:
 
-1. Initiate the parameters with random values around 0. 
-2. Forward step: Use the parameters to predict all observations of a *batch*. A batch is a randomly selected subset of the full data set. This makes the algorithm "stochastic".
-3. Backpropagation step: Change the parameters in the right direction, making the loss of the current batch smaller. This involves calculating derivatives ("gradients") of the loss function (e.g. MSE) with respect to all parameters.
+1. Initiate the parameters with random values. 
+2. Forward step: Use the parameters to predict all observations of a *batch*. A batch is a randomly selected subset of the full data set.
+3. Backpropagation step: Change the parameters in the right direction, making the loss of the current batch smaller. This involves calculating derivatives ("gradients") of the loss function (e.g. MSE) with respect to all parameters. Backpropagation does so in a layer-per-layer fashion, making heavy use of the chain rule. 
 4. Repeat Steps 2-3 until each observation appeared in a batch. This is called an *epoch*.
 5. Repeat Step 4 for multiple epochs until the parameter estimates stabilize or validation performance stops improving.
 
-In our simple example above, the derivatives could be easily calculated. The more layers a network has (see below), the more complex it gets to calculate derivatives of the loss with respect to each weight. In practical applications, these calculations are performed in a symbolic way by "auto-differentiators" like TensorFlow. It knows the chain-rule very well.
+Gradient descent on batches of size 1 is called "stochastic gradient descent" (SGD).
 
 ## Step 2: Hidden layers
 
-Our first neural network above consisted of only an input and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as derived or latent variables, representing the original covariables. Their values are sometimes called *embedding* or *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariables in an automatic way. The only ingredience is a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
+Our first neural network above consisted of only an input and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariables. The nodes of a hidden layer are sometimes called *embedding* or *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariables in an automatic way. The only ingredience is a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
 
 Neural nets with more than one hidden layer are called "deep neural nets".
 
@@ -610,24 +612,26 @@ loss_gamma <- function(y_true, y_pred) {
 
 Here, we summarize some of the neural network slang.
 
-- Activation function: The transformation applied on the node values.
-- Architecture: The layout of layers and nodes per layer.
-- Batch: A couple of data rows used for one SGD step.
+- Activation function: The transformation applied to the node values.
+- Architecture: The layout of layers and nodes.
+- Backpropagation: An efficient way to calculate gradients.
+- Batch: A couple of data rows used for one mini-batch gradient descent step.
 - Callback: An action during training, e.g. saving weights, reducing learning rate or stop training.
-- Epoch: The process of updating the network weights by SGD until each observation in the training set was used once.
+- Epoch: The process of updating the network weights by gradient descent until each observation in the training set was used once.
 - Embedding/Encoding: The values of latent variables of a hidden layer, usually the last.
+- Gradient descent: The basic optimization algorithm of neural networks.
 - Keras: User-friendly wrapper of TensorFlow.
-- Layer: Main organization unit of a neural network.
-- Learning rate: Controls the step size of SGD, i.e. how aggressive the network learns.
+- Layer: Main organisational unit of a neural network.
+- Learning rate: Controls the step size of gradient descent, i.e. how aggressive the network learns.
 - Node: Nodes on the input layer are the covariables, nodes on the output layer the response and nodes on a hidden layer are latent variables representing the covariables for the task to predict the response.
-- Optimizer: The specific variant of SGD.
-- Stochastic gradient descent (SGD) resp. backpropagation: The optimization algorithm of neural networks.
+- Optimizer: The specific variant of gradient descent.
+- Stochastic gradient descent (SGD): Mini-batch gradient descent with batches of size 1.
 - TensorFlow: An important implementation of neural networks.
 - Weights: The parameters of a neural net.
 
 # Chapter Summary
 
-In this chapter, we made a glipse into the world of neural networks. Step by step we have learned how a neural network learns and why it automatically learns interactions and non-linear effects. We have used Keras and TensorFlow to build models brick by brick.
+In this chapter, we made a glipse into the world of neural networks. Step by step we have learned how a neural network works. We have used Keras and TensorFlow to build models brick by brick.
 
 # Closing Remarks
 
