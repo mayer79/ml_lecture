@@ -36,14 +36,15 @@ Throughout this lecture, we will consider the following two data sets:
 
 - `diamonds`: Diamonds prices along with the four "C"-variables: Carat, Color, Cut, and Clarity. Each observation/row represents a diamond.
 
-- `dataCar`: Insurance claim data on vehicle insurance policies from 2004-2005. Some variables like `gender` describe the policy holder, some variables (e..g `veh_age`) the vehicle and some variables carry infos on eventual claims. Each row represents a policy.
+- `dataCar`: Insurance claim data on vehicle insurance policies from 2004-2005. Some variables like `gender` describe the policy holder, others like `veh_age` the vehicle and some variables carry infos on eventual claims. Each row represents a policy.
 
 ### Example: diamonds
 
 Let's look at the first six observations of the diamonds data set.
 
 ```{r}
-library(ggplot2) # Contains "diamonds"
+library(ggplot2)
+
 head(diamonds)
 ```
 

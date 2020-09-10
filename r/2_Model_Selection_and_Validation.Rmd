@@ -1,6 +1,5 @@
 ---
 title: "Model Selection and Validation"
-subtitle: "WORK IN PROGRESS"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
 output: 

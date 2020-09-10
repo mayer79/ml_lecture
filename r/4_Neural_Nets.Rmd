@@ -1,6 +1,5 @@
 ---
 title: "Neural Nets"
-subtitle: "WORK IN PROGRESS"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
 output: 
@@ -37,6 +36,8 @@ Artificial neural nets are extremely versatile and powerful. They can be used to
 
 In this chapter, we will mainly deal with the first two aspects. Since a lot of new terms are being used, we have collected a small glossary in the Section "Neural Network Slang".
 
+# Understanding Neural Nets
+
 To learn how and why neural networks work, we will go through three steps:
 
 - Step 1: Linear Regression as Neural Net
@@ -45,7 +46,7 @@ To learn how and why neural networks work, we will go through three steps:
 
 After this, we will be ready to build more complex models.
 
-# Step 1: Linear Regression as Neural Net
+## Step 1: Linear Regression as Neural Net
 
 Let us revisit the simple linear regression
 $$
@@ -66,10 +67,10 @@ Visualized as a graph, the situation looks as follows.
 
 To gain confidence into neural nets, we first show that parameters estimated by a neural network are quite similar to the ones learned by linear least-squares. To do so, we will use Google's [TensorFlow](https://www.tensorflow.org/) with its convenient [Keras](https://keras.io/) interface. 
 
-## Example: simple linear regression
+### Example: simple linear regression
 
 ```{r, cache=TRUE}
-library(ggplot2)
+library(tidyverse)
 library(keras)
 # use_python(path to python...)
 
@@ -107,13 +108,16 @@ plot(history, metrics = "rmse")
 unlist(get_weights(nn))
 
 # Plot effect of carat on average price
-x <- seq(0.3, 3, by = 0.1)
-plot(x, predict(nn, x), type = "b", xlab = "carat", ylab = "price")
+data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
+  mutate(price = predict(nn, carat)) %>% 
+ggplot(aes(x = carat, y = price)) +
+  geom_line() +
+  geom_point()
 ```
 
-Indeed: the solution of the simple neural network is quite similar to the OLS solution. 
+**Comment:** The solution of the simple neural network is indeed quite similar to the OLS solution. 
 
-## The optimization algorithm
+### The optimization algorithm
 
 Neural nets are fitted by **stochastic gradient descent (SGD)** resp. **backpropagation**. It works as follows:
 
@@ -125,22 +129,22 @@ Neural nets are fitted by **stochastic gradient descent (SGD)** resp. **backprop
 
 In our simple example above, the derivatives could be easily calculated. The more layers a network has (see below), the more complex it gets to calculate derivatives of the loss with respect to each weight. In practical applications, these calculations are performed in a symbolic way by "auto-differentiators" like TensorFlow. It knows the chain-rule very well.
 
-# Step 2: Hidden Layers
+## Step 2: Hidden layers
 
 Our first neural network above consisted of only an input and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as derived or latent variables, representing the original covariables. Their values are sometimes called *embedding* or *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariables in an automatic way. The only ingredience is a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
 
 Neural nets with more than one hidden layer are called "deep neural nets".
 
-We will now add a hidden layer with five nodes $v_1, \dots, \v_5$ to our simple linear regression network. The architecture looks as follows:
+We will now add a hidden layer with five nodes $v_1, \dots, v_5$ to our simple linear regression network. The architecture looks as follows:
 
 ![](../figs/nn_1_hidden.PNG)
 
-This network has 16 parameters (why?). How much better than our simple network with just two parameters will it be?
+This network has 16 parameters. How much better than our simple network with just two parameters will it be?
 
-## Example: linear regression with hidden layer (I)
+### Example: hidden layer
 
 ```{r, cache=TRUE}
-library(ggplot2)
+library(tidyverse)
 library(keras)
 # use_python(path to python...)
 
@@ -175,21 +179,23 @@ nn %>% fit(
 )
 
 # Plot effect of carat on average price
-x <- seq(0.3, 3, by = 0.1)
-plot(x, predict(nn, x), type = "b", xlab = "carat", ylab = "price")
+data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
+  mutate(price = predict(nn, carat)) %>% 
+ggplot(aes(x = carat, y = price)) +
+  geom_line() +
+  geom_point()
 ```
+**Comment:** Oops, it seems as if the extra hidden layer had no effect. The reason is that a linear function of a linear function is still a linear function. Adding the hidden layer did not really change the model. It just added a lot of unnecessary parameters.
 
-Oops, it seems as if the extra hidden layer had no effect. The reason is that a linear function of a linear function is still a linear function. Adding the hidden layer did not really change the model. It just added a lot of unnecessary parameters.
-
-# Step 3: Activation Functions
+## Step 3: Activation Functions
 
 The missing magic component is the so called [*activation* function](https://en.wikipedia.org/wiki/Activation_function) $\sigma$ after each layer, which transforms the values of the nodes. So far, we have implicitly used "linear activations", which - in neural network slang - is just the identity function. 
 
 The activation of the *output* layer has the same purpose as the inverse of the link function of a corresponding GLM. It maps predictions to the scale of the response: 
 
 - linear regression -> linear activation
-- binary logistic regression -> sigmoid activation (probability of "1")
-- multinomial logistic regression -> softmax activation (one probability per class)
+- binary logistic regression -> sigmoid activation (to predict probability of "1")
+- multinomial logistic regression -> softmax activation (to predict one probability per class)
 - log-linear regression -> exponential activation
 
 For other layers, the purpose of the activation function is a different one: thanks to being non-linear, it adds small amounts of interactions and non-linearity. Typical activation functions are
@@ -202,10 +208,10 @@ Let us add to the last example a non-linear activation $\sigma$ after the hidden
 
 ![](../figs/nn_activation.PNG)
 
-## Example: linear regression with hidden layer (II)
+### Example: activation functions
 
 ```{r, cache=TRUE}
-library(ggplot2)
+library(tidyverse)
 library(keras)
 # use_python(path to python...)
 
@@ -240,12 +246,14 @@ nn %>% fit(
 )
 
 # Plot effect of carat on average price
-x <- seq(0.3, 3, by = 0.1)
-plot(x, predict(nn, x), type = "b", xlab = "carat", ylab = "price")
-
+data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
+  mutate(price = predict(nn, carat)) %>% 
+ggplot(aes(x = carat, y = price)) +
+  geom_line() +
+  geom_point()
 ```
 
-Adding the non-linear activation after the hidden layer has changed the model. The effect of carat is now better representing the association between carat and price.
+**Comment:** Adding the non-linear activation after the hidden layer has changed the model. The effect of carat is now better representing the association between carat and price.
 
 # Practical considerations
 
@@ -452,6 +460,11 @@ plot(light_profile(fl, v = "cut")) +
 plot(light_profile(fl, v = "color")) +
   labs(title = "Partial dependence plot for color", y = "price")
 ```
+
+**Comments** 
+
+- The model performance is comparable to the tree-based models from the last chapter. 
+- The effect of `carat` looks smoother as with random forests or boosted trees.
 
 # Example: Embeddings (optional)
 

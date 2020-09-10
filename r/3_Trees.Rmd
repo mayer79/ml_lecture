@@ -1,6 +1,5 @@
 ---
 title: "Trees"
-subtitle: "WORK IN PROGRESS"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
 output: 
@@ -202,10 +201,9 @@ The following strategy has to be proven to work well in many situations. It has 
 - Step 1: With default parameters, select a learning rate that leads to a reasonable amount of boosting rounds by early stopping. Use a relatively high learning rate so that fitting is fast (about 30-300 boosting rounds).
 - Step 2: Perform a randomized or grid search on regularization parameters. The grid should be coarse enough to search at the right place.
 - Step 3: Based on the results of Step 2, customize the grid by making it more narrow. Select a lower learning rate to aim at 200-1000 rounds. Perform the grid search again.
-- Step 4: Choose the best model from Step 3 and refit on the training data to get the final model.
+- Step 4: Choose the best parameter combination from Step 3 and refit to get the final model.
 
 All these decisions (early stopping, grid search) should be done by cross-validation (or simple validation if CV takes too long), just as we have seen in the last chapter. 
-
 Note about **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance and to tune parameters. Theoretically, it can be different from the loss function like e.g. using MSE as loss and mean absolute error (MAE) as performance metric. This usually does not make much sense. It is better to select the loss in line with the performance measure of interest.
 
 ## Example: diamonds
@@ -264,12 +262,12 @@ if (tune) {
       
       # Keep track of the CV result
       grid[i, 1] <- cvm$best_iteration
-      grid[i, 2] <- as.numeric(cvm$evaluation_log[cvm$best_iteration, "test_rmse_mean"])
+      grid[i, 2] <- cvm$evaluation_log[[4]][cvm$best_iteration]
       setTxtProgressBar(pb, i)
     
       # Save grid over and over to survive crashs
       if (!is.null(file)) {
-        save(grid, file = file)
+        saveRDS(grid, file = file)
       }
     }
     return(grid)
@@ -304,7 +302,7 @@ if (tune) {
     min_split_loss = c(0, 1e-04)
   )
   
-  coarse_grid <- fit_grid(dtrain, coarse_grid, file = "gridsearch/diamonds_xgb_coarse.RData")
+  coarse_grid <- fit_grid(dtrain, coarse_grid, file = "gridsearch/diamonds_xgb_coarse.rds")
   coarse_grid[order(coarse_grid$score), ]
   
   # STEP 3: Run a finer grid search based on the results of Step 2
@@ -322,12 +320,12 @@ if (tune) {
     min_split_loss = c(0, 1e-04)
   )
 
-  fine_grid <- fit_grid(dtrain, fine_grid, file = "gridsearch/diamonds_xgb_fine.RData")
-  fine_grid[order(fine_rid$score), ]
+  fine_grid <- fit_grid(dtrain, fine_grid, file = "gridsearch/diamonds_xgb_fine.rds")
+  fine_grid[order(fine_grid$score), ]
 }
 
 # STEP 4: Fit with best parameter combination
-load("gridsearch/diamonds_xgb_fine.RData")
+fine_grid <- readRDS("gridsearch/diamonds_xgb_fine.rds")
 fine_grid <- fine_grid[order(fine_grid$score), ]
 
 fit <- xgb.train(as.list(fine_grid[1, -(1:2)]), 
@@ -335,6 +333,7 @@ fit <- xgb.train(as.list(fine_grid[1, -(1:2)]),
                  nrounds = fine_grid[1, "iteration"])
 
 ```
+
 Now, the model is ready to be inspected by evaluating 
 
 - its test performance, 

@@ -19,7 +19,7 @@ This lecture is being distributed under the [creative commons license](https://c
 
 ## Organization
 
-The lecture is split into four parts, each of which is accompanied with an R resp. Python notebook. You will find them in the corresponding subfolders.
+The lecture is split into four chapters, each of which is accompanied with an R resp. Python notebook. You will find them in the corresponding subfolders.
 
 1. Basics and Linear Models 
     - Basics
@@ -34,11 +34,11 @@ The lecture is split into four parts, each of which is accompanied with an R res
 
 All examples are self-contained.
 
-Each chapter will take us about two hours, including some exercises.
+Each chapter will take us about two hours and includes exercises.
 
 ## Prerequisites
 
-In order to be able to follow the lectures, you should be familiar with
+In order to be able to follow the lecture, you should be familiar with
 
 - Descriptive statistics
 - Linear regression
@@ -96,8 +96,6 @@ to do
 
 
 ## Further Reading
-
-The first four books are freely available on the web.
 
 - James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). *An Introduction to Statistical Learning - with Applications in R*. New York, USA: Springer New York Inc.
 
