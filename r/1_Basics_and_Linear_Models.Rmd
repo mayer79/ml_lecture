@@ -127,8 +127,12 @@ ggplot(diamonds, aes(x = clarity)) +
 
 # Selected bivariate descriptions
 ggplot(diamonds, aes(y = price, x = carat)) +
-  geom_point(alpha = 0.2, shape = ".") +
+  geom_point(alpha = 0.2, shape = ".", color = "orange") +
   ggtitle("Price against carat")
+
+ggplot(diamonds, aes(y = log(price), x = log(carat))) +
+  geom_point(alpha = 0.2, shape = ".", color = "orange") +
+  ggtitle("Price against carat (log-log-scale)")
 
 ggplot(diamonds, aes(y = price, x = color)) +
   geom_boxplot(fill = "orange", varwidth = TRUE) +
@@ -149,7 +153,7 @@ ggplot(diamonds, aes(y = price, x = clarity)) +
 - There are 53'940 observations.
 - The avarage or mean price is 3933 USD. About half of the diamonds cost less/more than the median of 2401 USD and about half of them cost between 950 USD (first quartile) and 5324 USD (third quartile). The cheapest diamond in the data set has a price of 326 USD, the most expensive one is 18'823 USD.
 - Prices and carats show a *right-skewed* distribution with a few very large values.
-- The relationship between price and carat seems quite strong and positive, which makes sense.
+- The relationship between price and carat seems quite strong and positive, which makes sense. On log-log scale, it looks linear.
 - The worst categories of `color`, `cut`, and `clarity` are rare.
 - Prices tend to be lower for nice colors, nice cuts as well as for nice clarities. This is unintuitive but will be entangled later by our regression models.
 
@@ -182,11 +186,11 @@ The model equation of the linear regression is as follows:
 $$
   E(Y) = f(X_1, \dots, X_m) = \beta_0 + \beta_1 X_1 + \cdots + \beta_m X_m.
 $$
-It relates the covariables $X_1, \dots, X_m$ to the expected response $E(Y)$ by a *linear* formula in the parameters $\beta_0, \dots, \beta_m$. The additive constant $\beta_0$ is called *intercept*. The parameter $\beta_i$ tells us by how much $y$ is expected to change when $X_i$ is increased by 1, **keeping all other covariables fixed** ("Ceteris Paribus"):
+It relates the covariables $X_1, \dots, X_m$ to the expected response $E(Y)$ by a *linear* formula in the parameters $\beta_0, \dots, \beta_m$. The additive constant $\beta_0$ is called *intercept*. The parameter $\beta_j$ tells us by how much $Y$ is expected to change when $X_j$ is increased by 1, **keeping all other covariables fixed** ("Ceteris Paribus"):
 $$
-  E(Y \mid X_i = x + 1) - E(y \mid X_i = x) = \beta_i (x + 1) - \beta_i x = \beta_i.
+  E(Y \mid X_j = x + 1) - E(Y \mid X_j = x) = \beta_j (x + 1) - \beta_j x = \beta_j.
 $$
-The parameter $\beta_i$ is thus called *effect* of $X_i$ on the expected response $E(Y)$.
+The parameter $\beta_j$ is thus called *effect* of $X_j$ on the expected response $E(Y)$.
 
 A linear regression with just one covariable is called a *simple* linear regression with equation $E(Y) = \alpha + \beta X$.
 
@@ -260,7 +264,7 @@ Besides an *absolute* performance measure like the RMSE, we gain additional insi
 $$
   E(Y) = \alpha
 $$
-without any covariables. Put differently, the R-squared measures the proportion of variability of $Y$ explained by the covariables.
+without any covariables, just with an intercept. Put differently, the R-squared measures the proportion of variability of $Y$ explained by the covariables.
 
 #### Example: diamonds continued
 
@@ -282,12 +286,12 @@ MSE_empty <- mse(diamonds$price, predict(empty_model, diamonds))
 
 **Comments**
 
-- The RMSE is 1549 USD. This means that residuals (= prediction errors) are typically around 1549 USD.
-- The R-squared shows that about 85% of the price variability can be explained by carat.
+- **RMSE:** The RMSE is 1549 USD. This means that residuals (= prediction errors) are typically around 1549 USD.
+- **R-squared:** The R-squared shows that about 85% of the price variability can be explained by carat.
 
 ### Model assumptions
 
-The main assumption of linear regression is a **correctly specified model equation** in the sense that predictions are not systematically too high or too small for certain values of the covariables. In a simple regression setting, this means that the points in the scatterplot are located *around* the regression line for all $x$ values. 
+The main assumption of linear regression is a **correctly specified model equation** in the sense that predictions are not systematically too high or too small for certain values of the covariables. In a simple regression setting, this means that the points in the scatterplot are located *around* the regression line for all covariable values. 
 
 Additional assumptions like independence of rows, constant variance of the error term $\varepsilon$ in the equation
 $$
@@ -327,7 +331,7 @@ Note: Perfectly collinear covariables (e.g. $X$ and $2X$) cannot be used for alg
 
 ## Categorical covariables
 
-Since algorithms usually only understand numbers, categorical variables are encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) needs to be dropped due to perfect collinearity (for each row, the sum of OHE dummies is always 1). Its level is represented by the intercept. This variant of OHE is called **dummy coding**.
+Since algorithms usually only understand numbers, categorical variables have to be encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) needs to be dropped due to perfect collinearity (for each row, the sum of OHE dummies is always 1). Its level is represented by the intercept. This variant of OHE is called **dummy coding**.
 
 For our diamonds data set, OHE for the variable `color` looks as follows (the first column is the original categorical variable, the other columns are the dummy variables):
 
@@ -335,9 +339,9 @@ For our diamonds data set, OHE for the variable `color` looks as follows (the fi
 
 **Comments**
 
-- Interpreting the regression coefficient $\beta_k$ of the dummy variable $D_k$ is nothing special: It tells us how much $E(Y)$ changes when the dummy variable switches from 0 to 1. This amounts to switching from the reference category (the one without dummy) to category $k$.
-- Ordinal categorical covariables are sometimes integer encoded for simplicity i.e. each category is represented by an integer number.
-- In order to reduce overfitting, small categories are often combined to a level "Other" or are added to the largest category.
+- **Interpretation:** Interpreting the regression coefficient $\beta_k$ of the dummy variable $D_k$ is nothing special: It tells us how much $E(Y)$ changes when the dummy variable switches from 0 to 1. This amounts to switching from the reference category (the one without dummy) to category $k$.
+- **Integer encoding:** Ordinal categorical covariables are sometimes integer encoded for simplicity. This means that each category is represented by an integer number.
+- **Small categories:** In order to reduce overfitting, small categories are often combined to a level "Other" or are added to the largest category.
 
 ### Example: dummy coding
 
@@ -350,17 +354,17 @@ summary(fit)
 ```
 **Comments**
 
-- Adding covariable `color` has changed the slope of `carat` from 7756 in the simple linear regression to 8067. This is the effect of `carat` *adjusted* for `color`.
-- Each dummy variable of `color` has received its own coefficient. Switching from the reference color "D" to "E" is associated with a price reduction of 94 USD.
-- In contrast to the unintuitive descriptive result (worse colors tend to higher prices), we now see that worse colors are associated with lower prices. Adjusting for carat has solved the mistery. It seems that the diamond size had confounded the association between color and price. A regression model accounts for such confounding effects.
+- **Slope:** Adding covariable `color` has changed the slope of `carat` from 7756 in the simple linear regression to 8067. This is the effect of `carat` *adjusted* for `color`.
+- **Effects:** Each dummy variable of `color` has received its own coefficient. Switching from the reference color "D" to "E" is associated with a price reduction of 94 USD. The effect of color "F" compared to color "D" is about -80 USD.
+- **Confounding:** In contrast to the unintuitive descriptive result (worse colors tend to higher prices), we now see that worse colors are associated with lower prices. Adjusting for carat has solved the mistery. It seems that the diamond size had confounded the association between color and price. A regression model accounts for such confounding effects.
 
-## Linear regression is flexible
+## Flexibility
 
-Linear regression is flexible regarding *how* covariables are represented in the linear equation. Possibilities include
+Linear regression is flexible regarding *how* variables are represented in the linear equation. Possibilities include
 
-- using non-linear terms,
+- non-linear terms,
 - interactions, and
-- transformations.
+- transformations, notably logarithmic responses.
 
 We will briefly look into these.
 
@@ -401,13 +405,12 @@ Once fitted, the effect of a covariable does not depend on the values of the oth
 **Comments**
 
 - Adding interaction terms make model interpretation difficult. They should thus be used with care.
-- Interaction terms mean more parameters, thus there is a danger of overfitting.
-- Finding the right interaction terms without introducing overfitting is impossible.
+- Interaction terms mean more parameters, thus there is a danger of overfitting. Finding the right interaction terms without introducing overfitting is impossible.
 - Neural networks and tree-based models automatically find interactions, even between more than two variables. This is one of their main strengths.
 
 #### Example: interactions
 
-Let us now fit a linear regression for diamond prices with the two covariables `carat` and `color`. How would a model with interaction between the two variables look compared to the model without interactions from our example on dummy coding?
+Let us now fit a linear regression for diamond prices with the two covariables `carat` and `color`. How would a model with interaction between the two variables look compared to the model without?
 
 ```{r}
 library(tidyverse)
@@ -435,21 +438,21 @@ ggplot(to_plot, aes(x = carat, y = prediction, group = color, color = color)) +
 - In the model with interactions (image right), we get different slopes and intercepts per color, just as if we would have fitted a simple linear regression *per color*. The larger the diamonds, the larger the color effects.
 - The slopes are not very much different across colors, so the interaction effects are small.
 
-### Transformations
+### Transformations of covariables
 
 Not surprisingly, covariables are often transformed before entering the model:
 
-- categorical covariables are dummy coded,
-- collinear covariables are decorrelated by forming ratios,
-- logarithms neutralize gross outliers.
+- Categorical covariables are dummy coded.
+- Strongly correlated covariables are decorrelated by forming ratios.
+- Logarithms neutralize gross outliers.
 
-Model coefficients of course explain how the *transformed* variable $X$ acts on the expected response. In this respect, logarithms are special: In a model equation of
+Not surprisingly, its coefficient explains how the *transformed* variable $X$ acts on the expected response. With The logarithm is a transformation that even allows interpretation regarding the untransformed $X$. In the model equation
 $$
-  E(Y) = \alpha + \beta \log(X),
+  E(Y\mid X = x) = \alpha + \beta \log(x),
 $$
 we can say: A 1% increase in $X$ leads to an increase in $E(Y)$ of about $\beta/100$:
 $$
-  E(Y\mid X = 1.01 \cdot x) - E(Y\mid X = x) = \alpha + \beta \log (1.01 \cdot x) - \alpha - \beta \log(x) = \beta \log(1.01) \approx \beta/100.
+  E(Y\mid X = 101\% \cdot x) - E(Y\mid X = x) = \alpha + \beta \log (1.01 \cdot x) - \alpha - \beta \log(x) = \beta \log(1.01) \approx \beta/100.
 $$
 Thus, taking logarithms of covariables does not only deal with outliers, it also offers us the possibility to talk about percentages.
 
@@ -471,129 +474,133 @@ ggplot(aes(x = carat, y = price)) +
   geom_line() +
   geom_point()
 ```
+
 **Comments** 
 
-- Indeed, we have fitted a logarithmic relationship between carat and price. The scatterplot reveals that this does not make much sense. The model looks wrong.
+- Indeed, we have fitted a logarithmic relationship between carat and price. The scatterplot reveals that this does not make much sense. The model looks wrong. Shouldn't we better take the logarithm of price?
 - As usual, we can say that a one-point increase in `log(carat)` leads to a expected price increase of 5836 USD.
 - Backtransformed, this amounts to saying that a 1% increase in `carat` is associated with a price increase of about 5836/100 = 60 CHF.
 
+### Logarithmic response
 
+We have seen that taking logarithms not only reduces outlier effects in covariables but they also allow to think in relative changes. What happens if we consider a log response? The model of a simple linear regression would be
+$$
+  E(\log{Y} \mid X = x) = \alpha + \beta x.
+$$  
+**Claim:** The effect $\beta$ tells us by how much we can expect $Y$ to change. Thus, a logarithmic response leads to a *multiplicative* instead of an *additive* one.
 
-## Logarithms are important
+**Proof**
+Assume for a moment that we can swap taking expectations and log (disclaimer: we can't). In that case, the model would be
 
-We have already mentioned that (natural) logarithms help to reduce the effects of outliers. They also make effects "relative", which is often very useful for both the response and/or a covariable.
+$$
+  \log(E(Y\mid X = x)) = \alpha + \beta x
+$$
 
-For simplicity, we study this for the simple linear regression.
+resp.
 
-### Logarithm of covariable
+$$
+  E(Y\mid X = x) =e^{\alpha + \beta x}.
+$$
+The additive effect of increasing $X$ by 1 would be
+$$
+  E(Y\mid X = x+1) - E(Y\mid X = x) = e^{\alpha + \beta (x+1)} - e^{\alpha + \beta x} = e^{\alpha + \beta x}(e^\beta - 1) = E(Y\mid X = x)(e^\beta - 1).
+$$
+Dividing both sides by $E(Y\mid X = x)$ gives
+$$
+\underbrace{\frac{E(Y\mid X = x+1) - E(Y\mid X = x)}{E(Y\mid X = x)}}_{\text{Relative change in } E(Y)} = e^\beta-1 \approx \beta = \beta \cdot 100\%.
+$$
 
-The coefficient $\beta$ of 
-If we represent a covariable $X$ by its logarithm, then its effect $\beta$ :
+Since expectations and logarithms cannot be swapped, the calculation is not 100% correct. As a consequence, predictions on the scale of $Y$ are too small. In the section on GLMs, we will see a cleaner method to create multiplicative models.
 
+#### Example: log(carat)
 
-
-```{r, cache = TRUE}
-library(ggplot2)
-
-fit <- lm(price ~ log(carat), data = diamonds)
-summary(fit)
-intercept <- coef(fit)[1]
-slope <- coef(fit)[2]
-
-# Visualize the regression line
-ggplot(diamonds, aes(x = log(carat), y = price)) + 
-  geom_point(alpha = 0.2, shape = ".") +
-  coord_cartesian(ylim = c(-3000, 20000)) +
-  geom_abline(slope = slope, intercept = intercept, color = "orange", size = 1)
-
-# Predictions for diamonds with 1.3 carat?
-predict(fit, data.frame(carat = 1.3))
-
-# By hand
-intercept + slope * log(1.3)
-```
-
-### Logarithm of response
+How would our simple linear regression look like with `log(price)` as response?
 
 ```{r}
-library(ggplot2)
+library(tidyverse)
 
 fit <- lm(log(price) ~ carat, data = diamonds)
-summary(fit)
-intercept <- coef(fit)[1]
-slope <- coef(fit)[2]
+fit
 
-# Visualize the regression line
-ggplot(diamonds, aes(x = carat, y = log(price))) + 
-  geom_point(alpha = 0.2, shape = ".") +
-  coord_cartesian(xlim = c(0, 3)) +
-  geom_abline(slope = slope, intercept = intercept, color = "orange", size = 1)
-
-# Predictions for diamonds with 1.3 carat?
-exp(predict(fit, data.frame(carat = 1.3)))
-
-# By hand
-exp(intercept + slope * 1.3)
+data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>% 
+  mutate(price = exp(predict(fit, .))) %>% 
+ggplot(aes(x = carat, y = price)) +
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_line() +
+  geom_point() +
+  coord_cartesian(x = c(0.3, 3))
 ```
 
-### Logarithm of covariable and response
+**Comments** 
 
-```{r, cache = TRUE}
-library(ggplot2)
+- An increase in carat of 0.1 is associated with a log(price) increase of 0.197.
+- An increase in carat of 0.1 is associated with a price increase of about 20%.
+- The model looks okay until 2 carat. For larger diamonds, the model is heavily biased.
+- Predictions are obtained by exponentiating the result of the linear formula.
+
+#### Example: log(carat) and log(price)
+
+Using logarithms for either price or carat did not really provide a satisfactory model. What about applying logarithms to both response and covariable?
+
+```{r}
+library(tidyverse)
 
 fit <- lm(log(price) ~ log(carat), data = diamonds)
 summary(fit)
-intercept <- coef(fit)[1]
-slope <- coef(fit)[2]
 
-# Visualize the regression line
-ggplot(diamonds, aes(x = log(carat), y = log(price))) + 
-  geom_point(alpha = 0.2, shape = ".") +
-  geom_abline(slope = slope, intercept = intercept, color = "orange", size = 1)
+to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>% 
+  mutate(price = exp(predict(fit, .)))
 
-# Predictions for diamonds with 1.3 carat?
-exp(predict(fit, data.frame(carat = 1.3)))
+# Backtransformed
+ggplot(to_plot, aes(x = carat, y = price)) +
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_line() +
+  geom_point() +
+  coord_cartesian(x = c(0.3, 3)) +
+  ggtitle("Original scales")
 
-# By hand
-exp(intercept + slope * log(1.3))
+# log-log-scale
+ggplot(to_plot, aes(x = log(carat), y = log(price))) +
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_line() +
+  geom_point() +
+  coord_cartesian(x = log(c(0.3, 3))) +
+  ggtitle("Log-log scale")
+
 ```
+
+**Comments** 
+
+- **General impression:** The model looks quite realistic, both on backtransformed scale and linear scale. There are no obvious model biases visible.
+- **Effect on log-scales**: An increase in log(carat) of 1 is associated with a log(price) increase of 1.67.
+- **Effect on original scales**: An increase in carat of 1% is associated with a price increase of about 1.67%.
+- **R-squared:** About 93% of the variability in log(price) can be explained by log(carat).
+- **RMSE:** Typical prediction errors are in the range of 26%.
 
 ## Example: diamonds improved
 
-Now, we try to improve our simple linear regression in two ways.
-
-1. We add color, cut and clarity (implicitly as dummy variables).
-
-2. We model logarithmic price and carat. (Remember the scatter plot with logarithmic axes with a relatively strong linear relationship.)
+To end the section on linear regression, we will start from the log-log-example above and improve it by adding `color`, `cut` and `clarity`.
 
 ```{r, cache = TRUE}
-dia <- transform(diamonds,
-                 color_ = factor(color, ordered = FALSE),
-                 cut_ = factor(cut, ordered = FALSE),
-                 clarity_ = factor(clarity, ordered = FALSE))
-fit <- lm(log(price) ~ log(carat) + color_ + cut_ + clarity_, data = dia)
+library(tidyverse)
+
+dia <- diamonds %>% 
+  mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
+
+fit <- lm(log(price) ~ log(carat) + color + cut + clarity, data = dia)
 summary(fit)
 ```
 
 **Comments**
 
-- Effects of dummy coded variables like color are with respect to the first (= reference) category, which is represented by the intercept. E.g. we can say that average log prices are 0.054 lower for color "E" than for color "D". Worse colors seem to be associated with lower prices. Do you remember the unintuitive descriptive result from earlier above? There we had gained the impression that worse colors tend to higher prices. Taking into account the effects of other variables like carat has switched the sign of the color effect! Studying effects *adjusted* for other variables (resp. keeping all other variables fixed) is often at least as useful than looking at simple descriptive figures.
-
-- Since our model uses log-price as response, we might be interested to translate effects to the original level. This can be done by exponentiating the estimated coefficients or by interpreting the coefficients directly as approximate percentages. We can e.g. say: Typical diamonds prices are about 5% ($e^{-0.054277} - 1 = -0.0528$) lower for color "E" than for color "F".
-
-- Similarly, model errors are on log scale (and therefore approximately on approximately percentage scale). Looking at residual standard error, we can say that the typical prediction error is about 13%. 
-
-- The R-squared tells us that about 98% of the variability in log-prices can be explained by our four covariables.
-
-- How can we describe the effect of carat? One approach is to stay in the transformed scale: An increase in log-carat by 1 tends to a 1.88 increase in log-price. Due to the logs, this is not very easy to understand. It is easier to switch to the original scale and talk about percentages: A 1% increase in size is associated with a typical price increase of 1.9%.
+- **General:** In contrast to the descriptive analysis with wrong price effects of `color`, `cut` and `clarity`, all effects of the multiple linear regression look plausible.
+- **Interpretation:** For every % more carat we can expect an increase in price of about 1.9% (keeping everything else fixed). A big diamond is worth more than its two halves! Diamonds with the second best color "E" are about 5% cheaper than those with the best color (keeping everything else fixed).
+- **R-squared:** About 98% of the variability in log-prices can be explained by our four covariables. Adding the three categorical covariables has considerably improved the precision model.
+- **RMSE:** Typical prediction error is about 13%.
 
 ## Exercises
 
-1. Let's improve the simple linear regression on diamond prices by adding "carat squared" as additional regressor.
-    - How does the resulting *quadratic* model equation look in clean math?
-    - Compare the following aspects with the original simple linear regression: residual standard error, R-squared, prediction of first observation, the coefficients.
-  
-2. As alternative to the multiple linear regression on diamond prices with logarithmic price and logarithmic carat, consider the same model without logarithms. Interpret the output of the model.
+As alternative to the multiple linear regression on diamond prices with logarithmic price and logarithmic carat, consider the same model without logarithms. Interpret the output of the model. How would you compare its performance to the model with logarithms?
 
 # Generalized Linear Model
 
