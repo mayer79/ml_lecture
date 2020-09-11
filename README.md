@@ -44,6 +44,12 @@ In order to be able to follow the lecture, you should be familiar with
 - Linear regression
 - R/Python
 
+To get the lecture notes both as html and code-notebooks, clone this repository by running 
+
+```
+git clone https://github.com/mayer79/ml_lecture.git
+```
+
 ### Software for the R version of the lecture
 
 - R version >= 3.6
