@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Introduction
 
-A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and boosted trees. In this chapter, we will introduce these tree-based methods.
+A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and gradient boosted trees. In this chapter, we will introduce these tree-based methods.
 
 # Decision trees
 
@@ -167,19 +167,19 @@ plot(light_profile(fl, v = "color")) +
 1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
 2. Fit a random forest on the claims data, predicting the binary variable `clm` by the covariabes `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e. predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Use a clean train/test split. Interpret the results by split gain importance and partial dependence plots.
 
-# Tree Boosting
+# Gradient Boosted Trees
 
 The idea of *boosting* was introduced by Schapire in 1990 [3] and works as follows: A simple model is fit to the data. Then, a next simple model tries to correct the errors from the first model and so on, until some stopping criterion is reached. As simple models, usually **small decision trees** are used, an idea pushed by Jerome Friedman in his famous 2001 article on the very general framework of gradient boosting machines [4]. 
 
-Modern implementations of *tree boosting* or *(gradient) boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Sept. 07, 2020:
+Modern implementations of such *gradient boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Sept. 07, 2020:
 
 ![](../figs/comparison_boosting.PNG).
 
 Predictions are calculated similar to random forests, i.e. by combining predictions of all trees. As loss/objective function, one can choose among many possibilities. Often, using the same loss as a corresponding GLM is a good choice.
 
-## Parameters of boosted trees
+## Parameters of gradient boosted trees
 
-Boosted trees offer a quite a lot of parameters. Unlike with random forests, they need to be tuned to achieve good results. It would be naive to use an algorithm like XGBoost without parameter tuning. Here is a selection:
+Gradient boosted trees offer a quite a lot of parameters. Unlike with random forests, they need to be tuned to achieve good results. It would be naive to use an algorithm like XGBoost without parameter tuning. Here is a selection:
 
 - **Number of boosting rounds:** In contrast to random forests, more trees/rounds is not always beneficial because the model begins to overfit after some time. The optimal number of rounds is usually found by early stopping, i.e. one lets the algorithm stop as soon as the (cross-)validation performance stops improving.
 
@@ -338,7 +338,7 @@ plot(light_profile(fl, v = "color")) +
 
 # Chapter Summary
 
-In this chapter, we have met decision trees, random forests and tree boosting. Single decision trees are very easy to interpret but do not perform too well. On the other hand, tree ensembles like the random forest or tree boosting usually perform well but are tricky to interpret. We have introduced interpretation tools to look into such "black boxes". The main reason why random forests and boosted trees often provide more accurate models than a linear model lies in the ability of trees to automatically learn interaction and other non-linear effects.
+In this chapter, we have met decision trees, random forests and tree boosting. Single decision trees are very easy to interpret but do not perform too well. On the other hand, tree ensembles like the random forest or gradient boosted trees usually perform well but are tricky to interpret. We have introduced interpretation tools to look into such "black boxes". The main reason why random forests and boosted trees often provide more accurate models than a linear model lies in the ability of trees to automatically learn interaction and other non-linear effects.
 
 # Chapter References
 
