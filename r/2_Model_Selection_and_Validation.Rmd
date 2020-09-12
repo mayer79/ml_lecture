@@ -76,7 +76,7 @@ We can use the validation performance to compare *algorithms* (e.g. regression v
 
 What k provides the best RMSE on 20% validation data?
 
-```{r, cache=TRUE}
+```{r}
 library(tidyverse)
 library(FNN)
 library(splitTools)
@@ -151,7 +151,7 @@ Note: If cross-validation is fast, you can repeat the process for additional dat
 
 We now use five-fold CV on the diamonds data to find the optimal k, i.e. to *tune* our nearest-neighbour approach.
 
-```{r, cache=TRUE}
+```{r}
 library(tidyverse)
 library(FNN)
 library(splitTools)
@@ -231,7 +231,7 @@ The only difference across the two workflows is whether to use simple validation
 
 We will now go through Workflow B for our diamond price model. We will (1) tune the "k" of our nearest-neighbour regression and (2) compete with a linear regression.
 
-```{r, cache=TRUE}
+```{r}
 library(tidyverse)
 library(FNN)
 library(splitTools)

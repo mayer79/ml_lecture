@@ -1,6 +1,5 @@
 ---
 title: "Basics and Linear Models"
-subtitle: "WORK IN PROGRESS"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
 output: 
@@ -96,7 +95,7 @@ During or after the descriptive analysis, we usually do the *data preprocessing*
 
 Let's summarize the diamonds data set.
 
-```{r, cache = TRUE}
+```{r}
 library(ggplot2)
 
 # Data size
@@ -214,7 +213,7 @@ $$
   E(\text{price}) = \alpha + \beta \cdot \text{carat}.
 $$
 
-```{r, cache = TRUE}
+```{r}
 library(ggplot2)
 
 fit <- lm(price ~ carat, data = diamonds)
@@ -602,7 +601,7 @@ ggplot(to_plot, aes(x = log(carat), y = log(price))) +
 
 To end the section on linear regression, we extend the log-log-example above by adding `color`, `cut` and `clarity` as covariables.
 
-```{r, cache = TRUE}
+```{r}
 library(tidyverse)
 
 dia <- diamonds %>% 

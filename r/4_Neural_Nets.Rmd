@@ -71,7 +71,7 @@ To gain confidence into neural nets, we first show that parameters estimated by 
 
 ### Example: simple linear regression
 
-```{r, cache=TRUE}
+```{r}
 library(tidyverse)
 library(keras)
 # use_python(path to python...)
@@ -145,7 +145,7 @@ This network has 16 parameters. How much better than our simple network with jus
 
 ### Example: hidden layer
 
-```{r, cache=TRUE}
+```{r}
 library(tidyverse)
 library(keras)
 # use_python(path to python...)
@@ -212,7 +212,7 @@ Let us add to the last example a non-linear activation $\sigma$ after the hidden
 
 ### Example: activation functions
 
-```{r, cache=TRUE}
+```{r}
 library(tidyverse)
 library(keras)
 # use_python(path to python...)
@@ -350,7 +350,7 @@ We will now fit a neural net with two hidden layers (30 and 15 nodes) and a tota
 
 ![](../figs/nn_2_hidden.PNG)
 
-```{r, cache=TRUE}
+```{r}
 library(tidyverse)
 library(keras)
 # use_python(path to python...)
@@ -472,7 +472,7 @@ plot(light_profile(fl, v = "color")) +
 
 Representing categorical input variables through embedding layers is extremely useful in practice. We will end this chapter with an example on how to do it with the claims data. This example also shows how flexible neural network structures are.
 
-```{r, cache=TRUE}
+```{r}
 library(tidyverse)
 library(keras)
 library(splitTools)

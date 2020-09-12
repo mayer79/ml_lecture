@@ -36,6 +36,13 @@ All examples are self-contained.
 
 Each chapter will take us about two hours and includes exercises.
 
+You can preview the html outputs of the R lecture by clicking on these links:
+
+1. [Basics and Linear Models](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/1_Basics_and_Linear_Models.html)
+2. [Model Selection and Validation](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/2_Model_Selection_and_Validation.html)
+3. [Trees](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/3_Trees.html)
+4. [Neural Nets](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/4_Neural_Nets.html)
+
 ## Prerequisites
 
 In order to be able to follow the lecture, you should be familiar with
