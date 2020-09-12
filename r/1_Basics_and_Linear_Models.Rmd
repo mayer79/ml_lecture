@@ -366,7 +366,13 @@ These elements are very important, so we look at them briefly.
 
 ### Non-linear terms
 
-Important numeric covariables might be represented by more than just one parameter (= linear slope) to allow for more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature, adding multiple polynomial terms can approximate any smooth relationship. An alternative to polynomial terms are regression *splines*, i.e. piecewise polynomials. Using non-linear terms make interpretation of regression coefficients difficult. An option is to study predictions while sliding the covariable values over its range (systematic predictions).
+Important numeric covariables might be represented by more than just one parameter (= linear slope) to allow for more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature, adding enough multiple polynomial terms can approximate any smooth relationship. 
+
+For example, the model equation for a cubic regression is
+$$
+  E(Y) = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3x^3.
+$$
+An alternative to polynomial terms are regression *splines*, i.e. piecewise polynomials. Using non-linear terms makes interpretation of regression coefficients difficult. An option is to study predictions while sliding the covariable values over its range (systematic predictions).
 
 #### Example: cubic regression
 
