@@ -518,7 +518,7 @@ $$
 $$
 Indeed: A one point increase in $X$ is associated with a relative increase in $E(Y)$ of about $\beta 100\%$.
 
-Since expectations and logarithms cannot be swapped, the calculation is not 100% correct. One consequence of this imperfection is that predictions on the scale of $Y$ are systematically too small. One of the motivations of the generalized linear models GLM (see next section) will be to mend this problem in an elegant way.
+Since expectations and logarithms cannot be swapped, the calculation is not 100% correct. One consequence of this imperfection is that predictions on the scale of $Y$ are systematically too small. (Actually, we have fitted a model for the geometric instead of the arithmetic mean of the response.) One of the motivations of the generalized linear models GLM (see next section) will be to mend this problem in an elegant way.
 
 #### Example: log(price)
 
@@ -625,16 +625,16 @@ As alternative to the multiple linear regression on diamond prices with logarith
 
 # Generalized Linear Model
 
-The basic linear regression model has many extensions, e.g.
+The linear regression model has many extensions, e.g.
 
 - quantile regression to model quantiles of the response instead of its expectation,
 - mixed-models to capture grouped data structures,
-- generlized least-squares to model time series data,
+- generalized least-squares to model time series data,
 - penalized regression, an extention to fight overfitting (LASSO, Ridge-Regression, Elastic-Net),
 - neural networks that automatically learn interactions and non-linearities (see later),
-- **the generalized linear model (GLM)** that e.g. allows to model binary response variables in a natural way.
+- **the generalized linear model** that e.g. allows to model binary response variables in a natural way.
 
-This section covers the generalized linear model. It was introduced in 1972 by Nelder & Wedderburn [2]. 
+This section covers the generalized linear model (GLM). It was introduced in 1972 by Nelder & Wedderburn [2]. 
 
 ## Definition
 
@@ -666,52 +666,47 @@ The following table lists some of the most used GLMs.
 
 **Some explanations**
 
-- To find predictions $\hat y$ on the scale of $Y$, one evaluates the linear function and then applies the inverse link $g^{-1}$.
-- Any smooth and monotone transformation can be used as link $g$. However, only the *natural*/*canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link in order to simplify interpretation.
-- Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective or loss function called *deviance*. 
-- The deviance of the normal distribution equals the MSE. Deviance plays the same role for GLMs as MSE for linear regression.
-- The deviance of logistic regression is equivalent to cross-entropy and log loss.
-- The logit function is defined as 
-$$
-  \text{logit}(p) = \log (\text{Odds}(p)) = \log\left(\frac{p}{1-p}\right)
-$$
-It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. In the context of GLMs, $p = \text{Prob}(Y = 1) = E(Y)$.
-
+- To find predictions $\hat y$ on the scale of $Y$, one evaluates the linear function (called "linear predictor") and then applies the inverse link $g^{-1}$.
+- Any smooth and monotone transformation can be used as link $g$. However, only the *natural*/*canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(Y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link in order to simplify interpretation.
+- Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*. 
+- The deviance of the normal distribution equals the MSE. Thus, deviance plays the same role for GLMs as MSE for linear regression.
+- The deviance of the logistic regression is also called *cross-entropy* or *log loss*.
+- The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)}$, i.e. modeling the expected response is the same as modeling the probability of having a 1.
 - The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the m categories.
-- The normal, Poisson and Gamma GLMs are special cases of the Tweedie GLM.
+- The normal, Poisson and Gamma GLMs are special cases of the *Tweedie GLM*.
 
-**Outlook:** The loss functions used in the context of GLMs are used one-to-one as objective functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
+**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
 
 ## Why do we need GLMs?
 
 The normal linear model allows us to model $E(Y)$ by an additive linear function. In principle, this would also work for 
 
 - binary $Y$ (e.g. insurance claim yes/no, success yes/no, fraud yes/no), 
-- count $Y$ (e.g. number of insurance claims, number of successes),
-- right-skewed $Y$ (e.g. time durations, claim heights, house prices).
+- count $Y$ (e.g. number of insurance claims, number of adverse events),
+- right-skewed $Y$ (e.g. time durations, claim heights, prices).
 
-However, in such cases, an additive linear model equation is usually not realistic. As such, the main assumption of the linear regression are violated. 
+However, in such cases, an additive linear model equation is usually not realistic. As such, the main assumption of the linear regression model is violated. 
 
-Here some examples:
+Regarding the examples above:
 
 - Binary: A jump from 0.5 to 0.6 success probability is less impressive than from 0.89 to 0.99. 
-- Count: A jump from 2 to 3 is less impressive than a jump from 0.1 to 1.1. 
-- Right-skewed: Also here, a jump from 1 Mio to 1.1 Mio is conceived as larger than the jump from 2 Mio to 2.1 Mio.
+- Count: A jump from an expected count of 2 to 3 is less impressive than a jump from an expected count of 0.1 to 1.1. 
+- Right-skewed: A price jump from 1 Mio to 1.1 Mio is conceived as larger than a jump from 2 Mio to 2.1 Mio.
 
-In these examples, one could think of transforming the response variable e.g. by a logarithm to produce a multiplicative model. This, however fails due to the simple fact that logarithms of 0 are not possible.
+In these examples, one could think of transforming the response variable e.g. by a logarithm to produce a multiplicative model. At least for the first two examples, this fails because we cannot take logarithms of 0.
 
-
-Additionally, thanks to the inverse link, predictions on the scale of $Y$ respect the range of $Y$. E.g. probabilities predicted by a logistic regression are always between 0 an 1. Another technical advantage is that standard errors, hypothesis tests etc. are approximately correct even if the error variance is non-constant.
+Additionally, thanks to the inverse link, predictions on the scale of $Y$ respect the range of $Y$. E.g. probabilities predicted by a Poisson count regression are always between 0 an 1. Another advantage is that standard errors, hypothesis tests etc. are approximately correct even for distributions like Poisson or Bernoulli where the variance depends on the (modeled) expectation.
 
 ## Interpretation of effects
 
-The interpretation of effects on the linear scale or for the identity link is as with linear regression: "A one-point increase in $X_m$ is associated with a $\beta_m$ increase in $g(E(y))$, keeping everything else fixed". 
+The interpretation of effects on the linear scale or for the identity link is as with linear regression: "A one-point increase in $X$ is associated with a $\beta$ increase in $g(E(Y))$, keeping everything else fixed". Similarly, for logarithmic links, we can use the logic from Section "logarithmic response" to translate effects to the original scale of $E(Y)$: "a one-point increase in $X$ is associated with a relative increase in $E(Y)$ of $e^{\beta}-1 \approx \beta \cdot 100\%$. Now, because the logarithm is outside the expectation, i.e. $\log(E(Y))$ instead of $E(\log(Y))$, the derivation of relative effects of Section "logarithmic response" is mathematically valid.
 
-Often, we want to be able to interpret the effects on $E(Y)$, i.e. with the equivalent model equation
+Logistic regression neigher uses the identity link nor the logarithmic link but rather the logit link. It is defined as 
 $$
- E(y) = g^{-1}(X\beta)
+  \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right)
 $$
-in mind. FOcus on log.
+and maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. In the context of GLMs, $p = \text{Prob}(Y = 1) = E(Y)$. Odds, i.e. the ratio of $p$ to $1-p$ is related to rolling dice: The probability to get a "6" is 1/6. Correspondingly, the odds to get a six is 1:5 = 0.2.
+The coefficients of logistic regression are interpreted either on the log-odds scale as with linear regression or on the odds-scale as with logarithmic transformation. There is no simple interpretation on the original probability scale.
 
 ## Example: Claim counts
 
@@ -732,18 +727,17 @@ ggplot(dataCar, aes(x = numclaims)) +
 fit <- glm(numclaims ~ veh_value + veh_body + veh_age + gender + area + agecat,
            data = dataCar, family = poisson(link = "log"))
 summary(fit)
-
 ```
 
 **Comments**
 
-- An increase of 1 in `veh_value` increases the log of the expected count by 0.046. On the original scale, this is an increase of $e^{0.046388}-1 = 0.047 = 4.7\%$.
+- An increase of 1 in `veh_value` increases the log of the expected count by 0.046. On the original scale, this is an increase of approximately 4.6%. The exact effect is $e^{0.046388}-1 = 0.047 = 4.7\%$.
 - Males produce, on average, about 1.6% less claims. 
 - The deviance 26629 is only 0.5% smaller than the one of the null model 26768. The predictive performance of this model is thus low. This makes sense as having claims is a highly random event that cannot be predicted on individual scale.
 
 ## Example: Claim (yes/no)
 
-In order to illustrate logistic regression, we will model the binary variable "claim yes=1/no=0" by a logistic regression with natural logit link. This ensures that predicted probabilities are between 0 and 1 and that covariables act in a multiplicative way on the odds of having a claim.
+In order to illustrate logistic regression, we will model the binary variable "claim yes=1/no=0" by a logistic regression with logit link. This ensures that predicted probabilities are between 0 and 1 and that covariables act in a multiplicative way on the odds of having a claim.
 
 ```{r}
 library(ggplot2)
@@ -758,18 +752,21 @@ ggplot(dataCar, aes(x = factor(clm))) +
 fit <- glm(clm ~ veh_value + veh_body + veh_age + gender + area + agecat,
            data = dataCar, family = binomial(link = "logit"))
 summary(fit)
-
 ```
 
 **Comments**
 
-- An increase of 1 in `veh_value` (10'000 USD) increases the log-odds of having a claim by 0.051. On the odds scale, this is an increase of $e^{0.05098}-1 = 0.052 = 5.2\%$. Thus we can say that for every additional 10'000 USD vehicle value, the odds of having a claim is increased by 5.2%.
+- An increase of 1 in `veh_value` (10'000 USD) increases the log-odds of having a claim by 0.051. On the odds scale, this is an increase of approximately 5.1%. The exact calculation is $e^{0.05098}-1 = 0.052 = 5.2\%$. Thus we can say that for every additional 10'000 USD vehicle value, the odds of having a claim is increased by 5.2%.
 - The odds that a male produces a claim is about 1% smaller than for females.
 - The deviance 33632 is only 0.4% smaller than the one of the null model 33767.
 
+# Exercises
+
+Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the result to the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables.
+
 # Chapter Summary
 
-In this first chapter, we have introduced basic notations. Then, we have revisited multiple linear regression and some of its many aspects. To round up the chapter, we met a generalization, namely the generalized linear model GLM that includes the logistic regression abd Poisson count regression.
+In this first chapter, we have introduced basic notations. Then, we have revisited multiple linear regression and some of its many aspects. To round up the chapter, we met an important generalization of linear regression, namely the generalized linear model (GLM). Itt includes the logistic regression abd Poisson count regression as relevant special cases.
 
 # Chapter References
 
