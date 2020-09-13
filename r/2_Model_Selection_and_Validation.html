@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2020-09-12" />
+<meta name="date" content="2020-09-13" />
 
 <title>Model Selection and Validation</title>
 
@@ -2863,7 +2863,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Model Selection and Validation</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2020-09-12</h4>
+<h4 class="date">2020-09-13</h4>
 
 </div>
 
@@ -3177,9 +3177,9 @@ div.tocify {
 <div id="exercises" class="section level1">
 <h1><span class="header-section-number">9</span> Exercises</h1>
 <ol style="list-style-type: decimal">
-<li>Apply <em>stratified</em> splitting (using the response <code>price</code>) throughout the last example. Compare the results.</li>
-<li>Compare the linear regression model for <code>price</code> with a corresponding Gamma GLM with log-link. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?</li>
-<li>Use cross-validation to select the best polynomial degree to represent <code>log(carat)</code> in the linear regression model for <code>price</code>.</li>
+<li>Apply <em>stratified</em> splitting (using the response <code>price</code>) throughout the last example. Do the results change?</li>
+<li>Use cross-validation to select the best polynomial degree to represent <code>log(carat)</code> in the Gamma GLM with log-link (with additional covariables <code>color</code>, <code>cut</code>, and <code>clarity</code>). Evaluate the result on an independent test data.</li>
+<li>Compare the linear regression for <code>price</code> (using <code>log(carat)</code>, <code>color</code>, <code>cut</code>, and <code>clarity</code> as covariables) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?</li>
 </ol>
 </div>
 

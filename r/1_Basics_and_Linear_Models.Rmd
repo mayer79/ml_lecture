@@ -626,7 +626,15 @@ summary(fit)
 
 ## Exercises
 
-As alternative to the multiple linear regression on diamond prices with logarithmic price and logarithmic carat, consider the same model without logarithms. Interpret the output of the model. How would you compare its performance to the model with logarithms?
+As alternative to the multiple linear regression on diamond prices with logarithmic price and logarithmic carat, consider the same model without logarithms. Interpret the output of the model.
+
+```{r}
+library(tidyverse)
+
+dia <- diamonds %>% 
+  mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
+
+```
 
 # Generalized Linear Model
 
@@ -651,7 +659,7 @@ or similarly
 $$
   E(Y) = g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m),
 $$
-where $Y$ conditional on the covariables belongs to the exponential dispersion family and the link function $g$ is a smooth transformation. 
+where $Y$ conditional on the covariables belongs to the exponential dispersion family and $g$ is a transformation. 
 
 Thus, a GLM has three components:
 
@@ -669,49 +677,55 @@ The following table lists some of the most used GLMs.
 | Gamma      | Gamma       | $(0, \infty)$         | 1/x         | log           | Gamma deviance   | $2 ((y - \hat y) / \hat y - \log(y / \hat y))$
 | Multinomial| Multinomial | $\{C_1, \dots, C_m\}$ | mlogit      | mlogit        | Categorical cross-entropy    | $\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$
 
-**Some explanations**
+**Some remarks**
 
 - To find predictions $\hat y$ on the scale of $Y$, one evaluates the linear function (called "linear predictor") and then applies the inverse link $g^{-1}$.
-- Any smooth and monotone transformation can be used as link $g$. However, only the *natural*/*canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(Y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link in order to simplify interpretation.
-- Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*. 
-- The deviance of the normal distribution equals the MSE. Thus, deviance plays the same role for GLMs as MSE for linear regression.
-- The deviance of the logistic regression is also called *cross-entropy* or *log loss*.
-- The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)}$, i.e. modeling the expected response is the same as modeling the probability of having a 1.
+- Any transformation can be used as link $g$. However, only the *natural/canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(Y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link because of the next property.
+- **Using a log link produces a multiplicative model.**
+- The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)} = p$, i.e. modeling the expected response is the same as modeling the probability $p$ of having a 1.
 - The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the m categories.
 - The normal, Poisson and Gamma GLMs are special cases of the *Tweedie GLM*.
-
-**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
 
 ## Why do we need GLMs?
 
 The normal linear model allows us to model $E(Y)$ by an additive linear function. In principle, this would also work for 
 
-- binary $Y$ (e.g. insurance claim yes/no, success yes/no, fraud yes/no), 
-- count $Y$ (e.g. number of insurance claims, number of adverse events),
-- right-skewed $Y$ (e.g. time durations, claim heights, prices).
+- binary responses (e.g. insurance claim yes/no, success yes/no, fraud yes/no), 
+- count responses (e.g. number of insurance claims, number of adverse events),
+- right-skewed responses (e.g. time durations, claim heights, prices).
 
-However, in such cases, an additive linear model equation is usually not realistic. As such, the main assumption of the linear regression model is violated. 
+However, in such cases, an additive linear model equation is usually not realistic. As such, the main assumption of the linear regression model is violated:
 
-Regarding the examples above:
-
-- Binary: A jump from 0.5 to 0.6 success probability is less impressive than from 0.89 to 0.99. 
-- Count: A jump from an expected count of 2 to 3 is less impressive than a jump from an expected count of 0.1 to 1.1. 
+- Binary: A jump from 0.5 to 0.6 success probability seems less impressive than from 0.89 to 0.99. 
+- Count: A jump from an expected count of 2 to 3 seems less impressive than a jump from an expected count of 0.1 to 1.1. 
 - Right-skewed: A price jump from 1 Mio to 1.1 Mio is conceived as larger than a jump from 2 Mio to 2.1 Mio.
 
-In these examples, one could think of transforming the response variable e.g. by a logarithm to produce a multiplicative model. At least for the first two examples, this fails because we cannot take logarithms of 0.
+GLMs deal with such problems by taking a suitable link function like the logarithm. At least for the first two examples, this could not be done by linear regression with log response because of zeros.
 
-Additionally, thanks to the inverse link, predictions on the scale of $Y$ respect the range of $Y$. E.g. probabilities predicted by a Poisson count regression are always between 0 an 1. Another advantage is that standard errors, hypothesis tests etc. are approximately correct even for distributions like Poisson or Bernoulli where the variance depends on the (modeled) expectation.
+Further advantages of the GLM over the linear regression are:
+
+- Predictions are on the right scale, e.g. probabilities of a binary response are between 0 and 1 if we use the logit link.
+- Inferential statistics are less inaccurate. For the linear regression, they depend on the equal variance assumption which is violated for distributions like Poisson or Gamma.
 
 ## Interpretation of effects
 
-The interpretation of effects on the linear scale or for the identity link is as with linear regression: "A one-point increase in $X$ is associated with a $\beta$ increase in $g(E(Y))$, keeping everything else fixed". Similarly, for logarithmic links, we can use the logic from Section "logarithmic response" to translate effects to the original scale of $E(Y)$: "a one-point increase in $X$ is associated with a relative increase in $E(Y)$ of $e^{\beta}-1 \approx \beta \cdot 100\%$. Now, because the logarithm is outside the expectation, i.e. $\log(E(Y))$ instead of $E(\log(Y))$, the derivation of relative effects of Section "logarithmic response" is mathematically valid.
+The interpretation of model coefficients is guided by the link.
 
-Logistic regression neigher uses the identity link nor the logarithmic link but rather the logit link. It is defined as 
+- **Identity link:** As with linear regression: "A one-point increase in $X$ is associated with a $\beta$ increase in $g(E(Y))$, keeping everything else fixed". 
+- **Log link:** As with linear regression with log response: "A one-point increase in $X$ is associated with a relative increase in $E(Y)$ of $e^{\beta}-1 \approx \beta \cdot 100\%$. In For GLMs, this derivation is mathematically sound as we start with the logarithm outside the expectation. Using a GLM with log link is thus the cleaner way to produce a multiplicative model for $E(Y)$ than to log transform the response in a linear regression.
+- **Logit link:** Logistic regression uses the logit link
 $$
-  \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right)
+  \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right).
 $$
-and maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. In the context of GLMs, $p = \text{Prob}(Y = 1) = E(Y)$. Odds, i.e. the ratio of $p$ to $1-p$ is related to rolling dice: The probability to get a "6" is 1/6. Correspondingly, the odds to get a six is 1:5 = 0.2.
-The coefficients of logistic regression are interpreted either on the log-odds scale as with linear regression or on the odds-scale as with logarithmic transformation. There is no simple interpretation on the original probability scale.
+It maps probabilities  to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e. the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The probability to get a "6" is 1/6. Correspondingly, the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. We do not interpret the coefficients on the original probability scale.
+
+![](../figs/log_odds.png)
+
+## Parameter estimation and deviance
+
+Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. The deviance of the logistic regression is equivalent to *cross-entropy* or *log loss*.
+
+**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
 
 ## Example: Claim counts
 
@@ -767,11 +781,19 @@ summary(fit)
 
 # Exercises
 
-Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the result to the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables.
+Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the coefficients with those from the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables.
+
+```{r}
+library(tidyverse)
+
+dia <- diamonds %>% 
+  mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
+
+```
 
 # Chapter Summary
 
-In this first chapter, we have introduced basic notations. Then, we have revisited multiple linear regression and some of its many aspects. To round up the chapter, we met an important generalization of linear regression, namely the generalized linear model (GLM). Itt includes the logistic regression abd Poisson count regression as relevant special cases.
+In this first chapter, we have introduced basic notations. Then, we have revisited multiple linear regression and some of its many aspects. To round up the chapter, we met an important generalization of linear regression, namely the generalized linear model (GLM). It includes the logistic regression and Poisson count regression as relevant special cases.
 
 # Chapter References
 
