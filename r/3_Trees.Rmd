@@ -102,7 +102,9 @@ Approaches that work for *any* supervised model (including neural nets) include 
 
 ### Effects
 
-One of the main reasons for the success of methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable $X$ typically depends on the values of other covariables. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding the value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The more natural the Ceteris Paribus clause, the better the partial dependence plots.
+One of the main reasons for the success of methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable $X$ typically depends on the values of other covariables. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding their value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The more natural the Ceteris Paribus clause, the better the partial dependence plots.
+
+Remark: A partial dependence plot of a covariable in a linear regression is simply a visualization of its coefficient.
 
 Alternatives to partial dependence plots include **accumulated local effect plots** and **SHAP dependence plots**. Both relax the Ceteris Paribus clause.
 
