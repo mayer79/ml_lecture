@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and gradient boosted trees. In this chapter, we will introduce these tree-based methods.
 
-# Decision trees
+# Decision Trees
 
 ## How they work
 
@@ -28,13 +28,15 @@ In our journey to estimate the model $f$ by $\hat f$, we have considered mainly 
 
 (Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen to optimize the given loss by asking the best "yes/no" question about the covariables, e.g. "is carat < 1?" or "is color better than F?".
 
-Typical loss functions (= "objectives") are the MSE for regression problems and information (= cross-entropy = log loss = logistic deviance) or gini impurity for classification. The latter can be viewed as a "variance" for categorical variables.
+Typical loss functions (= "objectives") are the MSE for regression problems and information (= cross-entropy = log loss = logistic deviance) or Gini impurity for classification. The latter can be viewed as a "variance" for categorical variables.
 
 Predictions are calculated by sending an observation through the tree, starting with the question at the "trunk" and ending in a "leaf". The prediction is the value associated with the leaf. For MSE loss, the leaf values equal the average response of all observations in the leaf. In classification settings, it may be the most frequent class in the leaf or all class probabilities.
 
 The concept of a decision tree is best understood with an example.
 
-## Example: claims
+## Example: decision tree
+
+We will use the `dataCar` data set to predict the claim probability with a decision tree. As features, we use `veh_value`, `veh_body`, `veh_age`, `gender`, and `agecat`.
 
 ```{r}
 library(rpart)
@@ -58,17 +60,18 @@ dataCar[1, c("agecat", "veh_value", "veh_body")]
 predict(fit, dataCar[1, ])
 ```
 
-The first observation belongs to a person in age category 2 and has a $10'600 hatchback: the first question sends us to the right, the second to the left and the third to the right. This gives us a claim probability of 6.7%.
+**Comments**
 
-How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all covariables for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariable `agecat` at the value 5 reduced the loss most.
+- The first observation belongs to a person in age category 2 and has a $10'600 hatchback: the first question sends us to the right, the second to the left and the third to the right. This gives us a claim probability of 6.7%.
+- How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all covariables for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariable `agecat` at the value 5 reduced the loss most.
 
-**Comments about decision trees**
+**Properties of decision trees**
 
-- **Outliers:** In contrast to linear models, outliers in *covariables* are not an issue as the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in *covariables* has no effect. Both statements do not hold for the response variable.
+- **Outliers:** In contrast to linear models, outliers in *covariables* are not an issue because the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in *covariables* has no effect. Both statements do not hold for the response variable.
 - **Missing values:** Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller/larger than the smallest non-missing value (e.g. -1 for a positive variable).
-- **Categorical covariables:** Unordered categorical covariables are tricky to split as with $\ell$ levels you end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
-- **Greedy:** Partitions are made in a greedy way to optimize the objective in *one step*. Looking ahead more than one step would lead to better models but are too computationally demanding in practice.
-- **Interactions:** By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large. This is a big advantage of tree-based methods compared to linear models where these elements have to  carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.
+- **Categorical covariables:** Unordered categorical covariables are tricky to split because with $\ell$ levels we end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
+- **Greedy:** Partitions are made in a greedy way to optimize the objective in *one step*. Looking ahead more than one step would lead to better models but this is computationally too demanding in practice.
+- **Interactions:** By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.
 
 These properties translate 1:1 to combinations of trees like random forests or boosted trees.
 
@@ -86,9 +89,42 @@ Predictions are found by pooling the predictions of all trees, e.g. by averaging
 **Comments about random forests**
 
 - **Number of trees:** Usually, 100-1000 trees are being grown. The more, the better. More trees also mean longer training time and larger models.
-- **Diversification:** Single trees in a random forest are usually very deep and overfit on the training data. It is the diversity across trees that produces a good and stable model, just with a well diversified stock portfolio. **Still, never trust performance on the training set for random forests.**
+- **Diversification:** Single trees in a random forest are usually very deep and overfit on the training data. It is the diversity across trees that produces a good and stable model, just with a well-diversified stock portfolio. 
+- **Never trust performance on the training set for random forests.**
 - **OOB validation**: In each tree, about 1/3 of all observations are not in the bootstrap sample just by chance. Put differently: each observation is used in about 2/3 of all trees. If its prediction is calculated from the other 1/3 of the trees, we get an "out-of-sample" resp. "out-of-bag" (OOB) prediction. If rows are independent, model performance derived from these OOB predictions is usually good enough to be used for model validation. Do not use OOB results when rows are dependent such as for grouped samples.
-- **Paramter tuning:** Random forests offer many tuning parameters. Since the results do not depend too much on their choice, untuned random forests are ideal benchmark models.
+- **Parameter tuning:** Random forests offer many tuning parameters. Since the results do not depend too much on their choice, untuned random forests are often great benchmark models.
+
+## Example: random forest
+
+Let us now fit a random forest for diamond prices with default parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable. 
+
+```{r}
+library(tidyverse)
+library(splitTools)
+library(ranger)
+library(MetricsWeighted)
+
+# Train/test split
+ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
+
+fit <- ranger(price ~ carat + color + cut + clarity, 
+              num.trees = 500,
+              data = diamonds[ix$train, ], 
+              importance = "impurity",
+              seed = 83)
+fit
+
+# Performance on test data
+pred <- predict(fit, diamonds[ix$test, ])$predictions
+rmse(diamonds$price[ix$test], pred)       # 557 USD
+r_squared(diamonds$price[ix$test], pred)  # 0.9807277
+```
+
+**Comments**
+
+- Performance is excellent.
+- The OOB estimate of performance is extremely close to the test set performance.
+- Interpretation?
 
 ## Interpreting a "black box"
 
@@ -102,36 +138,18 @@ Approaches that work for *any* supervised model (including neural nets) include 
 
 ### Effects
 
-One of the main reasons for the success of methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable $X$ typically depends on the values of other covariables. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding their value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The more natural the Ceteris Paribus clause, the better the partial dependence plots.
+One of the main reasons for the success of modern methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable $X$ typically depends on the values of other covariables. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding their value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The more natural the Ceteris Paribus clause, the better the partial dependence plots.
 
 Remark: A partial dependence plot of a covariable in a linear regression is simply a visualization of its coefficient.
 
 Alternatives to partial dependence plots include **accumulated local effect plots** and **SHAP dependence plots**. Both relax the Ceteris Paribus clause.
 
-## Example: diamonds
+## Example: random forest (continued)
 
-Let us now fit a random forest for diamond prices and interpret the result. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable. 
+For our last example, we will now look at variable importance and partial dependence plots.
 
 ```{r}
-library(tidyverse)
-library(splitTools)
-library(ranger)
-library(MetricsWeighted)
 library(flashlight)
-
-# Train/test split
-ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
-
-fit <- ranger(price ~ carat + color + cut + clarity, 
-              data = diamonds[ix$train, ], 
-              importance = "impurity",
-              seed = 83)
-fit
-
-# Performance on test data
-pred <- predict(fit, diamonds[ix$test, ])$predictions
-rmse(diamonds$price[ix$test], pred)       # 557 USD
-r_squared(diamonds$price[ix$test], pred)  # 0.9807277
 
 # Variable importance regarding MSE improvement
 imp <- sort(importance(fit))
@@ -162,12 +180,11 @@ plot(light_profile(fl, v = "color")) +
 
 - As expected, `carat` is the most important predictor.
 - All effects as assessed by partial dependence make sense.
-- OOB estimate of performance is extremely close to the test set performance.
 
 ## Exercises
 
 1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
-2. Fit a random forest on the claims data, predicting the binary variable `clm` by the covariabes `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e. predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Use a clean train/test split. Interpret the results by split gain importance and partial dependence plots.
+2. Fit a random forest on the claims data, predicting the binary variable `clm` by the covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e. predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Use a simple train/test split. Interpret the results by split gain importance and partial dependence plots.
 
 # Gradient Boosted Trees
 
@@ -194,18 +211,18 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
     - the column subsampling rate (often between 0.6 and 1), and
     - additional parameters.
     
-Reasonable ragularization parameters are chosen by randomized or grid search CV. Usually, this takes a couple of iterations.
+Reasonable regularization parameters are chosen by randomized or grid search CV. Usually, this takes a couple of iterations.
 
 Note on **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, tune parameters and select models. Ideally, it is consistent with the loss function of the specific algorithm (e.g. RMSE as metric and MSE as loss), but in some cases it might differ.
 
-## Example: XGBoost
+## Example: Gradient Boosting
 
-We will use XGBoost to fit diamond prices. As loss and evaluation metric, we will use MSE.
+We will use XGBoost to fit diamond prices using MSE as loss function and evaluation metric.
 
-The basic strategy was as follows:
+The basic strategy is as follows:
 
-1. Using default regularization and early stopping, a learning rate of 5% provided a convenient amount of about 160 boosting rounds.
-2. Randomized search CV was run a couple of times until good ranges for the regularization parameters were found. The final search is kept for later.
+1. Using default regularization, set the learning rate to get reasonable number of trees with CV-based early stopping.
+2. Iterate randomized search CV to tune regularization parameters such as tree depth.
 3. Use the best parameter combination to fit the model on the training data.
 
 ```{r}
@@ -233,6 +250,22 @@ dtrain <- xgb.DMatrix(X_train, label = y_train)
 tune <- FALSE
 
 if (tune) {
+  # Use default parameters to get learning rate with suitable number of rounds
+  params <- list(
+    learning_rate = 0.05,
+    objective = "reg:squarederror"
+  )
+  
+  cvm <- xgb.cv(
+    params = params,
+    data = dtrain,
+    nrounds = 5000,
+    nfold = 5,
+    early_stopping_rounds = 10,
+    verbose = 0
+  )
+  cvm   # -> a lr of 5% provides about 160 trees
+   
   # Final grid search after some iterations
   grid <- expand.grid(
     iteration = NA,
@@ -261,8 +294,8 @@ if (tune) {
   # Loop over grid and fit XGBoost with five-fold CV and early stopping
   for (i in seq_len(grid_size)) {
     cvm <- xgb.cv(
-      as.list(grid[i, -(1:2)]),
-      dtrain,
+      params = as.list(grid[i, -(1:2)]),
+      data = dtrain,
       nrounds = 5000,
       nfold = 5,
       early_stopping_rounds = 10,
@@ -284,11 +317,10 @@ grid <- readRDS("gridsearch/diamonds_xgb.rds")
 grid <- grid[order(grid$score), ]
 
 fit <- xgb.train(
-  as.list(grid[1, -(1:2)]), 
+  params = as.list(grid[1, -(1:2)]), 
   data = dtrain, 
   nrounds = grid[1, "iteration"]
 )
-
 ```
 
 Now, the model is ready to be inspected by evaluating 
@@ -328,19 +360,18 @@ plot(light_profile(fl, v = "cut")) +
 
 plot(light_profile(fl, v = "color")) +
   labs(title = "Partial dependence plot for color", y = "price")
-
 ```
 
-**Comment**: Based on model performance, variable importance and partial dependence plots, the resulting model is very similar to the random forest.
+**Comment**: The resulting model seems comparable to the random forest with slightly better performance.
 
 ## Exercises
 
-1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning grid search in last example. How does the partial dependence plot for carat look now?
-2. Make a good XGBoost model for the claims data set with binary response `clm` and covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean CV/test approach. Use log loss both as objective and evaluation metric.
+1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example. How does the partial dependence plot for `carat` look now?
+2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss both as objective and evaluation metric. Interpret its results.
 
 # Chapter Summary
 
-In this chapter, we have met decision trees, random forests and tree boosting. Single decision trees are very easy to interpret but do not perform too well. On the other hand, tree ensembles like the random forest or gradient boosted trees usually perform well but are tricky to interpret. We have introduced interpretation tools to look into such "black boxes". The main reason why random forests and boosted trees often provide more accurate models than a linear model lies in the ability of trees to automatically learn interaction and other non-linear effects.
+In this chapter, we have met decision trees, random forests and tree boosting. Single decision trees are very easy to interpret but do not perform too well. On the other hand, tree ensembles like the random forest or gradient boosted trees usually perform very well but are tricky to interpret. We have introduced interpretation tools to look into such "black boxes". The main reason why random forests and boosted trees often provide more accurate models than a linear model lies in their ability to automatically learn interactions and other non-linear effects.
 
 # Chapter References
 

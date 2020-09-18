@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 In this chapter, we dive into artificial neural networks, one of the main drivers of artificial intelligence. 
 
-Neural networks are around since many decades. The first such model might be attributed to Marvin Minsky in 1951. He called his algorithm SNARC ("stochastic neural-analog reinforcement calculator"). A milestone in the development of modern neural networks was the idea of Paul J. Werbos to fit deep neural networks by "backpropagation" in 1974 [1], an algorithm still used as per today.
+Neural networks are around since many decades. (Maybe) the first such model was built by Marvin Minsky in 1951. He called his algorithm SNARC ("stochastic neural-analog reinforcement calculator"). Since then, neural networks had many ups and downs. One of the milestones was the idea of Paul J. Werbos in 1974 [1] to efficiently calculate gradients in the optimization algorithm by an approach called "backpropagation". Another milestone was the use of GPUs (graphics processing units) to greatly reduce calculation time.
 
 Artificial neural nets are extremely versatile and powerful. They can be used to
 
