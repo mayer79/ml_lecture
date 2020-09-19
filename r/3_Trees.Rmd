@@ -335,7 +335,7 @@ library(flashlight)
 
 # Performance on test data
 pred <- predict(fit, prep_xgb(diamonds[ix$test, ]))
-rmse(diamonds$price[ix$test], pred)       # 540 USD
+rmse(diamonds$price[ix$test], pred)       # 541 USD
 r_squared(diamonds$price[ix$test], pred)  # 0.982
 
 # Variable importance regarding MSE improvement
