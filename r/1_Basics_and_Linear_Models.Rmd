@@ -35,11 +35,11 @@ Throughout this lecture, we will consider the following two data sets:
 
 - `diamonds`: Diamonds prices along with the four "C"-variables: Carat, Color, Cut, and Clarity. Each observation/row represents a diamond.
 
-- `dataCar`: Insurance claim data on vehicle insurance policies from 2004-2005. Some variables like `gender` describe the policy holder, others like `veh_age` the vehicle and some variables carry infos on eventual claims. Each row represents a policy.
+- `dataCar`: Insurance claim data on vehicle insurance policies from 2004-2005. Some variables like `gender` describe the policy holder, others like `veh_age` the vehicle and some variables carry information on eventual claims. Each row represents a policy.
 
 ### Example: diamonds
 
-Let's look at the first six observations of the diamonds data set.
+Let us have look at the first six observations of the diamonds data set.
 
 ```{r}
 library(ggplot2)
@@ -74,26 +74,26 @@ There are no unordered categoricals or binary variables in this data set.
 Statistical modeling always starts with a descriptive analysis of the data. This typically involves a numeric and/or graphical summary of each variable and the most relevant variable pairs, e.g. 
 
 - for numeric variables: mean, standard deviation, quartiles, minimum and maximum; boxplots, mean plots,
-- for categorical variables: absolute or relative counts; barplots,
+- for categorical variables: absolute or relative counts; bar plots,
 - for binary variables: like a categorical variable or simply the mean,
 - for important pairs of numeric variables: correlations; scatter plots,
 - the important pairs of categorical variables: frequency tables; mosaic plots,
-- for important pairs of categorical *and* numerical variables: stratified means; mean plots, boxplots .
+- for important pairs of categorical *and* numerical variables: stratified means; mean plots, boxplots.
 
-The more time we invest in the descriptive analysis, the more we learn about the data. This is essential for successful modeling. Besides getting used to the data set, we might 
+The more time we invest in the descriptive analysis, the more we learn about the data, which is essential for successful analysis. Besides getting used to the data, we might 
 
 - identify data errors and problematic outliers (uncommonly small or large values), 
 - find join keys to combine multiple data sources, 
 - detect variables with high number of missing values,
 - detect variables with no or almost no information (e.g. all values the same),
-- **learn how the data is structured** (what *is* a row? do we deal with time series? are rows grouped to clusters etc),
+- **learn how the data is structured** (what *is* a row? do we deal with time series? are rows grouped to clusters etc.),
 - ...
 
 During or after the descriptive analysis, we usually do the *data preprocessing* for the modeling task.
 
 ### Example: diamonds
 
-Let's summarize the diamonds data set.
+Let us summarize the diamonds data set.
 
 ```{r}
 library(ggplot2)
@@ -150,9 +150,9 @@ ggplot(diamonds, aes(y = price, x = clarity)) +
 **Comments**
 
 - There are 53'940 observations in the diamonds data set.
-- The avarage or mean diamond price is 3933 USD. About half of the diamonds cost less/more than the median of 2401 USD and about half of them cost between 950 USD (first quartile) and 5324 USD (third quartile). The cheapest diamond in the data set has a price of 326 USD, the most expensive one is 18'823 USD.
+- The average or mean diamond price is 3933 USD. About half of the diamonds cost less/more than the median of 2401 USD and about half of them cost between 950 USD (first quartile) and 5324 USD (third quartile). The lowest price is 326 USD, the highest price is 18'823 USD.
 - Prices and carats show a *right-skewed* distribution with a few very large values.
-- The relationship between price and carat seems quite strong and positive, which makes sense. On log-log scale, it looks linear.
+- The relationship between price and carat seems quite strong and positive, which makes sense. On log-log scale, it looks quite linear.
 - The worst categories of `color`, `cut`, and `clarity` are rare.
 - Prices tend to be lower for nice colors, nice cuts as well as for nice clarities. This is unintuitive but will be entangled later by our regression models.
 
@@ -166,7 +166,7 @@ The function $f$ is unknown and we want to estimate it by $\hat f$ from observed
 
 Note: Think of the response $Y$ and the covariables $X_1, \dots, X_m$ as columns in a data set.
 
-Normally, we are interested in modeling a specific property of $Y$, usually its expection $E(Y)$ (= theoretic mean). In that case, we can make above approximate relationship more explicit by writing down the *model equation*
+Normally, we are interested in modeling a specific property of $Y$, usually its expectation $E(Y)$ (= theoretic mean). In that case, we can make above approximate relationship more explicit by writing down the *model equation*
 $$
   E(Y) = f(X_1, \dots, X_m).
 $$
@@ -185,13 +185,16 @@ The model equation of the linear regression is as follows:
 $$
   E(Y) = f(X_1, \dots, X_m) = \beta_0 + \beta_1 X_1 + \cdots + \beta_m X_m.
 $$
-It relates the covariables $X_1, \dots, X_m$ to the expected response $E(Y)$ by a *linear* formula in the parameters $\beta_0, \dots, \beta_m$. The additive constant $\beta_0$ is called *intercept*. The parameter $\beta_j$ tells us by how much $Y$ is expected to change when $X_j$ is increased by 1, **keeping all other covariables fixed** ("Ceteris Paribus"):
+It relates the covariables $X_1, \dots, X_m$ to the expected response $E(Y)$ by a *linear* formula in the parameters $\beta_0, \dots, \beta_m$. The additive constant $\beta_0$ is called the *intercept*. The parameter $\beta_j$ tells us by how much $Y$ is expected to change when $X_j$ is increased by 1, **keeping all other covariables fixed** ("Ceteris Paribus"):
 $$
   E(Y \mid X_j = x + 1) - E(Y \mid X_j = x) = \beta_j (x + 1) - \beta_j x = \beta_j.
 $$
-The parameter $\beta_j$ is thus called *effect* of $X_j$ on the expected response $E(Y)$.
+The parameter $\beta_j$ is called *effect* of $X_j$ on the expected response $E(Y)$.
 
-A linear regression with just one covariable is called a *simple* linear regression with equation $E(Y) = \alpha + \beta X$.
+A linear regression with just one covariable is called a *simple* linear regression with equation 
+$$
+  E(Y) = \alpha + \beta X.
+$$
 
 ## Least-squares
 
@@ -208,7 +211,7 @@ Once the model is fitted, we can use the coefficients $\hat\beta_0, \dots, \hat\
 
 ### Example: simple linear regression
 
-In order to discuss the typical output of a linear regression, we now model diamond prices by their size. The model equation is
+In order to discuss the typical output of a linear regression, we will now model diamond prices by their size. The model equation is
 $$
   E(\text{price}) = \alpha + \beta \cdot \text{carat}.
 $$
@@ -286,17 +289,17 @@ MSE_empty <- mse(diamonds$price, predict(empty_model, diamonds))
 
 ### Model assumptions
 
-The main assumption of linear regression is a **correctly specified model equation** in the sense that predictions are not systematically too high or too small for certain values of the covariables. In a simple regression setting, this means that the points in the scatterplot are located *around* the regression line for all covariable values. For a multiple linear regression, this translates to the condition that residuals (differences between observed and fitted response) do not show bias if plotted against covariable values.
+The main assumption of linear regression is a **correctly specified model equation** in the sense that predictions are not systematically too high or too small for certain values of the covariables. In a simple regression setting, this means that the points in the scatterplot are located *around* the regression line for all covariable values. For a multiple linear regression, this translates to the empirical condition that residuals (differences between observed and fitted response) do not show bias if plotted against covariable values.
 
 Additional assumptions like independence of rows, constant variance of the error term $\varepsilon$ in the equation
 $$
   Y = f(X_1, \dots, X_m) + \varepsilon
 $$
-and normal distribution of $\varepsilon$ guarantee optimality of the least-squares estimator $\hat \beta_0, \dots, \hat\beta_m$ and the correctness of inferential statistics (standard errors, p values, confidence intervals). In that case, we talk of the *normal linear model*. Its many conditions are checked by studying diagnostic plots. We skip this part for brevity and since we are not digging into inferential statistics.
+and normal distribution of $\varepsilon$ guarantee optimality of the least-squares estimator $\hat \beta_0, \dots, \hat\beta_m$ and the correctness of inferential statistics (standard errors, p values, confidence intervals). In that case, we talk of the *normal linear model*. Its conditions are checked by studying *diagnostic plots*. We skip this part for brevity and since we are not digging into inferential statistics.
 
 #### Example: simple linear regression (continued)
 
-For small diamonds, the predictions of our simple linear regression are systematically too low. This indicates a wrongly specified model. We will see a bit later how to fix this problem.
+For small diamonds, the predictions of our simple linear regression are systematically too low. This indicates a wrongly specified model. We will see ways to fix this.
 
 ## Typical problems
 
@@ -304,11 +307,11 @@ Here, we list some problems that frequently occurs with linear regression. We wi
 
 ### Missing values
 
-Like many other ML algorithms, linear regression cannot deal with missing values. Rows with missing response can be safely dropped, while missings in covariables should usually be dealt with. The simplest (often too naive) approach is to fill missings with a typical value such as the mean or the most frequent value.
+Like many other ML algorithms, linear regression cannot deal with missing values. Rows with missing response can be safely dropped, while missing values in covariables should usually be dealt with. The simplest (often too naive) approach is to fill missing values with a typical value such as the mean or the most frequent value.
 
 ### Outliers
 
-Gross outliers in covariables can distort the result of the linear regression. Do not delete them, but try to reduce their effect by taking logarithms or by using more robust regression techniques. Outliers in the response are often surprisingly unproblematic.
+Gross outliers in covariables can distort the result of the linear regression. Do not delete them, but try to reduce their effect by taking logarithms or by using more robust regression techniques. Outliers in the response can be problematic as well, especially for inferential statistics.
 
 ### Overfitting
 
@@ -318,7 +321,7 @@ If too many parameters are used in relation to the number of observations, the r
 
 If the association between two or more covariables is strong, their coefficients are difficult to interpret because the Ceteris Paribus clause is usually unnatural in such situations. E.g. in a house price model, it is unnatural to study the effect of an additional room, keeping living area fixed. This is even more problematic for causally dependent covariables: imagine a model with $x$ and $x^2$ as covariables. It would certainly not make sense to study the effect of $x$ while keeping $x^2$ fixed. 
 
-Strong collinearity can be detected by looking at correlations across (numeric) covariables. It is mainly a problem when interpreting effects or testing statistical hypotheses. Predictions or other "global" model characteristics like the R-squared are not affected.
+Strong collinearity can be detected by looking at correlations across (numeric) covariables. It is mainly a problem when interpreting effects or for statistical inference of effects. Predictions or other "global" model characteristics like the R-squared are not affected.
 
 Often, collinearity can be reduced by transforming the covariables in a way that makes the Ceteris Paribus clause natural. Instead of e.g. using number of rooms and living area in a house price model, it might help to represent living area by the derived variable "living area per room".
 
@@ -326,7 +329,7 @@ Note: Perfectly collinear covariables (e.g. $X$ and $2X$) cannot be used for alg
 
 ## Categorical covariables
 
-Since algorithms usually only understand numbers, categorical variables have to be encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) needs to be dropped due to perfect collinearity (for each row, the sum of OHE dummies is always 1). Its level is represented by the intercept. This variant of OHE is called **dummy coding**.
+Since algorithms usually only understand numbers, categorical variables have to be encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) needs to be dropped due to perfect collinearity (for each row, the sum of OHE variables is always 1). Its level is represented by the intercept. This variant of OHE is called **dummy coding**.
 
 For our diamonds data set, OHE for the variable `color` looks as follows (the first column is the original categorical variable, the other columns are the dummy variables):
 
@@ -335,8 +338,8 @@ For our diamonds data set, OHE for the variable `color` looks as follows (the fi
 **Comments on categorical covariables**
 
 - **Interpretation:** Interpreting the regression coefficient $\beta_k$ of the dummy variable $D_k$ is nothing special: It tells us how much $E(Y)$ changes when the dummy variable switches from 0 to 1. This amounts to switching from the reference category (the one without dummy) to category $k$.
-- **Integer encoding:** Ordinal categorical covariables are sometimes integer encoded for simplicity. This means that each category is represented by an integer number. 
-- **Small categories:** In order to reduce overfitting, small categories are often combined to a level "Other" or are added to the largest category.
+- **Integer encoding:** Ordinal categorical covariables are sometimes integer encoded for simplicity, i.e. each category is represented by an integer number. 
+- **Small categories:** In order to reduce overfitting, small categories are sometimes combined to a level "Other" or are added to the largest category.
 
 ### Example: dummy coding
 
@@ -352,7 +355,7 @@ summary(fit)
 
 - **Slope:** Adding the covariable `color` has changed the slope of `carat` from 7756 in the simple linear regression to 8067. This is the effect of `carat` *adjusted* for `color`.
 - **Effects:** Each dummy variable of `color` has received its own coefficient. Switching from the reference color "D" to "E" is associated with a price reduction of 94 USD. The effect of color "F" compared to color "D" is about -80 USD.
-- **Confounding:** In contrast to the unintuitive descriptive result (worse colors tend to higher prices), we now see that worse colors are associated with lower prices. Adjusting for carat has solved the mistery. It seems that the diamond size had *confounded* the association between color and price. A regression model accounts for such confounding effects. Confounding can happen only for correlated covariables. In our case, larger diamonds are associated with worse colors (negative correlation).
+- **Confounding:** In contrast to the unintuitive descriptive result (worse colors tend to higher prices), worse colors are associated with lower prices now. Adjusting for carat has solved that mystery. It seems that the diamond size had *confounded* the association between color and price. A regression model accounts for such confounding effects.
 
 ## Flexibility
 
@@ -362,7 +365,7 @@ Linear regression is flexible regarding *how* variables are represented in the l
 - interactions, and
 - transformations, notably logarithmic responses.
 
-These elements are very important, so we look at them briefly.
+These elements are very important.
 
 ### Non-linear terms
 
@@ -400,7 +403,7 @@ ggplot(aes(x = carat, y = price)) +
 **Comments**
 
 - In the dense part (carats up to 2), the cubic polynomial seems to provide better results than a simple linear regression. No clear bias is visible.
-- Extrapolation to diamonds above 2 carat provides catastrophic results. Thus, never use polynomial terms if extrapolation is required.
+- Extrapolation to diamonds above 2 carat provides catastrophic results. Thus, be cautious if extrapolation is required.
 
 ### Interaction terms
 
@@ -455,7 +458,8 @@ $$
 $$
 we can say: A 1% increase in $X$ leads to an increase in $E(Y)$ of about $\beta/100$:
 $$
-  E(Y\mid X = 101\% \cdot x) - E(Y\mid X = x) = \alpha + \beta \log (1.01 \cdot x) - \alpha - \beta \log(x) = \beta \log\left(\frac{1.01 \cdot x}{x}\right)= \beta \log(1.01) \approx \beta/100.
+  E(Y\mid X = 101\% \cdot x) - E(Y\mid X = x) = \alpha + \beta \log (1.01 \cdot x) - \alpha - \beta \log(x) \\ 
+  = \beta \log\left(\frac{1.01 \cdot x}{x}\right)= \beta \log(1.01) \approx \beta/100.
 $$
 Thus, taking logarithms of covariables does not only deal with outliers, it also offers us the possibility to talk about percentages.
 
@@ -490,9 +494,9 @@ ggplot(to_plot, aes(x = carat, y = price)) +
 
 **Comments** 
 
-- Indeed, we have fitted a logarithmic relationship between carat and price. The scatterplots (on log-scale and backtransformed to original scale) reveal that this does not make much sense. The model looks wrong. Shouldn't we better take the logarithm of price?
+- Indeed, we have fitted a logarithmic relationship between carat and price. The scatterplots (on log-scale and back-transformed to original scale) reveal that this does not make much sense. The model looks wrong. Shouldn't we better take the logarithm of *price*?
 - As usual, we can say that a one-point increase in `log(carat)` leads to a expected price increase of 5836 USD.
-- Backtransformed, this amounts to saying that a 1% increase in `carat` is associated with a price increase of about 5836/100 = 60 CHF.
+- Back-transformed, this amounts to saying that a 1% increase in `carat` is associated with a price increase of about 5836/100 = 60 CHF.
 
 ### Logarithmic response
 
@@ -504,7 +508,7 @@ $$
 
 **Proof**
 
-Assume for a moment that we can swap taking expectations and log (disclaimer: we can't). In that case, the model would be
+Assume for a moment that we can swap taking expectations and log (disclaimer: we cannot). In that case, the model would be
 
 $$
   \log(E(Y\mid X = x)) = \alpha + \beta x
@@ -515,7 +519,8 @@ $$
 $$
 The additive effect of increasing $X$ by 1 would be
 $$
-  E(Y\mid X = x+1) - E(Y\mid X = x) = e^{\alpha + \beta (x+1)} - e^{\alpha + \beta x} = e^{\alpha + \beta x}e^\beta - e^{\alpha + \beta x} = e^{\alpha + \beta x}(e^\beta - 1) = E(Y\mid X = x)(e^\beta - 1).
+  E(Y\mid X = x+1) - E(Y\mid X = x) = e^{\alpha + \beta (x+1)} - e^{\alpha + \beta x} \\
+  = e^{\alpha + \beta x}e^\beta - e^{\alpha + \beta x} = e^{\alpha + \beta x}(e^\beta - 1) = E(Y\mid X = x)(e^\beta - 1).
 $$
 Dividing both sides by $E(Y\mid X = x)$ gives
 $$
@@ -577,7 +582,7 @@ summary(fit)
 to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>% 
   mutate(price = exp(predict(fit, .)))
 
-# Backtransformed
+# Back-transformed
 ggplot(to_plot, aes(x = carat, y = price)) +
   geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
   geom_line() +
@@ -592,12 +597,11 @@ ggplot(to_plot, aes(x = log(carat), y = log(price))) +
   geom_point() +
   coord_cartesian(x = log(c(0.3, 3))) +
   ggtitle("Log-log scale")
-
 ```
 
 **Comments** 
 
-- **General impression:** The model looks quite realistic, both on backtransformed scale and the log-log scale. There are no obvious model biases visible.
+- **General impression:** The model looks quite realistic, both on back-transformed scale and the log-log scale. There are no obvious model biases visible.
 - **Effect on log-scales**: An increase in log(carat) of 1 is associated with a log(price) increase of 1.67.
 - **Effect on original scales**: An increase in carat of 1% is associated with a price increase of about 1.67%.
 - **R-squared:** About 93% of the variability in log(price) can be explained by log(carat). The model performs much better than the one in the previous example.
@@ -605,7 +609,7 @@ ggplot(to_plot, aes(x = log(carat), y = log(price))) +
 
 ## Example: diamonds improved
 
-To end the section on linear regression, we extend the log-log-example above by adding `color`, `cut` and `clarity` as covariables.
+To end the section on linear regression, we extend the log-log-example above by adding `color`, `cut` and `clarity` as categorical covariables.
 
 ```{r}
 library(tidyverse)
@@ -620,7 +624,7 @@ summary(fit)
 **Comments**
 
 - **Effects:** All effects of the multiple linear regression look plausible.
-- **Interpretation:** For every % more carat we can expect an increase in price of about 1.9% (keeping everything else fixed). A big diamond is worth more than its two halves! Diamonds with the second best color "E" are about 5% cheaper than those with the best color (keeping everything else fixed).
+- **Interpretation:** For every % more carat, we can expect an increase in price of about 1.9% (keeping everything else fixed). A big diamond is worth more than its two halves! Diamonds with the second best color "E" are about 5% cheaper than those with the best color (keeping everything else fixed).
 - **R-squared:** About 98% of the variability in log-prices can be explained by our four covariables. Adding the three categorical covariables has considerably improved the precision of the model.
 - **RMSE:** Typical prediction error is about 13%.
 
@@ -633,7 +637,6 @@ library(tidyverse)
 
 dia <- diamonds %>% 
   mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
-
 ```
 
 # Generalized Linear Model
