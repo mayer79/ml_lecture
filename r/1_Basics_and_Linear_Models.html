@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2020-09-19" />
+<meta name="date" content="2020-09-20" />
 
 <title>Basics and Linear Models</title>
 
@@ -2863,7 +2863,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Basics and Linear Models</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2020-09-19</h4>
+<h4 class="date">2020-09-20</h4>
 
 </div>
 
@@ -3520,14 +3520,14 @@ div.tocify {
 <p><strong>Comments</strong></p>
 <ul>
 <li><strong>Effects:</strong> All effects of the multiple linear regression look plausible.</li>
-<li><strong>Interpretation:</strong> For every % more carat, we can expect an increase in price of about 1.9% (keeping everything else fixed). A big diamond is worth more than its two halves! Diamonds with the second best color “E” are about 5% cheaper than those with the best color (keeping everything else fixed).</li>
+<li><strong>Interpretation:</strong> For every % more carat, we can expect an increase in price of about 1.9% (keeping everything else fixed). After all, a big diamond is worth more than its two halves. Diamonds with the second best color “E” are about 5% cheaper than those with the best color (keeping everything else fixed). The multiplicative effects of categorical covariables clearly make more sense here than the additive effects without logarithmic response.</li>
 <li><strong>R-squared:</strong> About 98% of the variability in log-prices can be explained by our four covariables. Adding the three categorical covariables has considerably improved the precision of the model.</li>
-<li><strong>RMSE:</strong> Typical prediction error is about 13%.</li>
+<li><strong>RMSE:</strong> The typical prediction error is about 13%.</li>
 </ul>
 </div>
 <div id="exercises" class="section level2">
 <h2><span class="header-section-number">2.8</span> Exercises</h2>
-<p>As alternative to the multiple linear regression on diamond prices with logarithmic price and logarithmic carat, consider the same model without logarithms. Interpret the output of the model.</p>
+<p>As alternative to the multiple linear regression on diamond prices with logarithmic price and logarithmic carat, consider the same model without logarithms. Interpret the output of the model. Does it make sense from practical perspective?</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="kw">library</span>(tidyverse)</span>
 <span id="cb47-2"><a href="#cb47-2"></a></span>
 <span id="cb47-3"><a href="#cb47-3"></a>dia &lt;-<span class="st"> </span>diamonds <span class="op">%&gt;%</span><span class="st"> </span></span>
@@ -3541,7 +3541,7 @@ div.tocify {
 <li>quantile regression to model quantiles of the response instead of its expectation,</li>
 <li>mixed-models to capture grouped data structures,</li>
 <li>generalized least-squares to model time series data,</li>
-<li>penalized regression, an extention to fight overfitting (LASSO, Ridge-Regression, Elastic-Net),</li>
+<li>penalized regression, an extension to fight overfitting (LASSO, Ridge-Regression, Elastic-Net),</li>
 <li>neural networks that automatically learn interactions and non-linearities (see later),</li>
 <li><strong>the generalized linear model</strong> that e.g. allows to model binary response variables in a natural way.</li>
 </ul>
@@ -3549,7 +3549,7 @@ div.tocify {
 <div id="definition" class="section level2">
 <h2><span class="header-section-number">3.1</span> Definition</h2>
 <p>The model equation of the GLM is <span class="math display">\[
-  g(E(Y)) = \beta_0 + \beta_1 X_1 + \dots + + \beta_m X_m,
+  g(E(Y)) = \beta_0 + \beta_1 X_1 + \dots + \beta_m X_m,
 \]</span> or similarly <span class="math display">\[
   E(Y) = g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m),
 \]</span> where <span class="math inline">\(Y\)</span> conditional on the covariables belongs to the exponential dispersion family and <span class="math inline">\(g\)</span> is a transformation.</p>
@@ -3598,7 +3598,7 @@ div.tocify {
 <td>logit</td>
 <td>logit</td>
 <td>Binary cross-entropy</td>
-<td><span class="math inline">\(-y\log(\hat y) - (1-y) \log(1-\hat y)\)</span></td>
+<td><span class="math inline">\(-(y\log(\hat y) + (1-y) \log(1-\hat y))\)</span></td>
 </tr>
 <tr class="odd">
 <td>Poisson</td>
@@ -3625,15 +3625,16 @@ div.tocify {
 <td>mlogit</td>
 <td>mlogit</td>
 <td>Categorical cross-entropy</td>
-<td><span class="math inline">\(\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)\)</span></td>
+<td>-<span class="math inline">\(\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)\)</span></td>
 </tr>
 </tbody>
 </table>
+<p><img src="data:image/png;base64,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" /></p>
 <p><strong>Some remarks</strong></p>
 <ul>
 <li>To find predictions <span class="math inline">\(\hat y\)</span> on the scale of <span class="math inline">\(Y\)</span>, one evaluates the linear function (called “linear predictor”) and then applies the inverse link <span class="math inline">\(g^{-1}\)</span>.</li>
 <li>Any transformation can be used as link <span class="math inline">\(g\)</span>. However, only the <em>natural/canonical</em> link has the relevant property of providing unbiased predictions on the scale of <span class="math inline">\(Y\)</span> in the sense <span class="math inline">\(E(\hat y) = E(Y)\)</span>. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link because of the next property.</li>
-<li><strong>Using a log link produces a multiplicative model.</strong></li>
+<li><strong>Using a log link produces a multiplicative model for <span class="math inline">\(E(Y)\)</span>.</strong></li>
 <li>The binary case makes use of the relation <span class="math inline">\(E(Y) = \text{Prob(Y = 1)} = p\)</span>, i.e. modeling the expected response is the same as modeling the probability <span class="math inline">\(p\)</span> of having a 1.</li>
 <li>The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability <span class="math inline">\(\text{Prob}(Y=1)\)</span>, the multinomial model predicts a probability <span class="math inline">\(\hat y_j\)</span> for each of the m categories.</li>
 <li>The normal, Poisson and Gamma GLMs are special cases of the <em>Tweedie GLM</em>.</li>
@@ -3656,16 +3657,16 @@ div.tocify {
 <p>GLMs deal with such problems by taking a suitable link function like the logarithm. At least for the first two examples, this could not be done by linear regression with log response because of zeros.</p>
 <p>Further advantages of the GLM over the linear regression are:</p>
 <ul>
-<li>Predictions are on the right scale, e.g. probabilities of a binary response are between 0 and 1 if we use the logit link.</li>
+<li>Predictions are on the right scale, e.g. probabilities of a binary response are between 0 and 1 if we use the logit link. With linear regression, they could be outside [0, 1].</li>
 <li>Inferential statistics are less inaccurate. For the linear regression, they depend on the equal variance assumption which is violated for distributions like Poisson or Gamma.</li>
 </ul>
 </div>
 <div id="interpretation-of-effects" class="section level2">
 <h2><span class="header-section-number">3.3</span> Interpretation of effects</h2>
-<p>The interpretation of model coefficients is guided by the link.</p>
+<p>The interpretation of model coefficients in GLMs is guided by the link.</p>
 <ul>
 <li><strong>Identity link:</strong> As with linear regression: “A one-point increase in <span class="math inline">\(X\)</span> is associated with a <span class="math inline">\(\beta\)</span> increase in <span class="math inline">\(g(E(Y))\)</span>, keeping everything else fixed”.</li>
-<li><strong>Log link:</strong> As with linear regression with log response: &quot;A one-point increase in <span class="math inline">\(X\)</span> is associated with a relative increase in <span class="math inline">\(E(Y)\)</span> of <span class="math inline">\(e^{\beta}-1 \approx \beta \cdot 100\%\)</span>. In For GLMs, this derivation is mathematically sound as we start with the logarithm outside the expectation. Using a GLM with log link is thus the cleaner way to produce a multiplicative model for <span class="math inline">\(E(Y)\)</span> than to log transform the response in a linear regression.</li>
+<li><strong>Log link:</strong> As with linear regression with log response: &quot;A one-point increase in <span class="math inline">\(X\)</span> is associated with a relative increase in <span class="math inline">\(E(Y)\)</span> of <span class="math inline">\(e^{\beta}-1 \approx \beta \cdot 100\%\)</span>. The derivation is exactly as we have seen for linear regression, except that we start with <span class="math inline">\(\log(E(Y))\)</span> instead of <span class="math inline">\(E(\log(Y))\)</span>, making the calculations mathematically sound. Using a GLM with log link is thus the cleaner way to produce a multiplicative model for <span class="math inline">\(E(Y)\)</span> than to log transform the response in a linear regression.</li>
 <li><strong>Logit link:</strong> Logistic regression uses the logit link <span class="math display">\[
 \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right).
 \]</span> It maps probabilities to the real line. The inverse logit (“sigmoidal transformation” or “logistic function”) reverts this: It maps real values to the range from 0 to 1. Odds, i.e. the ratio of <span class="math inline">\(p\)</span> to <span class="math inline">\(1-p\)</span>, is a concept borrowed from gambling: The probability to get a “6” is 1/6. Correspondingly, the <em>odds</em> to get a “6” is 1:5 = 0.2. By definition, logistic regression is a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients <span class="math inline">\(e^\beta - 1 \approx \beta\)</span> are called <em>odds ratios</em>. We do not interpret the coefficients on the original probability scale.</li>
@@ -3677,8 +3678,8 @@ div.tocify {
 <p>Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called <em>deviance</em>. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. The deviance of the logistic regression is equivalent to <em>cross-entropy</em> or <em>log loss</em>.</p>
 <p><strong>Outlook:</strong> The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the “appropriate” loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.</p>
 </div>
-<div id="example-claim-counts" class="section level2">
-<h2><span class="header-section-number">3.5</span> Example: Claim counts</h2>
+<div id="example-poisson-count-regression" class="section level2">
+<h2><span class="header-section-number">3.5</span> Example: Poisson count regression</h2>
 <p>We now model claim counts for the <code>insuranceData</code> by a Poisson GLM with its natural link function, the log. It makes sure that we can interpret covariable effects on a relative scale and that predictions are positive.</p>
 <div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a><span class="kw">library</span>(ggplot2)</span>
 <span id="cb48-2"><a href="#cb48-2"></a><span class="kw">library</span>(insuranceData)</span>
@@ -3762,14 +3763,14 @@ div.tocify {
 ## Number of Fisher Scoring iterations: 6</code></pre>
 <p><strong>Comments</strong></p>
 <ul>
-<li>An increase of 1 in <code>veh_value</code> increases the log of the expected count by 0.046. On the original scale, this is an increase of approximately 4.6%. The exact effect is <span class="math inline">\(e^{0.046388}-1 = 0.047 = 4.7\%\)</span>.</li>
+<li>An increase of 1 in <code>veh_value</code> increases the log of the expected count by 0.046. On the original count scale, this is an increase of approximately 4.6%. The exact effect is <span class="math inline">\(e^{0.046388}-1 = 0.047 = 4.7\%\)</span>.</li>
 <li>Males produce, on average, about 1.6% less claims.</li>
-<li>The deviance 26629 is only 0.5% smaller than the one of the null model 26768. The predictive performance of this model is thus low. This makes sense as having claims is a highly random event that cannot be predicted on individual scale.</li>
+<li>The deviance 26629 is only 0.5% smaller than the one of the null model 26768. The predictive performance of this model is thus low. This makes sense: having claims is a highly random event that cannot be predicted on individual scale.</li>
 </ul>
 </div>
-<div id="example-claim-yesno" class="section level2">
-<h2><span class="header-section-number">3.6</span> Example: Claim (yes/no)</h2>
-<p>In order to illustrate logistic regression, we will model the binary variable “claim yes=1/no=0” by a logistic regression with logit link. This ensures that predicted probabilities are between 0 and 1 and that covariables act in a multiplicative way on the odds of having a claim.</p>
+<div id="example-logistic-regression" class="section level2">
+<h2><span class="header-section-number">3.6</span> Example: logistic regression</h2>
+<p>In order to illustrate logistic regression, we will model the binary variable “claim yes=1/no=0” of the claims data by a logistic regression. Its logit link ensures that predicted probabilities are between 0 and 1 and that covariables act in a multiplicative way on the odds of having a claim.</p>
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="kw">library</span>(ggplot2)</span>
 <span id="cb53-2"><a href="#cb53-2"></a><span class="kw">library</span>(insuranceData)</span>
 <span id="cb53-3"><a href="#cb53-3"></a><span class="kw">data</span>(dataCar)</span>
@@ -3832,21 +3833,21 @@ div.tocify {
 <li>The deviance 33632 is only 0.4% smaller than the one of the null model 33767.</li>
 </ul>
 </div>
-</div>
-<div id="exercises-1" class="section level1">
-<h1><span class="header-section-number">4</span> Exercises</h1>
+<div id="exercises-1" class="section level2">
+<h2><span class="header-section-number">3.7</span> Exercises</h2>
 <p>Fit a Gamma regression with log-link to explain diamond prices by <code>log(carat)</code>, <code>color</code>, <code>cut</code>, and <code>clarity</code>. Compare the coefficients with those from the corresponding linear regression with <code>log(price)</code> as response. Use dummy coding for the three categorical variables.</p>
 <div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="kw">library</span>(tidyverse)</span>
 <span id="cb56-2"><a href="#cb56-2"></a></span>
 <span id="cb56-3"><a href="#cb56-3"></a>dia &lt;-<span class="st"> </span>diamonds <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb56-4"><a href="#cb56-4"></a><span class="st">  </span><span class="kw">mutate_at</span>(<span class="kw">c</span>(<span class="st">&quot;color&quot;</span>, <span class="st">&quot;cut&quot;</span>, <span class="st">&quot;clarity&quot;</span>), <span class="cf">function</span>(z) <span class="kw">factor</span>(z, <span class="dt">ordered =</span> <span class="ot">FALSE</span>))</span></code></pre></div>
 </div>
+</div>
 <div id="chapter-summary" class="section level1">
-<h1><span class="header-section-number">5</span> Chapter Summary</h1>
-<p>In this first chapter, we have introduced basic notations. Then, we have revisited multiple linear regression and some of its many aspects. To round up the chapter, we met an important generalization of linear regression, namely the generalized linear model (GLM). It includes the logistic regression and Poisson count regression as relevant special cases.</p>
+<h1><span class="header-section-number">4</span> Chapter Summary</h1>
+<p>In this first chapter, we have introduced basic notations. Then, we have revisited multiple linear regression and some of its many aspects. To round up the chapter, we met an important generalization of linear regression, namely the generalized linear model (GLM). It includes the binary logistic regression and Poisson count regression as relevant special cases.</p>
 </div>
 <div id="chapter-references" class="section level1">
-<h1><span class="header-section-number">6</span> Chapter References</h1>
+<h1><span class="header-section-number">5</span> Chapter References</h1>
 <p>[1] A. Legendre, “Nouvelles méthodes pour la détermination des orbites des comètes”, 1805.</p>
 <p>[2] J. A. Nelder and R. W. M. Wedderburn, “Generalized Linear Models”. Journal of the Royal Statistical Society. Series A, Vol. 135, No. 3 (1972).</p>
 </div>
