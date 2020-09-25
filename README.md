@@ -72,7 +72,7 @@ git clone https://github.com/mayer79/ml_lecture.git
     - `splitTools`
     - `insuranceData`
 
-`keras` requires a Python installation with Tensorflow >=2.0. If you are not a Python user, you can get a minimal bundle by running 
+`keras` requires a Python installation with Tensorflow >=2.0. If you do not have Python installed and are not behind a company firewall, you can simply run the following two lines to get it.
 
 ```
 library(keras)
