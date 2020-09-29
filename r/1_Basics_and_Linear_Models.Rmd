@@ -200,7 +200,7 @@ $$
 
 The optimal $\hat f$ to estimate $f$ is found by minimizing the sum of squared *prediction errors* resp. *residuals*
 $$
-  \sum_{i=1}^n e_i^2 = (y_i - \hat y_i)^2.
+  \sum_{i=1}^n e_i^2 = \sum_{i=1}^n (y_i - \hat y_i)^2.
 $$
 $y_i$ is the observed response of observation $i$ and $\hat y_i$ its prediction (or *fitted value*)
 $$
