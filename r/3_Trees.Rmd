@@ -214,6 +214,7 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
 Reasonable regularization parameters are chosen by randomized or grid search CV. Usually, this takes a couple of iterations.
 
 Note on **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, tune parameters and select models. Ideally, it is consistent with the loss function of the specific algorithm (e.g. RMSE as metric and MSE as loss), but in some cases it might differ.
+For classification, besides studying (multi-)log loss, e.g. one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc.  [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts very well. The confusion matrix tabulates the combinations of actual classes and predicted classes.
 
 ## Example: Gradient Boosting
 
