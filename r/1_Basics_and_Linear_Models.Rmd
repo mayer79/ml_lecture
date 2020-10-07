@@ -461,7 +461,7 @@ $$
   E(Y\mid X = 101\% \cdot x) - E(Y\mid X = x) = \alpha + \beta \log (1.01 \cdot x) - \alpha - \beta \log(x) \\ 
   = \beta \log\left(\frac{1.01 \cdot x}{x}\right)= \beta \log(1.01) \approx \beta/100.
 $$
-Thus, taking logarithms of covariables does not only deal with outliers, it also offers us the possibility to talk about percentages.
+Thus, taking logarithms of covariables not only deals with outliers, it also offers us the possibility to talk about percentages.
 
 #### Example: log(carat)
 
@@ -662,7 +662,7 @@ or similarly
 $$
   E(Y) = g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m),
 $$
-where $Y$ conditional on the covariables belongs to the exponential dispersion family and $g$ is a transformation. 
+where $Y$ conditional on the covariables belongs to the so-called exponential dispersion family and $g$ is a transformation. 
 
 Thus, a GLM has three components:
 
@@ -699,13 +699,13 @@ The normal linear model allows us to model $E(Y)$ by an additive linear function
 - count responses (e.g. number of insurance claims, number of adverse events),
 - right-skewed responses (e.g. time durations, claim heights, prices).
 
-However, in such cases, an additive linear model equation is usually not realistic. As such, the main assumption of the linear regression model is violated:
+However, in such cases, an additive linear model equation is usually not very realistic. As such, the main assumption of the linear regression model is violated:
 
 - Binary: A jump from 0.5 to 0.6 success probability seems less impressive than from 0.89 to 0.99. 
 - Count: A jump from an expected count of 2 to 3 seems less impressive than a jump from an expected count of 0.1 to 1.1. 
 - Right-skewed: A price jump from 1 Mio to 1.1 Mio is conceived as larger than a jump from 2 Mio to 2.1 Mio.
 
-GLMs deal with such problems by taking a suitable link function like the logarithm. At least for the first two examples, this could not be done by linear regression with log response because of zeros.
+GLMs deal with such problems by using a suitable link function like the logarithm. At least for the first two examples, this could not be achieved by a linear regression with log response because log(0) is not defined.
 
 Further advantages of the GLM over the linear regression are:
 
@@ -714,7 +714,7 @@ Further advantages of the GLM over the linear regression are:
 
 ## Interpretation of effects
 
-The interpretation of model coefficients in GLMs is guided by the link.
+The interpretation of model coefficients in GLMs is guided by the link function.
 
 - **Identity link:** As with linear regression: "A one-point increase in $X$ is associated with a $\beta$ increase in $g(E(Y))$, keeping everything else fixed". 
 - **Log link:** As with linear regression with log response: "A one-point increase in $X$ is associated with a relative increase in $E(Y)$ of $e^{\beta}-1 \approx \beta \cdot 100\%$. The derivation is exactly as we have seen for linear regression, except that we start with $\log(E(Y))$ instead of $E(\log(Y))$, making the calculations mathematically sound. Using a GLM with log link is thus the cleaner way to produce a multiplicative model for $E(Y)$ than to log transform the response in a linear regression.
@@ -722,13 +722,13 @@ The interpretation of model coefficients in GLMs is guided by the link.
 $$
   \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right).
 $$
-It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e. the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The probability to get a "6" is 1/6. Correspondingly, the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. We do not interpret the coefficients on the original probability scale.
+It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e. the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The probability to get a "6" is 1/6. Correspondingly, the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds resp. a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. There is no easy way to interpret the coefficients on the original probability scale.
 
 ![](../figs/log_odds.png)
 
 ## Parameter estimation and deviance
 
-Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*, which is the sum of the loss per row (see table above), eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. It e.g. makes sense to use relative deviance improvement compared to an empty model as a relative performance measure.
+Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*, which is the sum of the loss per row (see table above), eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. It e.g. makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the MSE loss, this equals the usual R-squared.
 
 Remark: The deviance of the logistic regression is equivalent to *cross-entropy* or *log loss*. 
 
