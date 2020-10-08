@@ -197,7 +197,7 @@ ggplot(aes(x = carat, y = price)) +
 
 The missing magic component is the so called [*activation* function](https://en.wikipedia.org/wiki/Activation_function) $\sigma$ after each layer, which transforms the values of the nodes. So far, we have implicitly used "linear activations", which - in neural network slang - is just the identity function. 
 
-Using non-linear activation functions make sure that the network can represent non-linear terms and interactions. Typical activation functions are
+Applying *non-linear* activation functions after hidden layers have the purpose to introduce non-linear and interaction effects. Typical such functions are
 
 - the hyperbolic tangent ("S"-shaped function that maps real values to $[-1, 1]$),
 - the sigmoidal function ("S"-shaped function that maps real values to $[0, 1]$),
@@ -210,11 +210,13 @@ Activation functions applied to the *output* layer have a different purpose, nam
 - multinomial logistic regression -> softmax activation (to predict one probability per class)
 - log-linear regression -> exponential activation
 
-Let us add a non-linear activation $\sigma$ after the hidden layer of our simple example.
+Let us add a hyperbolic tangent activation function ($\sigma$) after the hidden layer of our simple example.
 
 ![](../figs/nn_activation.PNG)
 
 ### Example: activation functions
+
+Again, the code is very similar to the last one, with the exception of using a hyperbolic tangent activation after the hidden layer (and different learning rate and number of epochs).
 
 ```{r}
 library(tidyverse)
@@ -265,7 +267,7 @@ ggplot(aes(x = carat, y = price)) +
 
 ## Validation and tuning of main parameters
 
-So far, we have naively fitted the neural networks without splitting the data for test and validation. Don't do this! Usually, one sets a small test dataset (e.g. 10% of rows) aside to assess the final model performance and tune the model by validation. 
+So far, we have naively fitted the neural networks without splitting the data for test and validation. Don't do this! Usually, one sets a small test dataset (e.g. 10% of rows) aside to assess the final model performance and use simple (or cross-)validation for model tuning.
 
 In order to choose the main tuning parameters, namely
 
@@ -275,11 +277,11 @@ In order to choose the main tuning parameters, namely
 - batch size, and
 - number of epochs, 
 
-one often uses simple validation because cross-validation often takes too much time.
+one often uses simple validation because cross-validation takes too much time.
 
 ## Missing values
 
-A neural net does not accept missing values in the input. They need to be filled first. For simplicity, they are often filled by a typcial value or a value below the minimum.
+A neural net does not accept missing values in the input. They need to be filled, e.g. by a typcial value or a value below the minimum.
 
 ## Input standardization
 
@@ -289,15 +291,15 @@ Gradient descent starts by random initialization of parameters. This step is opt
 - standard scale the values of each input to mean 0 and standard deviation 1, or
 - use relative ranks.
 
-Note that the scaling transformation is calculated on the training data and then applied to the validation and test data. This usually requries a couple of lines of code.
+Note that the scaling transformation is calculated on the training data and then applied to the validation and test data. This usually requires a couple of lines of code.
 
 ## Categorical input
 
-There are three ways to represent categorical input variables. 
+There are three ways to represent categorical input variables in a neural network. 
 
 1. Binary and ordinal categoricals are best represented by integers and then treated as numeric.
 2. Unordered categoricals are either one-hot-encoded (i.e. each category is represented by a binary variable) or 
-3. they are represented by an input embedding. With an embedding, the categories are integer encoded and then compressed by a special *embedding layer* to a few (usually 1 or 2) dense features. This requires a more complex network architecture but saves a lot of memory and preprocessing. This approach is heavily used when the input consists of words (which is a categorical variable with thousands of levels - one level per word).
+3. they are represented by an input embedding. With an embedding, the categories are integer encoded and then compressed by a special *embedding layer* to a few (usually 1 or 2) dense features. This requires a more complex network architecture but saves memory and preprocessing. This approach is heavily used when the input consists of words (which is a categorical variable with thousands of levels - one level per word).
 
 For Option 2, input standardization is not required, for Option 3 it *must* not be applied as the embedding layer expects integers.
 
@@ -306,7 +308,7 @@ For Option 2, input standardization is not required, for Option 3 it *must* not 
 Sometimes, we want to take action during training, e.g.
 
 - stop training when validation performance starts worsening,
-- reduce the learning rate when the network seems to be stuck in a "plateau", or
+- reduce the learning rate when the optimization is stuck in a "plateau", or
 - save the network weights between epochs.
 
 Such monitoring tasks are called *callbacks*. We will see them in the example below.
@@ -335,8 +337,8 @@ Using TensorFlow's backend functions, one can define own metrics (see example ab
 
 Like with linear models, a model with too many parameters will overfit in an undesired way. With about 50 to 100 observations per parameter, overfitting is usually unproblematic. (For image and text data, different rules apply). As with penalized regression or trees, there are ways to actively reduce effects of overfitting in neural nets. The two main options are
 
-- pull the parameters of a layer slightly towards zero by L1 and/or L2 penalties,
-- add dropout layers. A dropout layer randomly sets node values of the previous layer to 0, switching them off. This is an elegant way to fight overfitting and is related to bagging.
+- pull the parameters of a layer slightly towards zero by applying L1 and/or L2 penalties to the parameters,
+- add dropout layers. A dropout layer randomly sets some of the node values of the previous layer to 0, switching them off. This is an elegant way to fight overfitting and is related to bagging.
 
 ## Choosing the architecture
 
@@ -346,7 +348,7 @@ The number of parameters should not be too high compared to the number of rows, 
 
 ## Interpretation
 
-Variable importance of covariables in neural networks can be assessed by permutation importance (how much performance is lost when shuffling column X?) or SHAP importance. Covariable effects can be investigated e.g. by partial or SHAP dependence plots.
+Variable importance of covariables in neural networks can be assessed by permutation importance (how much performance is lost when shuffling column X?) or SHAP importance. Covariable effects can be investigated e.g. by partial dependence plots or SHAP dependence plots.
 
 # Example: diamonds
 
@@ -356,6 +358,7 @@ We will now fit a neural net with two hidden layers (30 and 15 nodes) and a tota
 
 ```{r}
 library(tidyverse)
+library(splitTools)
 library(keras)
 # use_python(path to python...)
 
@@ -369,7 +372,6 @@ y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and validation
-library(splitTools)
 ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
 
 train <- diamonds[ix$train, ]
