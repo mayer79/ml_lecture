@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Introduction
 
-In the previous chapter, we have met performance measures like the RMSE or the deviance to measure how good our models are. Unfortunately, we cannot fully rely on these values due to overfitting: The more our models overfit, the less we can trust in their "insample" performance, i.e. the performance on the data used to calculate the models. *Selecting models* based on their insample performance is equally bad. Overfitting should not be rewarded!
+In the previous chapter, we have met performance measures like the RMSE or the deviance to measure how good our models are. Unfortunately, we cannot fully rely on these values due to overfitting: The more our models overfit, the less we can trust in their "insample" performance, i.e. the performance on the data used to calculate the models. Selecting models based on their insample performance is equally bad. Overfitting should not be rewarded!
 
 In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these techniques, we will meet a competitor of the linear model.
 
@@ -29,7 +29,7 @@ A very simple and intuitive alternative to the linear model is the k-nearest-nei
 1. searching the closest k neighbours in the data set and then 
 2. combining their responses. 
 
-By "nearest" we usually mean Euclidean distance in the covariable space. If covariables are not on the same scale, it makes sense to *standardize* them first by subtracting the mean and dividing by the standard deviation. Otherwise, distances would be dominated by the covariable with the largest scale. Categorical features need to be one-hot- or integer-encoded first. Note that one-hot-encoded covariables may or may not be standardized.
+By "nearest" we usually mean Euclidean distance in the covariable space. If covariables are not on the same scale, it makes sense to *standardize* them first by subtracting the mean and dividing by the standard deviation. Otherwise, distances would be dominated by the covariable on the largest scale. Categorical features need to be one-hot- or integer-encoded first. Note that one-hot-encoded covariables may or may not be standardized.
 
 For regression tasks, responses are often combined by computing the arithmetic mean. For classification tasks, the responses of the k neighbours are condensed by their most frequent value (the mode) or class probabilities.
 
@@ -68,9 +68,9 @@ diamonds[neighbours, c("price", x)]
 
 With simple validation, the original data set is partitioned into *training* data used to calculate the models and a separate *validation* data set used to evaluate model performance and/or to select models. Typically, 10%-30% of rows are used for validation.
 
-We can use the validation performance to compare *algorithms* (e.g. regression versus k-nearest-neighbour) and also to choose *hyperparameters* like the "k" of k-nearest-neighbour. 
+We can use the validation performance to compare *algorithms* (e.g. regression versus k-nearest-neighbour) and also to choose their *hyperparameters* like the "k" of k-nearest-neighbour.
 
-**Furthermore, the performance difference between training and validation data indicates the amount of overfitting.**
+Furthermore, the performance difference between training and validation data indicates the amount of overfitting.
 
 ## Example: simple validation
 
@@ -129,12 +129,12 @@ ggplot(aes(x = k, y = RMSE, group = Data, color = Data)) +
 
 - The amount of overfitting decreases for growing k, which makes sense.
 - Selecting k based on the training data would lead to a suboptimal model.
-- Based on the validation data, we would choose $k=4$. It has a minimal RMSE of 602.
+- Based on the validation data, we would choose $k=4$. It has a minimal RMSE of 602 USD.
 - Why is the RMSE on the training data not 0 for 1-nearest-neighbour?
 
 # Cross-Validation (CV)
 
-If our data set is large and training takes long, then a simple validation strategy is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a more economic way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
+If our data set is large and training takes long, then the simple validation strategy introduced above is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a more economic way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
 
 1. Split the data into k pieces $D = \{D_1, \dots, D_k\}$ called "folds". Typical values for k are five or ten.
 2. Set aside one of the pieces ($D_j$) for validation.
@@ -202,7 +202,7 @@ ggplot(paramGrid, aes(x = k, y = RMSE)) +
 
 # Grid search
 
-In above example, we have systematically compared the CV-performance of k-nearest-neighbour for different values of k. This strategy to *tune* models resp. to select hyperparameters of a model is called **grid search CV**. In the next chapter, we will also see examples where combinations of multiple parameters have to be evaluated. To avoid too large grids, one often evaluates only a subset of parameter combinations or samples parameter combinations at random. Then, we speak of **randomized search CV**.
+In the above example, we have systematically compared the CV-performance of k-nearest-neighbour by iterating over a grid of possible values for k. Such strategy to *tune* models resp. to select hyperparameters of a model is called **grid search CV**. In the next chapter, we will meet situations where multiple parameters have to be optimized simultaneously. Then, the number of parameter combinations and the grid size explode. To save time, we could evaluate only a random subset of parameter combinations, an approach called **randomized search CV**.
 
 # Test data
 
@@ -216,7 +216,7 @@ Depending on whether one does simple validation or cross-validation, the typical
 **Workflow A**
 
 1. Split data into train/valid/test, e.g. by ratios 70%/20%/10%.
-2. Train and tune different models on the training data and assess their performance on the validation data. Choose the best model, retrain it on the combination of training and validation data and call it "final model".
+2. Train different models on the training data and assess their performance on the validation data. Choose the best model, retrain it on the combination of training and validation data and call it "final model".
 3. Assess the performance of the final model on the test data.
 
 **Workflow B**
@@ -274,6 +274,8 @@ for (i in 1:nrow(paramGrid)) {
   }
   paramGrid[i, "RMSE"] <- mean(scores)
 }
+
+# Best k along with its CV performance
 paramGrid[order(paramGrid$RMSE)[1], ]
 
 # Cross-validation performance of linear regression
@@ -306,16 +308,16 @@ When rows are not independent, e.g. with time series data or grouped data, such 
 
 ## Time-series data
 
-When data represents a time series, splitting is best done in a way that does not shuffle the temporal order. For simple validation, e.g. the first 80% of rows could be used for training and the remaining 20% for validation. 
+When data represents a time series, splitting is best done in a way that does not destroy the temporal order. For simple validation, e.g. the first 80% of rows could be used for training and the remaining 20% for validation. 
 
 ## Grouped data
 
-Often, data is grouped or clustered, e.g.
+Often, data is grouped or clustered by some (hopefully known) ID variable, e.g.
 
 - multiple rows belong to the same patient/customer or
 - duplicated rows (accidental or not). 
 
-Then, instead of distributing *rows* into partitions, we should distribute *groups* in order to not destroy the data structure and to get honest performance estimates. We speak of *grouped splitting* and *group k-fold CV*. 
+Then, instead of distributing *rows* into partitions, we should distribute *groups*/IDs in order to not destroy the data structure and to get honest performance estimates. We speak of *grouped splitting* and *group k-fold CV*. 
 
 ## Stratification
 

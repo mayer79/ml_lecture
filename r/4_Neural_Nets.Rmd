@@ -24,24 +24,24 @@ Neural networks are around since many decades. (Maybe) the first such model was 
 
 Artificial neural nets are extremely versatile and powerful. They can be used to
 
-1. **fit simple models like GLMs**,
-2. **learn interactions and non-linear effects in an automatic way (like tree-based methods)**,
-3. fit data much larger than RAM (e.g. images),
-4. learn "online" (update the model with additional data),
-5. fit multiple response variables at the same time,
-6. model input of dimension higher than two (e.g. images, videos),
-7. model input of *different* input dimensions (e.g. text *and* images),
-8. fit data with sequential structure in both in- and output (e.g. a text translator),
-9. model data with spatial structure (images),
-10. fit models with many millions of parameters,
-11. do non-linear dimension reduction,
-12. optimize general loss functions.
+1. fit simple models like GLMs,
+2. learn interactions and non-linear effects in an automatic way (like tree-based methods),
+3. optimize general loss functions,
+4. fit data much larger than RAM (e.g. images),
+5. learn "online" (update the model with additional data),
+6. fit multiple response variables at the same time,
+7. model input of dimension higher than two (e.g. images, videos),
+8. model input of *different* input dimensions (e.g. text *and* images),
+9. fit data with sequential structure in both in- and output (e.g. a text translator),
+10. model data with spatial structure (images),
+11. fit models with many millions of parameters,
+12. do non-linear dimension reduction.
 
-In this chapter, we will mainly deal with the first two aspects. Since a lot of new terms are being used, a small glossary can be found in Section "Neural Network Slang".
+In this chapter, we will mainly deal with the first three aspects. Since a lot of new terms are being used, a small glossary can be found in Section "Neural Network Slang".
 
 # Understanding Neural Nets
 
-To learn how and why neural networks work, we will go through three steps:
+To learn how and why neural networks work, we will go through three steps - each illustrated on the diamonds data:
 
 - Step 1: Linear regression as neural net
 - Step 2: Hidden layers
@@ -53,9 +53,9 @@ After this, we will be ready to build more complex models.
 
 Let us revisit the simple linear regression
 $$
-  E(\text{price}) = \alpha + \beta \cdot \text{carat}.
+  E(\text{price}) = \alpha + \beta \cdot \text{carat}
 $$
-In Chapter 1 we have found the solution $\hat\alpha = -2256.36$ and $\hat \beta = 7756.43$ by ordinary least-squares.
+calculated on the full diamonds data. In Chapter 1 we have found the solution $\hat\alpha = -2256.36$ and $\hat \beta = 7756.43$ by ordinary least-squares.
 
 Above situation can be viewed as a neural network with
 
@@ -68,7 +68,7 @@ Visualized as a graph, the situation looks as follows.
 
 *Part of the figures were done with this cool [webtool](http://alexlenail.me/NN-SVG/index.html).*
 
-To gain confidence into neural nets, we first show that parameters estimated by a neural network are quite similar to the ones learned by linear least-squares. To do so, we will use Google's [TensorFlow](https://www.tensorflow.org/) with its convenient [Keras](https://keras.io/) interface. 
+To gain confidence in neural nets, we first show that parameters estimated by a neural network are quite similar to the ones learned by linear least-squares. To do so, we will use Google's [TensorFlow](https://www.tensorflow.org/) with its convenient (functional) [Keras](https://keras.io/) interface. 
 
 ### Example: simple linear regression
 
@@ -134,7 +134,7 @@ Gradient descent on batches of size 1 is called "stochastic gradient descent" (S
 
 ## Step 2: Hidden layers
 
-Our first neural network above consisted of only an input and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariables. The nodes of a hidden layer are sometimes called *embedding* or *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariables in an automatic way. The only ingredients are a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
+Our first neural network above consisted of only an input layer and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariables. The nodes of a hidden layer are sometimes called *embedding* or *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariables in an automatic way. The only ingredients are a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
 
 Neural nets with more than one hidden layer are called "deep neural nets".
 
@@ -145,6 +145,8 @@ We will now add a hidden layer with five nodes $v_1, \dots, v_5$ to our simple l
 This network has 16 parameters. How much better than our simple network with just two parameters will it be?
 
 ### Example: hidden layer
+
+The following code is identical to the last one up to one extra line of code specifying the hidden layer.
 
 ```{r}
 library(tidyverse)
@@ -161,7 +163,7 @@ input <- layer_input(shape = 1)
 
 # One hidden layer
 output <- input %>%
-  layer_dense(units = 5) %>% 
+  layer_dense(units = 5) %>%  # the only new line of code!
   layer_dense(units = 1)
 
 # Create and compile model
@@ -195,18 +197,18 @@ ggplot(aes(x = carat, y = price)) +
 
 The missing magic component is the so called [*activation* function](https://en.wikipedia.org/wiki/Activation_function) $\sigma$ after each layer, which transforms the values of the nodes. So far, we have implicitly used "linear activations", which - in neural network slang - is just the identity function. 
 
-The activation of the *output* layer has the same purpose as the inverse of the link function of a corresponding GLM. It maps predictions to the scale of the response: 
+Using non-linear activation functions make sure that the network can represent non-linear terms and interactions. Typical activation functions are
+
+- the hyperbolic tangent ("S"-shaped function that maps real values to $[-1, 1]$),
+- the sigmoidal function ("S"-shaped function that maps real values to $[0, 1]$),
+- the **re**ctangular **l**inear **u**nit "ReLU" $f(x) = \text{max}(0, x)$ that sets negative values to 0.
+
+Activation functions applied to the *output* layer have a different purpose, namely the same as the inverse of the link function of a corresponding GLM. It maps predictions to the scale of the response: 
 
 - linear regression -> linear activation
 - binary logistic regression -> sigmoid activation (to predict probability of "1")
 - multinomial logistic regression -> softmax activation (to predict one probability per class)
 - log-linear regression -> exponential activation
-
-For hidden layers, the purpose of the activation function is a different one: thanks to being non-linear, it adds small amounts of interactions and non-linearity. Typical activation functions are
-
-- the hyperbolic tangent ("S"-shaped function that maps real values to $[-1, 1]$),
-- the sigmoidal function ("S"-shaped function that maps real values to $[0, 1]$),
-- the **re**ctangular **l** **u**nit "ReLU" $f(x) = \text{max}(0, x)$ that sets negative values to 0.
 
 Let us add a non-linear activation $\sigma$ after the hidden layer of our simple example.
 
@@ -602,7 +604,7 @@ plot(light_profile(fl, v = "agecat")) +
 
 # Exercises
 
-1. Fit diamond prices by gamma deviance loss with log-link (i.e. exponential output activation), using the custom loss function defined below. Tune the model to achieve good performance on an independent test data set. Interpret the final model.
+1. Fit diamond prices by gamma deviance loss with log-link (i.e. exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on an independent test data set. Interpret the final model.
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
@@ -627,19 +629,20 @@ Here, we summarize some of the neural network slang.
 - Learning rate: Controls the step size of gradient descent, i.e. how aggressive the network learns.
 - Node: Nodes on the input layer are the covariables, nodes on the output layer the response(s) and nodes on a hidden layer are latent variables representing the covariables for the task to predict the response.
 - Optimizer: The specific variant of gradient descent.
+- PyTorch: An important implementation of neural networks.
 - Stochastic gradient descent (SGD): Mini-batch gradient descent with batches of size 1.
 - TensorFlow: An important implementation of neural networks.
 - Weights: The parameters of a neural net.
 
 # Chapter Summary
 
-In this chapter, we glimpsed into the world of neural networks. Step by step we have learned how a neural network works. We have used Keras and TensorFlow to build models brick by brick.
+In this chapter, we have glimpsed into the world of neural networks. Step by step we have learned how a neural network works. We have used Keras and TensorFlow to build models brick by brick.
 
 # Closing Remarks
 
 During this lecture, we have met many ML algorithms and principles. To get used to them, the best approach is practicing. [Kaggle](kaggle.com) is a great place to do so and learn from the best. 
 
-A summary and comparison of the algorithms we have met is on [github](https://github.com/mayer79/ML_Algorithm_Comparison). Here is a screenshot as per Sept. 7, 2020: 
+A summary and comparison of the algorithms can be found on [github](https://github.com/mayer79/ML_Algorithm_Comparison). Here a screenshot as per Sept. 7, 2020: 
 ![](../figs/comparison_ML.PNG).
 
 # Chapter References

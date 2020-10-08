@@ -36,7 +36,7 @@ The concept of a decision tree is best understood with an example.
 
 ## Example: decision tree
 
-We will use the `dataCar` data set to predict the claim probability with a decision tree. As features, we use `veh_value`, `veh_body`, `veh_age`, `gender`, and `agecat`.
+We will use the `dataCar` data set to predict the claim probability with a decision tree. As features, we use `veh_value`, `veh_body`, `veh_age`, `gender`, `area` and `agecat`.
 
 ```{r}
 library(rpart)
@@ -67,7 +67,7 @@ predict(fit, dataCar[1, ])
 
 **Properties of decision trees**
 
-- **Outliers:** In contrast to linear models, outliers in *covariables* are not an issue because the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in *covariables* has no effect. Both statements do not hold for the response variable.
+- **Outliers:** In contrast to linear models, outliers in covariables are not an issue because the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in covariables has no effect. Both statements do not hold for the response variable.
 - **Missing values:** Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller/larger than the smallest non-missing value (e.g. -1 for a positive variable).
 - **Categorical covariables:** Unordered categorical covariables are tricky to split because with $\ell$ levels we end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
 - **Greedy:** Partitions are made in a greedy way to optimize the objective in *one step*. Looking ahead more than one step would lead to better models but this is computationally too demanding in practice.
@@ -89,10 +89,10 @@ Predictions are found by pooling the predictions of all trees, e.g. by averaging
 **Comments about random forests**
 
 - **Number of trees:** Usually, 100-1000 trees are being grown. The more, the better. More trees also mean longer training time and larger models.
-- **Diversification:** Single trees in a random forest are usually very deep and overfit on the training data. It is the diversity across trees that produces a good and stable model, just with a well-diversified stock portfolio. 
+- **Diversification:** Single trees in a random forest are usually very deep. They overfit on the training data. It is the diversity across trees that produces a good and stable model, just with a well-diversified stock portfolio. 
 - **Never trust performance on the training set for random forests.**
 - **OOB validation**: In each tree, about 1/3 of all observations are not in the bootstrap sample just by chance. Put differently: each observation is used in about 2/3 of all trees. If its prediction is calculated from the other 1/3 of the trees, we get an "out-of-sample" resp. "out-of-bag" (OOB) prediction. If rows are independent, model performance derived from these OOB predictions is usually good enough to be used for model validation. Do not use OOB results when rows are dependent such as for grouped samples.
-- **Parameter tuning:** Random forests offer many tuning parameters. Since the results do not depend too much on their choice, untuned random forests are often great benchmark models.
+- **Parameter tuning:** Random forests offer many tuning parameters. Since the results typically do not depend too much on their choice, untuned random forests are often great benchmark models.
 
 ## Example: random forest
 
@@ -128,11 +128,11 @@ r_squared(diamonds$price[ix$test], pred)  # 0.9807277
 
 ## Interpreting a "black box"
 
-In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any ML model to study at least *variable importance* and the strongest *effects*. A pure prediction machine is hardly of any interest and might even contain mistakes like using covariables derived from the response. Model interpretation helps to fight such problems and thus to increase trust in a model.
+In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any ML model to study at least *variable importance* and the strongest *effects*. A pure prediction machine is hardly of any interest and might even contain mistakes like using covariables derived from the response. Model interpretation helps to fight such problems and thus also to increase trust in a model.
 
 ### Variable importance
 
-There are different approaches to measure the importance of a covariable. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent. For tree-based methods, a usual approach is to measure how many times a covariable $X$ was used in a split or how much loss improvement was thanks to $X$.
+There are different approaches to measure the importance of a covariable. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariable $X$ was used in a split or how much loss improvement was thanks to splits on $X$.
 
 Approaches that work for *any* supervised model (including neural nets) include **permutation importance** and **SHAP importance**.
 
@@ -202,16 +202,18 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
 
 - **Number of boosting rounds:** In contrast to random forests, more trees/rounds is not always beneficial because the model begins to overfit after some time. The optimal number of rounds is usually found by early stopping, i.e. one lets the algorithm stop as soon as the (cross-)validation performance stops improving.
 
-- **Learning rate:** The learning rate determines training speed resp. the impact of each tree. Typical values are between 0.05 and 0.5. In practical applications, it is set to a value that leads to a reasonable amount of trees (100-1000). Usually, halving the learning rate means twice as much rounds for comparable performance.
+- **Learning rate:** The learning rate determines training speed resp. the impact of each tree. Typical values are between 0.05 and 0.5. In practical applications, it is set to a value that leads to a reasonable amount of trees (100-1000). Usually, halving the learning rate means twice as much boosting rounds for comparable performance.
 
-- **Regularization parameters:** Additional typical parameters include
+- **Regularization parameters:** Depending on the implementation, additional parameters are
     - the tree depth (often 3-7) or the number of leaves (often 7-63), 
     - the strength of the L1 and/or L2 penalties added to the loss function (often between 0 and 5), 
     - the row subsampling rate (often between 0.8 and 1), 
-    - the column subsampling rate (often between 0.6 and 1), and
-    - additional parameters.
-    
-Reasonable regularization parameters are chosen by randomized or grid search CV. Usually, this takes a couple of iterations.
+    - the column subsampling rate (often between 0.6 and 1), 
+    - ...
+  
+  Reasonable regularization parameters are chosen by randomized or grid search CV. Usually, it takes a couple of iterations until the range of the parameter values have been set appropriately.
+
+Note on tuning: Since learning rate, number of boosting rounds and regularization parameters are heavily interdependent, a "big" randomized grid search CV to choose learning rate, boosting rounds and regularization is often not ideal. Above suggestion (i.e. fix learning rate, select number of rounds by early stopping and do grid search only on regularization parameters) is more focussed, see also the example below.
 
 Note on **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, tune parameters and select models. Ideally, it is consistent with the loss function of the specific algorithm (e.g. RMSE as metric and MSE as loss), but in some cases it might differ.
 For classification, besides studying (multi-)log loss, e.g. one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc.  [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts very well. The confusion matrix tabulates the combinations of actual classes and predicted classes.
@@ -227,6 +229,7 @@ The basic strategy is as follows:
 3. Use the best parameter combination to fit the model on the training data.
 
 ```{r}
+# This code is pretty long, but may serve as general template
 library(ggplot2)
 library(xgboost)
 library(splitTools)
@@ -251,12 +254,13 @@ dtrain <- xgb.DMatrix(X_train, label = y_train)
 tune <- FALSE
 
 if (tune) {
-  # Use default parameters to get learning rate with suitable number of rounds
+  # Use default parameters to set learning rate with suitable number of rounds
   params <- list(
     learning_rate = 0.05,
     objective = "reg:squarederror"
   )
   
+  # Cross-validation
   cvm <- xgb.cv(
     params = params,
     data = dtrain,
@@ -265,7 +269,7 @@ if (tune) {
     early_stopping_rounds = 10,
     verbose = 0
   )
-  cvm   # -> a lr of 5% provides about 160 trees
+  cvm   # -> a lr of 5% provides about 160 trees, which is a convenient amount
    
   # Final grid search after some iterations
   grid <- expand.grid(
@@ -290,9 +294,9 @@ if (tune) {
     grid <- grid[sample(grid_size, max_size), ]
     grid_size <- max_size
   }
-  pb <- txtProgressBar(0, grid_size, style = 3)
 
   # Loop over grid and fit XGBoost with five-fold CV and early stopping
+  pb <- txtProgressBar(0, grid_size, style = 3)
   for (i in seq_len(grid_size)) {
     cvm <- xgb.cv(
       params = as.list(grid[i, -(1:2)]),
@@ -308,15 +312,16 @@ if (tune) {
     grid[i, 2] <- cvm$evaluation_log[[4]][cvm$best_iteration]
     setTxtProgressBar(pb, i)
   
-    # Save grid to surviva hard crashs
+    # Save grid to survive hard crashs
     saveRDS(grid, file = "gridsearch/diamonds_xgb.rds")
   }
 }
 
-# Load grid
+# Load grid and select best iteration
 grid <- readRDS("gridsearch/diamonds_xgb.rds")
 grid <- grid[order(grid$score), ]
 
+# Fit final, tuned model
 fit <- xgb.train(
   params = as.list(grid[1, -(1:2)]), 
   data = dtrain, 
@@ -343,7 +348,7 @@ r_squared(diamonds$price[ix$test], pred)  # 0.982
 imp <- xgb.importance(model = fit)
 xgb.plot.importance(imp)
 
-# Effects on the prediction, averaged over all interactions
+# Partial dependence plots
 fl <- flashlight(model = fit, 
                  y = "price", 
                  data = diamonds[ix$train, ], 
@@ -367,7 +372,7 @@ plot(light_profile(fl, v = "color")) +
 
 ## Exercises
 
-1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example. How does the partial dependence plot for `carat` look now?
+1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e. just be refitting the final model. How does the partial dependence plot for `carat` look now?
 2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss both as objective and evaluation metric. Interpret its results.
 
 # Chapter Summary
