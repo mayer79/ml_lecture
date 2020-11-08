@@ -134,7 +134,7 @@ Gradient descent on batches of size 1 is called "stochastic gradient descent" (S
 
 ## Step 2: Hidden layers
 
-Our first neural network above consisted of only an input layer and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariables. The nodes of a hidden layer are sometimes called *embedding* or *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariables in an automatic way. The only ingredients are a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
+Our first neural network above consisted of only an input layer and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariables. The nodes of a hidden layer are sometimes called *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariables in an automatic way. The only ingredients are a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
 
 Neural nets with more than one hidden layer are called "deep neural nets".
 
@@ -299,7 +299,7 @@ There are three ways to represent categorical input variables in a neural networ
 
 1. Binary and ordinal categoricals are best represented by integers and then treated as numeric.
 2. Unordered categoricals are either one-hot-encoded (i.e. each category is represented by a binary variable) or 
-3. they are represented by an input embedding. With an embedding, the categories are integer encoded and then compressed by a special *embedding layer* to a few (usually 1 or 2) dense features. This requires a more complex network architecture but saves memory and preprocessing. This approach is heavily used when the input consists of words (which is a categorical variable with thousands of levels - one level per word).
+3. they are represented by a (categorical) embedding. To do so, the categories are integer encoded and then condensed by a special *embedding layer* to a few (usually 1 or 2) dense features. This requires a more complex network architecture but saves memory and preprocessing. This approach is heavily used when the input consists of words (which is a categorical variable with thousands of levels - one level per word).
 
 For Option 2, input standardization is not required, for Option 3 it *must* not be applied as the embedding layer expects integers.
 
@@ -624,7 +624,8 @@ Here, we summarize some of the neural network slang.
 - Batch: A couple of data rows used for one mini-batch gradient descent step.
 - Callback: An action during training, e.g. saving weights, reducing learning rate or stop training.
 - Epoch: The process of updating the network weights by gradient descent until each observation in the training set was used once.
-- Embedding/Encoding: The values of latent variables of a hidden layer, usually the last.
+- Embedding: A numeric representation of categorical input as learned by the neural net.
+- Encoding: The values of latent variables of a hidden layer, usually the last.
 - Gradient descent: The basic optimization algorithm of neural networks.
 - Keras: User-friendly wrapper of TensorFlow.
 - Layer: Main organizational unit of a neural network.

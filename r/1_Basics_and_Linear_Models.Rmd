@@ -54,8 +54,8 @@ head(diamonds)
 We distinguish variables by their data type.
 
 - **numerical:** The values of a numerical variable are numbers. Taking sums, means and differences makes sense. Examples: house prices, insurance claim frequencies, blood pressure.
-- **categorical:** The values of a categorical variable are categories, e.g. house types, claim types or colors. Depending on whether categories follow a natural order, we talk of *ordered* or *unordered* categoricals. Categories can be encoded by numbers. That does not make the variable numeric.
-- **binary:**: A binary variable just takes two values (male/female, yes/no, ...) that can be represented by 1/0. It counts as both numeric and categorical.
+- **categorical:** The values of a categorical variable are categories, e.g. house types, claim types or colors. Depending on whether categories follow a natural order, we talk of *ordered* or *unordered* categoricals. Categories can be encoded by numbers. That does not make the variable numeric though.
+- **binary:** A binary variable just takes two values (male/female, yes/no, ...) that can be represented by 1/0. It counts as both numeric and categorical.
 
 Data types are important in determining suitable analysis methods.
 
@@ -80,7 +80,7 @@ Statistical modeling always starts with a descriptive analysis of the data. This
 - the important pairs of categorical variables: frequency tables; mosaic plots,
 - for important pairs of categorical *and* numerical variables: stratified means; mean plots, boxplots.
 
-The more time we invest in the descriptive analysis, the more we learn about the data, which is essential for successful analysis. Besides getting used to the data, we might 
+The more time we invest in the descriptive analysis, the more we learn about the data. Additionally, we might 
 
 - identify data errors and problematic outliers (uncommonly small or large values), 
 - find join keys to combine multiple data sources, 
@@ -98,7 +98,7 @@ Let us summarize the diamonds data set.
 ```{r}
 library(ggplot2)
 
-# Data size
+# Number of observations
 nrow(diamonds)  # 53940
 
 # Univariate description
@@ -152,9 +152,9 @@ ggplot(diamonds, aes(y = price, x = clarity)) +
 - There are 53'940 observations in the diamonds data set.
 - The average or mean diamond price is 3933 USD. About half of the diamonds cost less/more than the median of 2401 USD and about half of them cost between 950 USD (first quartile) and 5324 USD (third quartile). The lowest price is 326 USD, the highest price is 18'823 USD.
 - Prices and carats show a *right-skewed* distribution with a few very large values.
-- The relationship between price and carat seems quite strong and positive, which makes sense. On log-log scale, it looks quite linear.
+- The relationship between price and carat seems quite strong and positive, which makes sense. On log-log scale, it looks linear.
 - The worst categories of `color`, `cut`, and `clarity` are rare.
-- Prices tend to be lower for nice colors, nice cuts as well as for nice clarities. This is unintuitive but will be entangled later by our regression models.
+- Prices tend to be lower for nice colors, nice cuts as well as for nice clarities. This unintuitive behaviour will be entangled later by our regression models.
 
 ## Statistical models
 
@@ -185,7 +185,7 @@ The model equation of the linear regression is as follows:
 $$
   E(Y) = f(X_1, \dots, X_m) = \beta_0 + \beta_1 X_1 + \cdots + \beta_m X_m.
 $$
-It relates the covariables $X_1, \dots, X_m$ to the expected response $E(Y)$ by a *linear* formula in the parameters $\beta_0, \dots, \beta_m$. The additive constant $\beta_0$ is called the *intercept*. The parameter $\beta_j$ tells us by how much $Y$ is expected to change when $X_j$ is increased by 1, **keeping all other covariables fixed** ("Ceteris Paribus"):
+It relates the covariables $X_1, \dots, X_m$ to the expected response $E(Y)$ by a *linear* formula in the parameters $\beta_0, \dots, \beta_m$. The additive constant $\beta_0$ is called the *intercept*. The parameter $\beta_j$ tells us by how much $Y$ is expected to change when $X_j$ is increased by 1, **keeping all other covariables fixed** ("Ceteris Paribus"). Indeed:
 $$
   E(Y \mid X_j = x + 1) - E(Y \mid X_j = x) = \beta_j (x + 1) - \beta_j x = \beta_j.
 $$
@@ -230,8 +230,8 @@ ggplot(diamonds, aes(x = carat, y = price)) +
   coord_cartesian(xlim = c(0, 3), ylim = c(-3000, 20000)) +
   geom_abline(slope = slope, intercept = intercept, color = "orange", size = 1)
 
-# Predictions for diamonds with 0.3 and 1.3 carat?
-predict(fit, data.frame(carat = c(0.3, 1.3)))
+# Predictions for diamonds with 1.3 carat?
+predict(fit, data.frame(carat = 1.3))
 
 # By hand
 intercept + slope * 1.3
@@ -272,10 +272,11 @@ Let us calculate these performance measures for the simple linear regression abo
 mse <- function(y, pred) {
   mean((y - pred)^2)
 }
+
 (MSE <- mse(diamonds$price, predict(fit, diamonds)))
 (RMSE <- sqrt(MSE))
 
-empty_model <- lm(price ~ 1, data = diamonds)  # same as mean(diamonds$price)
+empty_model <- lm(price ~ 1, data = diamonds)  # predictions equal mean(diamonds$price)
 MSE_empty <- mse(diamonds$price, predict(empty_model, diamonds))
 
 # R-squared
@@ -299,7 +300,7 @@ and normal distribution of $\varepsilon$ guarantee optimality of the least-squar
 
 #### Example: simple linear regression (continued)
 
-For small diamonds, the predictions of our simple linear regression are systematically too low. This indicates a wrongly specified model. We will see ways to fix this.
+When looking at the scatter plot enhanced with the regression line from above, we can spot systematically too low (even negative!) predictions for very small diamonds. This indicates a wrongly specified model. Later, we will see ways to fix this.
 
 ## Typical problems
 
@@ -329,7 +330,7 @@ Note: Perfectly collinear covariables (e.g. $X$ and $2X$) cannot be used for alg
 
 ## Categorical covariables
 
-Since algorithms usually only understand numbers, categorical variables have to be encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) needs to be dropped due to perfect collinearity (for each row, the sum of OHE variables is always 1). Its level is represented by the intercept. This variant of OHE is called **dummy coding**.
+Since algorithms usually only understand numbers, categorical variables have to be encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) needs to be dropped due to perfect collinearity (for each row, the sum of OHE variables is always 1). Its level is automatically being represented by the intercept. This variant of OHE is called **dummy coding**.
 
 For our diamonds data set, OHE for the variable `color` looks as follows (the first column is the original categorical variable, the other columns are the dummy variables):
 
@@ -361,11 +362,11 @@ summary(fit)
 
 Linear regression is flexible regarding *how* variables are represented in the linear equation. Possibilities include
 
-- non-linear terms,
+- using non-linear terms,
 - interactions, and
 - transformations, notably logarithmic responses.
 
-These elements are very important.
+These elements are very important for making realistic models.
 
 ### Non-linear terms
 
@@ -403,17 +404,17 @@ ggplot(aes(x = carat, y = price)) +
 **Comments**
 
 - In the dense part (carats up to 2), the cubic polynomial seems to provide better results than a simple linear regression. No clear bias is visible.
-- Extrapolation to diamonds above 2 carat provides catastrophic results. Thus, be cautious if extrapolation is required.
+- Extrapolation to diamonds above 2 carat provides catastrophic results. Thus, be cautious with polynomial terms and extrapolation.
 
 ### Interaction terms
 
-Once fitted, the effect of a covariable does not depend on the values of the other covariables. This is a direct consequence of the additivity of the model equation. This assumption is sometimes too strict. E.g. treatment effects might be larger for younger patients than for older. Or an extra 0.1 carat of diamond weight is worth more for a beautiful white diamond compared to an unspectacular yellow one. In such cases, adding *interaction terms* provides the necessary flexibility. Mathematically, an interaction term between covariables $X$ and $Z$ equals their product. Practically, it means that the effect $X$ depends on the value of $Z$. 
+Once fitted, the effect of a covariable does not depend on the values of the other covariables. This is a direct consequence of the additivity of the model equation. The additivity assumption is sometimes too strict. E.g. treatment effects might be larger for younger patients than for older. Or an extra 0.1 carat of diamond weight is worth more for a beautiful white diamond compared to an unspectacular yellow one. In such cases, adding *interaction terms* provides the necessary flexibility. Mathematically, an interaction term between covariables $X$ and $Z$ equals their product. Practically, it means that the effect $X$ depends on the value of $Z$. 
 
 **Comments**
 
 - Adding interaction terms makes model interpretation difficult.
-- Interaction terms mean more parameters, thus there is a danger of overfitting. Finding the right interaction terms without introducing overfitting is impossible.
-- Neural networks and tree-based models automatically find interactions, even between more than two variables. This is one of their main strengths.
+- Interaction terms mean more parameters, thus there is a danger of overfitting. Finding the right interaction terms without introducing overfitting is difficult or even impossible.
+- Modern ML algorithms like neural networks and tree-based models automatically find interactions, even between more than two variables. This is one of their main strengths.
 
 #### Example: interactions
 
@@ -449,14 +450,14 @@ ggplot(to_plot, aes(x = carat, y = prediction, group = color, color = color)) +
 Not surprisingly, covariables are often transformed before entering the model:
 
 - Categorical covariables are dummy coded.
-- Strongly correlated covariables are decorrelated by forming ratios.
+- Strongly correlated covariables might be decorrelated by forming ratios.
 - Logarithms neutralize gross outliers.
 
 Not surprisingly, coefficients explain how the *transformed* variables acts on the expected response. For a log-transformed covariable $X$, we can even interpret the coefficient regarding the **untransformed** $X$. In the model equation
 $$
   E(Y\mid X = x) = \alpha + \beta \log(x),
 $$
-we can say: A 1% increase in $X$ leads to an increase in $E(Y)$ of about $\beta/100$:
+we can say: A 1% increase in $X$ leads to an increase in $E(Y)$ of about $\beta/100$. Indeed, we have
 $$
   E(Y\mid X = 101\% \cdot x) - E(Y\mid X = x) = \alpha + \beta \log (1.01 \cdot x) - \alpha - \beta \log(x) \\ 
   = \beta \log\left(\frac{1.01 \cdot x}{x}\right)= \beta \log(1.01) \approx \beta/100.
@@ -504,11 +505,11 @@ We have seen that taking logarithms not only reduces outlier effects in covariab
 $$
   E(\log(Y) \mid X = x) = \alpha + \beta x.
 $$  
-**Claim:** The effect $\beta$ tells us by how much *percentage* we can expect $Y$ to change. Thus, a logarithmic response leads to a *multiplicative* instead of an *additive* model.
+**Claim:** The effect $\beta$ tells us by how much *percentage* we can expect $Y$ to change when increasing $X$ by 1. Thus, a logarithmic response leads to a *multiplicative* instead of an *additive* model.
 
 **Proof**
 
-Assume for a moment that we can swap taking expectations and log (disclaimer: we cannot). In that case, the model would be
+Assume for a moment that we can swap taking expectations and logarithms (disclaimer: we cannot). In that case, the model would be
 
 $$
   \log(E(Y\mid X = x)) = \alpha + \beta x
@@ -526,9 +527,9 @@ Dividing both sides by $E(Y\mid X = x)$ gives
 $$
 \underbrace{\frac{E(Y\mid X = x+1) - E(Y\mid X = x)}{E(Y\mid X = x)}}_{\text{Relative change in } E(Y)} = e^\beta-1 \approx \beta = \beta \cdot 100\%.
 $$
-Indeed: A one point increase in $X$ is associated with a relative increase in $E(Y)$ of about $\beta 100\%$.
+Indeed: A one point increase in $X$ is associated with a relative increase in $E(Y)$ of about $\beta \cdot 100\%$.
 
-Since expectations and logarithms cannot be swapped, the calculation is not 100% correct. One consequence of this imperfection is that predictions on the scale of $Y$ are systematically too small. (Actually, we have fitted a model for the geometric instead of the arithmetic mean of the response.) One of the motivations of the generalized linear models GLM (see next section) will be to mend this problem in an elegant way.
+Since expectations and logarithms cannot be swapped, the calculation is not 100% correct. One consequence of this imperfection is that predictions backtransformed to the scale of $Y$ are systematically too small. One of the motivations of the generalized linear models GLM (see next section) will be to mend this problem in an elegant way.
 
 #### Example: log(price)
 
@@ -562,7 +563,7 @@ ggplot(to_plot, aes(x = carat, y = price)) +
 
 **Comments** 
 
-- **General impression:** The model looks fine until 2 carat (both on log-scale and original scale). For larger diamonds, the model is heavily biased.
+- **General impression:** The model looks fine until 1.8 carat (both on log-scale and original scale). For larger diamonds, the model is heavily biased.
 - **Interpretation on log-scale:** An increase in carat of 0.1 is associated with a log(price) increase of 0.197.
 - **Interpretation on original scale:** An increase in carat of 0.1 is associated with a price increase of about 20%.
 - **Predictions:** Predictions are obtained by exponentiating the result of the linear formula.
@@ -571,7 +572,7 @@ ggplot(to_plot, aes(x = carat, y = price)) +
 
 #### Example: log(carat) and log(price)
 
-Using logarithms for either price or carat did not really provide a satisfactory model. What about applying logarithms to both response and covariable?
+Using logarithms for either price or carat did not provide a satisfactory model yet. What about applying logarithms to both response and covariable at the same time?
 
 ```{r}
 library(tidyverse)
@@ -582,14 +583,6 @@ summary(fit)
 to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>% 
   mutate(price = exp(predict(fit, .)))
 
-# Back-transformed
-ggplot(to_plot, aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
-  geom_line() +
-  geom_point() +
-  coord_cartesian(x = c(0.3, 3)) +
-  ggtitle("Original scale")
-
 # log-log-scale
 ggplot(to_plot, aes(x = log(carat), y = log(price))) +
   geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
@@ -597,14 +590,22 @@ ggplot(to_plot, aes(x = log(carat), y = log(price))) +
   geom_point() +
   coord_cartesian(x = log(c(0.3, 3))) +
   ggtitle("Log-log scale")
+
+# Back-transformed
+ggplot(to_plot, aes(x = carat, y = price)) +
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_line() +
+  geom_point() +
+  coord_cartesian(x = c(0.3, 3)) +
+  ggtitle("Original scale")
 ```
 
 **Comments** 
 
-- **General impression:** The model looks quite realistic, both on back-transformed scale and the log-log scale. There are no obvious model biases visible.
+- **General impression:** The model looks quite realistic, both on log-log and back-transformed scale. There are no obvious model biases visible.
 - **Effect on log-scales**: An increase in log(carat) of 1 is associated with a log(price) increase of 1.67.
 - **Effect on original scales**: An increase in carat of 1% is associated with a price increase of about 1.67%.
-- **R-squared:** About 93% of the variability in log(price) can be explained by log(carat). The model performs much better than the one in the previous example.
+- **R-squared:** About 93% of the variability in log(price) can be explained by log(carat). The model performs much better than the ones in the previous examples.
 - **RMSE:** Typical prediction errors are in the range of 26%.
 
 ## Example: diamonds improved
@@ -630,7 +631,7 @@ summary(fit)
 
 ## Exercises
 
-As alternative to the multiple linear regression on diamond prices with logarithmic price and logarithmic carat, consider the same model without logarithms. Interpret the output of the model. Does it make sense from practical perspective?
+As alternative to the multiple linear regression on diamond prices with logarithmic price and logarithmic carat, consider the same model without logarithms. Interpret the output of the model. Does it make sense from a practical perspective?
 
 ```{r}
 library(tidyverse)
@@ -678,7 +679,7 @@ The following table lists some of the most used GLMs.
 | Logistic   | Binary      | $\{0, 1\}$            | logit       | logit         | Binary cross-entropy    | $-(y\log(\hat y) + (1-y) \log(1-\hat y))$
 | Poisson    | Poisson     | $\{0, 1, \dots\}$     | log         | log           | Poisson deviance | $2(y \log(y / \hat y) - (y - \hat y))$
 | Gamma      | Gamma       | $(0, \infty)$         | 1/x         | log           | Gamma deviance   | $2 ((y - \hat y) / \hat y - \log(y / \hat y))$
-| Multinomial| Multinomial | $\{C_1, \dots, C_m\}$ | mlogit      | mlogit        | Categorical cross-entropy    | -$\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$
+| Multinomial| Multinomial | $\{C_1, \dots, C_m\}$ | mlogit      | mlogit        | Categorical cross-entropy    | $-\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$
 
 ![](../figs/GLM_distributions.PNG)
 
@@ -716,13 +717,13 @@ Further advantages of the GLM over the linear regression are:
 
 The interpretation of model coefficients in GLMs is guided by the link function.
 
-- **Identity link:** As with linear regression: "A one-point increase in $X$ is associated with a $\beta$ increase in $g(E(Y))$, keeping everything else fixed". 
-- **Log link:** As with linear regression with log response: "A one-point increase in $X$ is associated with a relative increase in $E(Y)$ of $e^{\beta}-1 \approx \beta \cdot 100\%$. The derivation is exactly as we have seen for linear regression, except that we start with $\log(E(Y))$ instead of $E(\log(Y))$, making the calculations mathematically sound. Using a GLM with log link is thus the cleaner way to produce a multiplicative model for $E(Y)$ than to log transform the response in a linear regression.
+- **Identity link:** As with linear regression: "A one-point increase in $X$ is associated with a $\beta$ increase in $E(Y)$, keeping everything else fixed". 
+- **Log link:** As with linear regression with log response: "A one-point increase in $X$ is associated with a relative increase in $E(Y)$ of $e^{\beta}-1 \approx \beta \cdot 100\%$. The derivation is exactly as we have seen for linear regression, except that we now start with $\log(E(Y))$ instead of $E(\log(Y))$, making the former calculations mathematically sound. Using a GLM with log link is thus the cleaner way to produce a multiplicative model for $E(Y)$ than to log transform the response in a linear regression.
 - **Logit link:** Logistic regression uses the logit link
 $$
   \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right).
 $$
-It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e. the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The probability to get a "6" is 1/6. Correspondingly, the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds resp. a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. There is no easy way to interpret the coefficients on the original probability scale.
+It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e. the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The *probability* to get a "6" is 1/6 whereas the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds resp. a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. There is no easy way to interpret the coefficients on the original probability scale.
 
 ![](../figs/log_odds.png)
 
@@ -759,7 +760,7 @@ summary(fit)
 
 - An increase of 1 in `veh_value` increases the log of the expected count by 0.046. On the original count scale, this is an increase of approximately 4.6%. The exact effect is $e^{0.046388}-1 = 0.047 = 4.7\%$.
 - Males produce, on average, about 1.6% less claims. 
-- The deviance 26629 is only 0.5% smaller than the one of the null model 26768. The predictive performance of this model is thus low. This makes sense: having claims is a highly random event that cannot be predicted on individual scale.
+- The deviance 26629 is only 0.5% smaller than the one of the null model 26768. The predictive performance of this model is thus very low: having a claim is a highly random event that cannot be predicted on individual scale.
 
 ## Example: logistic regression
 
@@ -783,7 +784,7 @@ summary(fit)
 **Comments**
 
 - An increase of 1 in `veh_value` (10'000 USD) increases the log-odds of having a claim by 0.051. On the odds scale, this is an increase of approximately 5.1%. The exact calculation is $e^{0.05098}-1 = 0.052 = 5.2\%$. Thus we can say that for every additional 10'000 USD vehicle value, the odds of having a claim is increased by 5.2%.
-- The odds that a male produces a claim is about 1% smaller than for females.
+- The odds that a male produces a claim is about 1% smaller than for females. In order words, males are 1% less likely to have a claim than females.
 - The deviance 33632 is only 0.4% smaller than the one of the null model 33767.
 
 ## Exercises
@@ -806,4 +807,4 @@ In this first chapter, we have introduced basic notations. Then, we have revisit
 
 [1] A. Legendre, "Nouvelles méthodes pour la détermination des orbites des comètes", 1805.
 
-[2] J. A. Nelder and R. W. M. Wedderburn, "Generalized Linear Models". Journal of the Royal Statistical Society. Series A, Vol. 135, No. 3 (1972).
+[2] J. A. Nelder and R. W. M. Wedderburn, "Generalized Linear Models". Journal of the Royal Statistical Society. Series A, Vol. 135, No. 3, 1972.
