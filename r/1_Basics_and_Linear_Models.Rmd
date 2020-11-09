@@ -636,6 +636,7 @@ As alternative to the multiple linear regression on diamond prices with logarith
 ```{r}
 library(tidyverse)
 
+# Turn ordered factors into unordered ones
 dia <- diamonds %>% 
   mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
 ```
@@ -794,6 +795,7 @@ Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, 
 ```{r}
 library(tidyverse)
 
+# Turn ordered factors into unordered ones
 dia <- diamonds %>% 
   mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
 

@@ -31,7 +31,7 @@ A very simple and intuitive alternative to the linear model is the k-nearest-nei
 
 By "nearest" we usually mean Euclidean distance in the covariable space. If covariables are not on the same scale, it makes sense to *standardize* them first by subtracting the mean and dividing by the standard deviation. Otherwise, distances would be dominated by the covariable on the largest scale. Categorical features need to be one-hot- or integer-encoded first. Note that one-hot-encoded covariables may or may not be standardized.
 
-For regression tasks, responses are often combined by computing the arithmetic mean. For classification tasks, the responses of the k neighbours are condensed by their most frequent value (the mode) or class probabilities.
+For regression tasks, the responses of the k nearest neighbours are often combined by computing their arithmetic mean. For classification tasks, they are condensed by their most frequent value or to class probabilities.
 
 ## Example: nearest-neighbour
 
@@ -52,19 +52,20 @@ diamonds[10000, c("price", x)]
 knn.reg(X, test = X[10000, ], k = 5, y = diamonds$price)
 
 # Its five nearest neighbours
-neighbours <- knn.index(X, k = 5)[10000, ]
-diamonds[neighbours, c("price", x)]
+neighbours <- c(knnx.index(X, X[10000, , drop = FALSE], k = 5))
+diamonds[neighbours, ]
 ```
 
 **Comments** 
 
-- The five nearest diamonds are extremely similar. Unsurprisingly, one of the five nearest neighbours is the observation of interest itself, introducing a relevant amount of overfitting.
+- The five nearest diamonds are extremely similar. The second one is the observation of interest itself, introducing a relevant amount of overfitting.
 - The average price of these five observations gives us the nearest-neighbour prediction for the 10'000th diamond.
 - Would we get better results for a different choice of the number of neighbours k?
+- Three lines are identical up to the perspective variables (`table`, `x`, `y`, `z`). These rows most certainly represent the same diamond, introducing additional overfit. We need to keep this problematic aspect of the diamonds data in mind.
 
 **Motivation for this chapter:** Insample, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This hypothetical example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to *simple validation*.
 
-# Simple validation
+# Simple Validation
 
 With simple validation, the original data set is partitioned into *training* data used to calculate the models and a separate *validation* data set used to evaluate model performance and/or to select models. Typically, 10%-30% of rows are used for validation.
 
@@ -131,6 +132,7 @@ ggplot(aes(x = k, y = RMSE, group = Data, color = Data)) +
 - Selecting k based on the training data would lead to a suboptimal model.
 - Based on the validation data, we would choose $k=4$. It has a minimal RMSE of 602 USD.
 - Why is the RMSE on the training data not 0 for 1-nearest-neighbour?
+- Why is it problematic that some diamonds appear multiple times in the dataset?
 
 # Cross-Validation (CV)
 
@@ -198,13 +200,13 @@ ggplot(paramGrid, aes(x = k, y = RMSE)) +
   ggtitle("Performance by cross-validation")
 ```
 
-**Comment:** Using 5 neighbours seems to be the best choice with a CV RMSE of 619 USD.
+**Comment:** Using 5 neighbours seems to be the best choice with a CV RMSE of 619 USD. Again, the fact that certain diamonds appear multiple times leaves a slightly bad feeling. Should we really trust these results?
 
-# Grid search
+# Grid Search
 
 In the above example, we have systematically compared the CV-performance of k-nearest-neighbour by iterating over a grid of possible values for k. Such strategy to *tune* models resp. to select hyperparameters of a model is called **grid search CV**. In the next chapter, we will meet situations where multiple parameters have to be optimized simultaneously. Then, the number of parameter combinations and the grid size explode. To save time, we could evaluate only a random subset of parameter combinations, an approach called **randomized search CV**.
 
-# Test data
+# Test Data and Final Workflow
 
 Often, modeling involves many decisions. Even if guided by (cross-)validation, each decision tends to make the resulting final model look better than it is, an effect that can be called *overfitting on the validation data*. As a consequence, we often do not know how well the final model will perform in reality. As a solution, we can set aside a small *test* data set used to assess the performance of the *final* model. A size of 5%-20% is usually sufficient. 
 It is important to look at the test data just once at the very end of the modeling process - after each decision has been made.
@@ -240,11 +242,14 @@ library(MetricsWeighted)
 # Covariables
 x <- c("carat", "color", "cut", "clarity")
 
-# Split diamonds into 90% for training and 10% for testing
-ix <- partition(diamonds$price, p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
+dia <- diamonds[, c("price", x)]
+# dia <- unique(diamonds)  #  -> Exercise 2
 
-train <- diamonds[ix$train, ]
-test <- diamonds[ix$test, ]
+# Split diamonds into 90% for training and 10% for testing
+ix <- partition(dia$price, p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
+
+train <- dia[ix$train, ]
+test <- dia[ix$test, ]
 
 y_train <- train$price
 y_test <- test$price
@@ -269,8 +274,9 @@ for (i in 1:nrow(paramGrid)) {
   scores <- c()
   
   for (fold in folds) {
-    pred <- knn.reg(X[fold, ], test = X[-fold, ], k = k, y = y[fold])$pred
-    scores[length(scores) + 1] <- rmse(y[-fold], pred)
+    pred <- knn.reg(X_train[fold, ], test = X_train[-fold, ], 
+                    k = k, y = y_train[fold])$pred
+    scores[length(scores) + 1] <- rmse(y_train[-fold], pred)
   }
   paramGrid[i, "RMSE"] <- mean(scores)
 }
@@ -298,9 +304,9 @@ rmse(y_test, pred)
 **Comments** 
 
 - 6-nearest-neighbour regression performs much better than linear regression.
-- Its performance on the independent test data well corresponds to cross-validation performance. This is a sign that our cross-validation strategy did not introduce a lot of overfitting.
+- Its performance on the independent test data well is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential "leakage" from training to test data?
 
-# Random splitting?
+# Random Splitting?
 
 The data is often *randomly split* into partitions or folds. As long as rows are *independent*, this leads to honest estimates of model performance as it ensures independent data partitions. 
 
@@ -319,6 +325,8 @@ Often, data is grouped or clustered by some (hopefully known) ID variable, e.g.
 
 Then, instead of distributing *rows* into partitions, we should distribute *groups*/IDs in order to not destroy the data structure and to get honest performance estimates. We speak of *grouped splitting* and *group k-fold CV*. 
 
+In our example with diamonds data, it would be useful to have a column with diamond "id" that could be used for grouped splitting. (How would you create a proxy for this?)
+
 ## Stratification
 
 *If rows are independent*, there is a variant of random splitting that often provides better results and is therefore frequently used: *stratified splitting*. With stratified splitting or *stratified k-fold CV*, rows are split to ensure approximately equal distribution of a key variable (the response or deciding covariable) across partitions/folds.
@@ -330,7 +338,8 @@ In this chapter, we have met strategies to estimate model performance in a fair 
 # Exercises
 
 1. Apply *stratified* splitting (on the response `price`) throughout the last example. Do the results change?
-2. Use cross-validation to select the best polynomial degree to represent `log(carat)` in the Gamma GLM with log-link (with additional covariables `color`, `cut`, and `clarity`). Evaluate the result on an independent test data.
-3. Compare the linear regression for `price` (using `log(carat)`, `color`, `cut`, and `clarity` as covariables) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?
+2. As an alternative to *grouped* splitting, repeat the last example also on data deduplicated by `price` and covariables. Do the results change? Why should we trust these results more than earlier results?
+3. Use cross-validation to select the best polynomial degree to represent `log(carat)` in the Gamma GLM with log-link (with additional covariables `color`, `cut`, and `clarity`). Evaluate the result on an independent test data.
+4. Optional: Compare the linear regression for `price` (using `log(carat)`, `color`, `cut`, and `clarity` as covariables) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?
 
 
