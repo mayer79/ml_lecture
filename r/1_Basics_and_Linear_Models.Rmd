@@ -447,7 +447,7 @@ ggplot(to_plot, aes(x = carat, y = prediction, group = color, color = color)) +
 
 ### Transformations of covariables
 
-Not surprisingly, covariables are often transformed before entering the model:
+Covariables are often transformed before entering the model:
 
 - Categorical covariables are dummy coded.
 - Strongly correlated covariables might be decorrelated by forming ratios.
