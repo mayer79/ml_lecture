@@ -71,7 +71,7 @@ predict(fit, dataCar[1, ])
 - **Missing values:** Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller/larger than the smallest non-missing value (e.g. -1 for a positive variable).
 - **Categorical covariables:** Unordered categorical covariables are tricky to split because with $\ell$ levels we end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
 - **Greedy:** Partitions are made in a greedy way to optimize the objective in *one step*. Looking ahead more than one step would lead to better models but this is computationally too demanding in practice.
-- **Interactions:** By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.
+- **Interactions:** By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large and the tree is deep enough. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.
 
 These properties translate 1:1 to combinations of trees like random forests or boosted trees.
 
@@ -96,7 +96,7 @@ Predictions are found by pooling the predictions of all trees, e.g. by averaging
 
 ## Example: random forest
 
-Let us now fit a random forest for diamond prices with default parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable. 
+Let us now fit a random forest for diamond prices with default parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable. (Throughout the rest of the lecture, we will ignore the problematic aspect of having repeated rows for some diamonds.)
 
 ```{r}
 library(tidyverse)
@@ -128,17 +128,17 @@ r_squared(diamonds$price[ix$test], pred)  # 0.9807277
 
 ## Interpreting a "black box"
 
-In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any ML model to study at least *variable importance* and the strongest *effects*. A pure prediction machine is hardly of any interest and might even contain mistakes like using covariables derived from the response. Model interpretation helps to fight such problems and thus also to increase trust in a model.
+In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any ML model to study at least *variable importance* and the strongest *effects*, not just its performance. A pure prediction machine is hardly of any interest and might even contain mistakes like using covariables derived from the response. Model interpretation helps to fight such problems and thus also to increase trust in a model.
 
 ### Variable importance
 
-There are different approaches to measure the importance of a covariable. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariable $X$ was used in a split or how much loss improvement was thanks to splits on $X$.
+There are different approaches to measure the importance of a covariable. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariable $X$ was used in a split or how much loss improvement came from splitting on $X$.
 
 Approaches that work for *any* supervised model (including neural nets) include **permutation importance** and **SHAP importance**.
 
 ### Effects
 
-One of the main reasons for the success of modern methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable $X$ typically depends on the values of other covariables. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding their value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The more natural the Ceteris Paribus clause, the better the partial dependence plots.
+One of the main reasons for the success of modern methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable $X$ typically depends on the values of other covariables. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding their value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The more natural the Ceteris Paribus clause, the more reliable the partial dependence plots.
 
 Remark: A partial dependence plot of a covariable in a linear regression is simply a visualization of its coefficient.
 

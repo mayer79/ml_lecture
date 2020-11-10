@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2020-10-08" />
+<meta name="date" content="2020-11-10" />
 
 <title>Trees</title>
 
@@ -2541,6 +2541,54 @@ window.onload = function() {
   PagedTableDoc.initAll();
 };
 </script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -2845,7 +2893,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Trees</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2020-10-08</h4>
+<h4 class="date">2020-11-10</h4>
 
 </div>
 
@@ -2887,7 +2935,7 @@ div.tocify {
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">dataCar[<span class="dv">1</span>, <span class="kw">c</span>(<span class="st">&quot;agecat&quot;</span>, <span class="st">&quot;veh_value&quot;</span>, <span class="st">&quot;veh_body&quot;</span>)]</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["agecat"],"name":[1],"type":["int"],"align":["right"]},{"label":["veh_value"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["veh_body"],"name":[3],"type":["fctr"],"align":["left"]}],"data":[{"1":"2","2":"1.06","3":"HBACK","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["agecat"],"name":[1],"type":["int"],"align":["right"]},{"label":["veh_value"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["veh_body"],"name":[3],"type":["fct"],"align":["left"]}],"data":[{"1":"2","2":"1.06","3":"HBACK","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">predict</span>(fit, dataCar[<span class="dv">1</span>, ])</a></code></pre></div>
@@ -2904,7 +2952,7 @@ div.tocify {
 <li><strong>Missing values:</strong> Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller/larger than the smallest non-missing value (e.g. -1 for a positive variable).</li>
 <li><strong>Categorical covariables:</strong> Unordered categorical covariables are tricky to split because with <span class="math inline">\(\ell\)</span> levels we end up with <span class="math inline">\(2^\ell\)</span> possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.</li>
 <li><strong>Greedy:</strong> Partitions are made in a greedy way to optimize the objective in <em>one step</em>. Looking ahead more than one step would lead to better models but this is computationally too demanding in practice.</li>
-<li><strong>Interactions:</strong> By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.</li>
+<li><strong>Interactions:</strong> By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large and the tree is deep enough. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.</li>
 </ul>
 <p>These properties translate 1:1 to combinations of trees like random forests or boosted trees.</p>
 </div>
@@ -2930,7 +2978,7 @@ div.tocify {
 </div>
 <div id="example-random-forest" class="section level2">
 <h2><span class="header-section-number">3.2</span> Example: random forest</h2>
-<p>Let us now fit a random forest for diamond prices with default parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable.</p>
+<p>Let us now fit a random forest for diamond prices with default parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable. (Throughout the rest of the lecture, we will ignore the problematic aspect of having repeated rows for some diamonds.)</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">library</span>(tidyverse)</a>
 <a class="sourceLine" id="cb5-2" title="2"><span class="kw">library</span>(splitTools)</a>
 <a class="sourceLine" id="cb5-3" title="3"><span class="kw">library</span>(ranger)</a>
@@ -2975,15 +3023,15 @@ div.tocify {
 </div>
 <div id="interpreting-a-black-box" class="section level2">
 <h2><span class="header-section-number">3.3</span> Interpreting a “black box”</h2>
-<p>In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any ML model to study at least <em>variable importance</em> and the strongest <em>effects</em>. A pure prediction machine is hardly of any interest and might even contain mistakes like using covariables derived from the response. Model interpretation helps to fight such problems and thus also to increase trust in a model.</p>
+<p>In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any ML model to study at least <em>variable importance</em> and the strongest <em>effects</em>, not just its performance. A pure prediction machine is hardly of any interest and might even contain mistakes like using covariables derived from the response. Model interpretation helps to fight such problems and thus also to increase trust in a model.</p>
 <div id="variable-importance" class="section level3">
 <h3><span class="header-section-number">3.3.1</span> Variable importance</h3>
-<p>There are different approaches to measure the importance of a covariable. Since there is no general mathematical definition of “importance”, the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariable <span class="math inline">\(X\)</span> was used in a split or how much loss improvement was thanks to splits on <span class="math inline">\(X\)</span>.</p>
+<p>There are different approaches to measure the importance of a covariable. Since there is no general mathematical definition of “importance”, the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariable <span class="math inline">\(X\)</span> was used in a split or how much loss improvement came from splitting on <span class="math inline">\(X\)</span>.</p>
 <p>Approaches that work for <em>any</em> supervised model (including neural nets) include <strong>permutation importance</strong> and <strong>SHAP importance</strong>.</p>
 </div>
 <div id="effects" class="section level3">
 <h3><span class="header-section-number">3.3.2</span> Effects</h3>
-<p>One of the main reasons for the success of modern methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable <span class="math inline">\(X\)</span> typically depends on the values of other covariables. In the extreme case, the effect of <span class="math inline">\(X\)</span> is different for each observation. The best what we can do is to study the <em>average effect</em> of <span class="math inline">\(X\)</span> over many observations, i.e. averaging the effects over interactions. This leads us to <strong>partial dependence plots</strong>: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against <span class="math inline">\(X\)</span> when sliding their value of <span class="math inline">\(X\)</span> over a reasonable grid of values, <em>keeping all other variables fixed</em>. The more natural the Ceteris Paribus clause, the better the partial dependence plots.</p>
+<p>One of the main reasons for the success of modern methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable <span class="math inline">\(X\)</span> typically depends on the values of other covariables. In the extreme case, the effect of <span class="math inline">\(X\)</span> is different for each observation. The best what we can do is to study the <em>average effect</em> of <span class="math inline">\(X\)</span> over many observations, i.e. averaging the effects over interactions. This leads us to <strong>partial dependence plots</strong>: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against <span class="math inline">\(X\)</span> when sliding their value of <span class="math inline">\(X\)</span> over a reasonable grid of values, <em>keeping all other variables fixed</em>. The more natural the Ceteris Paribus clause, the more reliable the partial dependence plots.</p>
 <p>Remark: A partial dependence plot of a covariable in a linear regression is simply a visualization of its coefficient.</p>
 <p>Alternatives to partial dependence plots include <strong>accumulated local effect plots</strong> and <strong>SHAP dependence plots</strong>. Both relax the Ceteris Paribus clause.</p>
 </div>
@@ -3234,7 +3282,7 @@ div.tocify {
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
