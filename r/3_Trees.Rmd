@@ -253,6 +253,9 @@ dtrain <- xgb.DMatrix(X_train, label = y_train)
 # If grid search is to be run again, set tune <- TRUE
 tune <- FALSE
 
+# Note that if run as rmarkdown, the path to the grid is "gridsearch",
+# otherwise it is "r/gridsearch"
+
 if (tune) {
   # Use default parameters to set learning rate with suitable number of rounds
   params <- list(
