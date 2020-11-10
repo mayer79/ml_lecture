@@ -377,8 +377,8 @@ ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
 train <- diamonds[ix$train, ]
 valid <- diamonds[ix$valid, ]
 
-y_train <- train[[y]]
-y_valid <- valid[[y]]
+y_train <- as.numeric(train[[y]])  # integers are not auto-casted by all tf versions
+y_valid <- as.numeric(valid[[y]])
 
 X_train <- train[, x]
 X_valid <- valid[, x]
@@ -606,7 +606,7 @@ plot(light_profile(fl, v = "agecat")) +
 
 # Exercises
 
-1. Fit diamond prices by gamma deviance loss with log-link (i.e. exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on an independent test data set. Interpret the final model.
+1. Fit diamond prices by gamma deviance loss with log-link (i.e. exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on an independent test data set. Interpret the final model. (Hints: I used a smaller learning rate of 0.03 and had to replace the "relu" activations by "tanh".)
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
