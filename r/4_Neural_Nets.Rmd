@@ -75,7 +75,7 @@ To gain confidence in neural nets, we first show that parameters estimated by a 
 ```{r}
 library(tidyverse)
 library(keras)
-# use_python("c:/ieu/Miniconda3/envs/testenv")
+# use_python(path to python...)
 
 # RMSE metric needs to be defined "by hand"
 metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
