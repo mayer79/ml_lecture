@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2020-11-09" />
+<meta name="date" content="2020-11-10" />
 
 <title>Model Selection and Validation</title>
 
@@ -2893,7 +2893,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Model Selection and Validation</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2020-11-09</h4>
+<h4 class="date">2020-11-10</h4>
 
 </div>
 
@@ -2946,7 +2946,7 @@ div.tocify {
 <li>The five nearest diamonds are extremely similar. The second one is the observation of interest itself, introducing a relevant amount of overfitting.</li>
 <li>The average price of these five observations gives us the nearest-neighbour prediction for the 10’000th diamond.</li>
 <li>Would we get better results for a different choice of the number of neighbours k?</li>
-<li>Three lines are identical up to the perspective variables (<code>table</code>, <code>x</code>, <code>y</code>, <code>z</code>). These rows most certainly represent the same diamond, introducing additional overfit. We need to keep this problematic aspect of the diamonds data in mind.</li>
+<li>Three lines are identical up to the perspective variables (<code>depth</code>, <code>table</code>, <code>x</code>, <code>y</code>, <code>z</code>). These rows most certainly represent the same diamond, introducing additional overfit. We need to keep this problematic aspect of the diamonds data in mind.</li>
 </ul>
 <p><strong>Motivation for this chapter:</strong> Insample, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This hypothetical example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to <em>simple validation</em>.</p>
 </div>

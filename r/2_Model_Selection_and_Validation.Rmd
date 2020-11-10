@@ -61,7 +61,7 @@ diamonds[neighbours, ]
 - The five nearest diamonds are extremely similar. The second one is the observation of interest itself, introducing a relevant amount of overfitting.
 - The average price of these five observations gives us the nearest-neighbour prediction for the 10'000th diamond.
 - Would we get better results for a different choice of the number of neighbours k?
-- Three lines are identical up to the perspective variables (`table`, `x`, `y`, `z`). These rows most certainly represent the same diamond, introducing additional overfit. We need to keep this problematic aspect of the diamonds data in mind.
+- Three lines are identical up to the perspective variables (`depth`, `table`, `x`, `y`, `z`). These rows most certainly represent the same diamond, introducing additional overfit. We need to keep this problematic aspect of the diamonds data in mind.
 
 **Motivation for this chapter:** Insample, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This hypothetical example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to *simple validation*.
 
@@ -338,7 +338,7 @@ In this chapter, we have met strategies to estimate model performance in a fair 
 # Exercises
 
 1. Apply *stratified* splitting (on the response `price`) throughout the last example. Do the results change?
-2. As an alternative to *grouped* splitting, repeat the last example also on data deduplicated by `price` and covariables. Do the results change? Why should we trust these results more than earlier results?
+2. As an alternative to *grouped* splitting, repeat the last example also on data deduplicated by `price` and all covariables. Do the results change? Do you think these results are overly pessimistic?
 3. Use cross-validation to select the best polynomial degree to represent `log(carat)` in the Gamma GLM with log-link (with additional covariables `color`, `cut`, and `clarity`). Evaluate the result on an independent test data.
 4. Optional: Compare the linear regression for `price` (using `log(carat)`, `color`, `cut`, and `clarity` as covariables) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?
 
