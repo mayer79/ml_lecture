@@ -471,7 +471,7 @@ plot(light_profile(fl, v = "color")) +
 
 **Comments** 
 
-- The model performance seems comparable to the tree-based models from the last chapter. 
+- The model performance seems comparable to the tree-based models from the last chapter. The specific performance might change from run to run due to randomness in the algorithm.
 - The effect of `carat` looks smoother as with random forests or boosted trees.
 
 # Example: Embeddings (optional)
@@ -606,7 +606,7 @@ plot(light_profile(fl, v = "agecat")) +
 
 # Exercises
 
-1. Fit diamond prices by gamma deviance loss with log-link (i.e. exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on an independent test data set. Interpret the final model. (Hints: I used a smaller learning rate of 0.03 and had to replace the "relu" activations by "tanh".)
+1. Fit diamond prices by gamma deviance loss with log-link (i.e. exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on an independent test data set. Interpret the final model. (Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh".)
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred

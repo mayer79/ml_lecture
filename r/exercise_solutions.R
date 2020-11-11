@@ -15,12 +15,21 @@
 # logarithms. Interpret the output of the model. 
 # Does it make sense from a practical perspective?
   
-# Only code
 library(tidyverse)
 dia <- diamonds %>% 
   mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
 fit <- lm(price ~ carat + color + cut + clarity, data = dia)
 summary(fit)
+
+# Comments
+# Model quality: About 92% of price variations are explained by covariables.
+#  Typical prediction error is 1157 USD.
+# Effects: All effects point into the intuitively right direction
+#  (larger stones are more expensive, worse color are less expensive etc.)
+# Practical perspective: Additivity in color, cut and clarity are not 
+#  making sense. Their effects should get larger with larger diamond size. 
+#  This can be solved by adding interaction terms with carat or, much easier,
+#  to switch to a logarithmic response.
 
 #=============================================================================
 # Exercise on GLMs
@@ -31,13 +40,16 @@ summary(fit)
 # those from the corresponding linear regression with `log(price)` as response. 
 # Use dummy coding for the three categorical variables.
 
-# Only code
 library(tidyverse)
 dia <- diamonds %>% 
   mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
 fit <- glm(price ~ log(carat) + color + cut + clarity, 
            data = dia, family = Gamma(link = "log"))
 summary(fit)
+
+# Comment: The coefficients are very similar to the linear regression with
+#  log(price) as response. This makes sense, in the end we interpret the 
+#  coefficients in the same way!
 
 #=============================================================================
 # Chapter 2) Model Selection and Validation
@@ -115,7 +127,8 @@ pred <- knn.reg(X_train, test = X_test, k = 6, y = y_train)$pred
 # Test performance for the best model
 rmse(y_test, pred)
 
-# Comment: The CV results are slightly better and the test performance is clearly worse. Both might be by chance.
+# Comment: The CV results are slightly better and the test performance 
+# is clearly worse. Both might be by chance.
 
 #=============================================================================
 # Exercise 2
@@ -196,6 +209,7 @@ rmse(y_test, pred)
 # without deduplication (~700 USD RMSE vs ~600). CV performance well corresponds to test performance.
 # Overall, this is probably the more realistic performance than the one obtained from the original data set.
 # Still, as certain rows could be identical by chance, our deduplication approach might be slightly too conservative.
+# The true performance will probably be somewhere between the two approaches.
 
 #=============================================================================
 # Exercise 3
@@ -248,7 +262,7 @@ pred <- predict(fit, test, type = "response")
 deviance_gamma(test$price, pred) # 0.01710076
 r_squared_gamma(test$price, pred) # 0.982464 relative deviance gain
 
-# Comments: The optimal degree seems to be 8 with a mean deviance of 0.01575.
+# Comments: The optimal degree seems to be 8 with a CV deviance of 0.01575.
 # There seems to be some amount of CV overfit as the deviance evaluated on 
 # the test data is worse.
 
@@ -299,7 +313,7 @@ fit
 pred <- predict(fit, dia[ix$test, ])$predictions
 rmse(dia$price[ix$test], pred)
 
-# Comment: The results are essentially identical as log is a monotonic trafo.
+# Comment: The results are essentially identical because log is a monotonic trafo.
 # Differences might come from implementation tricks of ranger.
 
 #=============================================================================
@@ -333,7 +347,7 @@ fit # OOB prediction using Brier score (= MSE) 0.06340884
 
 # Note: Brier score is the same as the MSE, applied to binary data. It is
 # not a bad evaluation criterion in such situation, 
-# so will will use this within this example.
+# so we will use this within this example.
 pred <- predict(fit, dataCar[ix$test, ])$predictions[, 2]
 mse(dataCar[ix$test, "clm"], pred)  # 0.06337011
 r_squared(dataCar[ix$test, "clm"], pred) # 0.002069925
@@ -420,10 +434,12 @@ fl <- flashlight(model = fit,
 plot(light_profile(fl, v = "carat", n_bins = 40)) +
   labs(title = "Partial dependence plot for carat", y = "price")
 
-# Comment: The argument is called "monotone_constraitns". For each covariable,
+# Comment: The argument is called "monotone_constraints". For each covariable,
 # a value 0 means no constraint, a value -1 means a negative constraints,
 # and a value 1 means positive constraint. Applying the constraint now leads
-# to a monotonically increasing partial dependence plot.
+# to a monotonically increasing partial dependence plot. This is extremely
+# useful in practice. Besides monotonic constraints, also interaction 
+# constraints are possible.
 
 #=============================================================================
 # Exercise 2
@@ -585,7 +601,7 @@ plot(light_profile(fl, v = "agecat")) +
 # Fit diamond prices by gamma deviance loss with log-link (i.e. exponential 
 # output activation), using the custom loss function defined below. Tune the 
 # model by simple validation and evaluate it on an independent test data set. 
-# Interpret the final model. (Hints: I used a smaller learning rate of 0.03 
+# Interpret the final model. (Hints: I used a smaller learning rate 
 # and had to replace the "relu" activations by "tanh".)
 
 library(tidyverse)
@@ -643,7 +659,7 @@ output <- input %>%
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 0.03),
+  optimizer = optimizer_adam(lr = 0.001),
   loss = 'mse',
   metrics = metric_rmse
 )
@@ -664,13 +680,6 @@ history <- nn %>% fit(
   callbacks = cb
 )
 
-history$metrics[c("rmse", "val_rmse")] %>% 
-  data.frame() %>% 
-  mutate(epoch = row_number()) %>% 
-  pivot_longer(cols = c("rmse", "val_rmse")) %>% 
-  ggplot(aes(x = epoch, y = value, group = name, color = name)) +
-  geom_line(size = 1.4)
-
 # Interpret
 library(flashlight)
 library(MetricsWeighted)
@@ -680,7 +689,7 @@ fl <- flashlight(
   y = "price", 
   data = diamonds[ix$valid, ], 
   label = "nn", 
-  metrics = list(rmse = rmse, `R squared` = r_squared),
+  metrics = list(Deviance = deviance_gamma, `R squared` = r_squared_gamma),
   predict_function = function(m, X) predict(m, prep_nn(X), batch_size = 1000)
 )
 
@@ -711,4 +720,4 @@ plot(light_profile(fl, v = "color")) +
 # predicting claim yes/no. For simplicity, you can represent the categorical 
 # feature `veh_body` by integers.
 
-# -> see script for a solution with embeddings
+# -> see lecture notes for a solution with embeddings
