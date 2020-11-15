@@ -304,7 +304,7 @@ rmse(y_test, pred)
 **Comments** 
 
 - 6-nearest-neighbour regression performs much better than linear regression.
-- Its performance on the independent test data well is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential "leakage" from training to test data?
+- Its performance on the independent test data is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential "leakage" from training to test data?
 
 # Random Splitting?
 
