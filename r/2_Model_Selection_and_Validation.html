@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2020-11-10" />
+<meta name="date" content="2020-11-16" />
 
 <title>Model Selection and Validation</title>
 
@@ -2893,7 +2893,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Model Selection and Validation</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2020-11-10</h4>
+<h4 class="date">2020-11-16</h4>
 
 </div>
 
@@ -3118,7 +3118,7 @@ div.tocify {
 <a class="sourceLine" id="cb8-7" title="7">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;carat&quot;</span>, <span class="st">&quot;color&quot;</span>, <span class="st">&quot;cut&quot;</span>, <span class="st">&quot;clarity&quot;</span>)</a>
 <a class="sourceLine" id="cb8-8" title="8"></a>
 <a class="sourceLine" id="cb8-9" title="9">dia &lt;-<span class="st"> </span>diamonds[, <span class="kw">c</span>(<span class="st">&quot;price&quot;</span>, x)]</a>
-<a class="sourceLine" id="cb8-10" title="10"><span class="co"># dia &lt;- unique(diamonds)  #  -&gt; Exercise 2</span></a>
+<a class="sourceLine" id="cb8-10" title="10"><span class="co"># dia &lt;- unique(dia)  #  -&gt; Exercise 2</span></a>
 <a class="sourceLine" id="cb8-11" title="11"></a>
 <a class="sourceLine" id="cb8-12" title="12"><span class="co"># Split diamonds into 90% for training and 10% for testing</span></a>
 <a class="sourceLine" id="cb8-13" title="13">ix &lt;-<span class="st"> </span><span class="kw">partition</span>(dia<span class="op">$</span>price, <span class="dt">p =</span> <span class="kw">c</span>(<span class="dt">train =</span> <span class="fl">0.9</span>, <span class="dt">test =</span> <span class="fl">0.1</span>), <span class="dt">seed =</span> <span class="dv">9838</span>, <span class="dt">type =</span> <span class="st">&quot;basic&quot;</span>)</a>
@@ -3173,16 +3173,16 @@ div.tocify {
 <a class="sourceLine" id="cb9-8" title="8">}</a>
 <a class="sourceLine" id="cb9-9" title="9">(rmse_reg &lt;-<span class="st"> </span><span class="kw">mean</span>(rmse_reg))</a></code></pre></div>
 <pre><code>## [1] 1385.731</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># The overall best model is 6-nearest-neighbour</span></a>
-<a class="sourceLine" id="cb11-2" title="2">pred &lt;-<span class="st"> </span><span class="kw">knn.reg</span>(X_train, <span class="dt">test =</span> X_test, <span class="dt">k =</span> <span class="dv">6</span>, <span class="dt">y =</span> y_train)<span class="op">$</span>pred</a>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># The overall best model is 5-nearest-neighbour</span></a>
+<a class="sourceLine" id="cb11-2" title="2">pred &lt;-<span class="st"> </span><span class="kw">knn.reg</span>(X_train, <span class="dt">test =</span> X_test, <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">y =</span> y_train)<span class="op">$</span>pred</a>
 <a class="sourceLine" id="cb11-3" title="3"></a>
 <a class="sourceLine" id="cb11-4" title="4"><span class="co"># Test performance for the best model</span></a>
 <a class="sourceLine" id="cb11-5" title="5"><span class="kw">rmse</span>(y_test, pred)</a></code></pre></div>
-<pre><code>## [1] 580.5223</code></pre>
+<pre><code>## [1] 578.7786</code></pre>
 <p><strong>Comments</strong></p>
 <ul>
-<li>6-nearest-neighbour regression performs much better than linear regression.</li>
-<li>Its performance on the independent test data well is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential “leakage” from training to test data?</li>
+<li>5-nearest-neighbour regression performs much better than linear regression.</li>
+<li>Its performance on the independent test data is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential “leakage” from training to test data?</li>
 </ul>
 </div>
 </div>
@@ -3217,7 +3217,7 @@ div.tocify {
 <h1><span class="header-section-number">9</span> Exercises</h1>
 <ol style="list-style-type: decimal">
 <li>Apply <em>stratified</em> splitting (on the response <code>price</code>) throughout the last example. Do the results change?</li>
-<li>As an alternative to <em>grouped</em> splitting, repeat the last example also on data deduplicated by <code>price</code> and covariables. Do the results change? Why should we trust these results more than earlier results?</li>
+<li>Regarding the problem that some diamonds seem to appear multiple times in the data: As an alternative to <em>grouped</em> splitting, repeat the last example also on data deduplicated by <code>price</code> and all covariables. Do the results change? Do you think these results are overly pessimistic?</li>
 <li>Use cross-validation to select the best polynomial degree to represent <code>log(carat)</code> in the Gamma GLM with log-link (with additional covariables <code>color</code>, <code>cut</code>, and <code>clarity</code>). Evaluate the result on an independent test data.</li>
 <li>Optional: Compare the linear regression for <code>price</code> (using <code>log(carat)</code>, <code>color</code>, <code>cut</code>, and <code>clarity</code> as covariables) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?</li>
 </ol>

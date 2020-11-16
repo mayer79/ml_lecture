@@ -294,8 +294,8 @@ for (fold in folds) {
 }
 (rmse_reg <- mean(rmse_reg))
 
-# The overall best model is 6-nearest-neighbour
-pred <- knn.reg(X_train, test = X_test, k = 6, y = y_train)$pred
+# The overall best model is 5-nearest-neighbour
+pred <- knn.reg(X_train, test = X_test, k = 5, y = y_train)$pred
 
 # Test performance for the best model
 rmse(y_test, pred)
@@ -303,7 +303,7 @@ rmse(y_test, pred)
 
 **Comments** 
 
-- 6-nearest-neighbour regression performs much better than linear regression.
+- 5-nearest-neighbour regression performs much better than linear regression.
 - Its performance on the independent test data is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential "leakage" from training to test data?
 
 # Random Splitting?
