@@ -72,8 +72,9 @@ predict(fit, dataCar[1, ])
 - **Categorical covariables:** Unordered categorical covariables are tricky to split because with $\ell$ levels we end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
 - **Greedy:** Partitions are made in a greedy way to optimize the objective in *one step*. Looking ahead more than one step would lead to better models but this is computationally too demanding in practice.
 - **Interactions:** By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large and the tree is deep enough. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.
+- **Extrapolation:** By construction, a decision tree cannot extrapolate. So even a whopping 10 carat diamond cannot get a higher price prediction than the most expensive diamond in the training data.
 
-These properties translate 1:1 to combinations of trees like random forests or boosted trees.
+These properties typically translate 1:1 to combinations of trees like random forests or boosted trees.
 
 # Random Forests
 

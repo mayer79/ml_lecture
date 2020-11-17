@@ -2953,8 +2953,9 @@ div.tocify {
 <li><strong>Categorical covariables:</strong> Unordered categorical covariables are tricky to split because with <span class="math inline">\(\ell\)</span> levels we end up with <span class="math inline">\(2^\ell\)</span> possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.</li>
 <li><strong>Greedy:</strong> Partitions are made in a greedy way to optimize the objective in <em>one step</em>. Looking ahead more than one step would lead to better models but this is computationally too demanding in practice.</li>
 <li><strong>Interactions:</strong> By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large and the tree is deep enough. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.</li>
+<li><strong>Extrapolation:</strong> By construction, a decision tree cannot extrapolate. So even a whopping 10 carat diamond cannot get a higher price prediction than the most expensive diamond in the training data.</li>
 </ul>
-<p>These properties translate 1:1 to combinations of trees like random forests or boosted trees.</p>
+<p>These properties typically translate 1:1 to combinations of trees like random forests or boosted trees.</p>
 </div>
 </div>
 <div id="random-forests" class="section level1">
@@ -3135,22 +3136,22 @@ div.tocify {
 ## [11] train-rmse:3253.448486  valid-rmse:3277.596191 
 ## [21] train-rmse:2031.219604  valid-rmse:2053.321045 
 ## [31] train-rmse:1320.096191  valid-rmse:1341.627319 
-## [41] train-rmse:922.695679   valid-rmse:945.051270 
+## [41] train-rmse:922.695618   valid-rmse:945.051208 
 ## [51] train-rmse:712.652771   valid-rmse:737.448364 
 ## [61] train-rmse:609.268250   valid-rmse:636.470093 
-## [71] train-rmse:560.695801   valid-rmse:588.422729 
-## [81] train-rmse:536.747437   valid-rmse:564.706177 
-## [91] train-rmse:524.547363   valid-rmse:552.418274 
+## [71] train-rmse:560.695740   valid-rmse:588.422729 
+## [81] train-rmse:536.747437   valid-rmse:564.706116 
+## [91] train-rmse:524.547302   valid-rmse:552.418274 
 ## [101]    train-rmse:517.337219   valid-rmse:546.371338 
 ## [111]    train-rmse:512.805786   valid-rmse:543.228577 
 ## [121]    train-rmse:509.448608   valid-rmse:541.877441 
 ## [131]    train-rmse:506.467041   valid-rmse:541.363586 
-## [141]    train-rmse:503.744720   valid-rmse:541.322327 
+## [141]    train-rmse:503.744720   valid-rmse:541.322388 
 ## [151]    train-rmse:501.164459   valid-rmse:541.234863 
 ## [161]    train-rmse:498.374207   valid-rmse:541.427856 
-## [171]    train-rmse:496.245972   valid-rmse:541.457275 
+## [171]    train-rmse:496.245941   valid-rmse:541.457275 
 ## Stopping. Best iteration:
-## [155]    train-rmse:500.108521   valid-rmse:541.190918</code></pre>
+## [155]    train-rmse:500.108490   valid-rmse:541.190918</code></pre>
 <p><strong>Comments:</strong></p>
 <ul>
 <li>More trees would mean better training performance, but worse validation performance.</li>
