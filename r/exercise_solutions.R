@@ -392,15 +392,15 @@ library(tidyverse)
 library(xgboost)
 library(splitTools)
 
-# Split into train and test
-ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
-
 # As XGBoost does not understand strings, we encode them by integers
 prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
   to_int <- c("color", "cut", "clarity")
   X[, to_int] <- lapply(X[, to_int], as.integer)
   data.matrix(X[, x])
 }
+
+# Split into train and test
+ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
 
 y_train <- diamonds$price[ix$train]
 X_train <- prep_xgb(diamonds[ix$train, ])
@@ -457,9 +457,6 @@ library(splitTools)
 library(insuranceData)
 data(dataCar)
 
-# Split into train and test
-ix <- partition(dataCar$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
-
 # As XGBoost does not understand strings, we encode them by integers
 prep_xgb <- function(X, x = c("veh_value", "veh_body", "veh_age", 
                               "gender", "area", "agecat")) {
@@ -467,6 +464,9 @@ prep_xgb <- function(X, x = c("veh_value", "veh_body", "veh_age",
   X[, to_int] <- lapply(X[, to_int], as.integer)
   data.matrix(X[, x])
 }
+
+# Split into train and test
+ix <- partition(dataCar$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
 
 y_train <- dataCar$clm[ix$train]
 X_train <- prep_xgb(dataCar[ix$train, ])

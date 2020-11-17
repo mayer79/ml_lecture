@@ -196,13 +196,66 @@ Modern implementations of such *gradient boosted trees* are [XGBoost](https://xg
 
 Predictions are calculated similar to random forests, i.e. by combining predictions of all trees. As loss/objective function, one can choose among many possibilities. Often, using the same loss as a corresponding GLM is a good choice.
 
+## Example: XGBoost (untuned)
+
+As an initial example on gradient boosting and XGBoost, we fit a model for diamond prices with MSE loss. The number of rounds/trees is chosen by early stopping on the validation data, i.e. until validation RMSE stops improving for a couple or rounds. The learning rate (weight of each tree) is chosen by trial and error in order to end up with a reasonably small/large number of trees, see the next section for more details.
+
+```{r}
+library(ggplot2)
+library(xgboost)
+library(splitTools)
+
+# XGBoost does not understand strings -> integer encoding
+prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
+  to_int <- c("color", "cut", "clarity")
+  X[, to_int] <- lapply(X[, to_int], as.integer)
+  data.matrix(X[, x])
+}
+
+# Split into train and valid
+ix <- partition(diamonds$price, p = c(train = 0.8, valid = 0.2), seed = 9838)
+
+y_train <- diamonds$price[ix$train]
+X_train <- prep_xgb(diamonds[ix$train, ])
+
+y_valid <- diamonds$price[ix$valid]
+X_valid <- prep_xgb(diamonds[ix$valid, ])
+
+# XGBoost data interface
+dtrain <- xgb.DMatrix(X_train, label = y_train)
+dvalid <- xgb.DMatrix(X_valid, label = y_valid)
+
+# Minimal set of parameters
+params <- list(
+  learning_rate = 0.05,
+  objective = "reg:squarederror",
+  eval_metric = "rmse"
+)
+  
+# Fit model until validation RMSE stops improving over the last 20 rounds
+fit <- xgb.train(
+  params = params, 
+  data = dtrain, 
+  watchlist = list(train = dtrain, valid = dvalid),
+  print_every_n = 10,
+  nrounds = 5000, 
+  early_stopping_rounds = 20
+)
+```
+
+**Comments:** 
+
+- More trees would mean better training performance, but worse validation performance.
+- Compared to simple validation, cross-validation would provide an even better way to find the optimal number of boosting rounds/trees.
+- In the next example, we will show how to interpret such model.
+
 ## Parameters of gradient boosted trees
 
 Gradient boosted trees offer a quite a lot of parameters. Unlike with random forests, they need to be tuned to achieve good results. It would be naive to use an algorithm like XGBoost without parameter tuning. Here is a selection:
 
-- **Number of boosting rounds:** In contrast to random forests, more trees/rounds is not always beneficial because the model begins to overfit after some time. The optimal number of rounds is usually found by early stopping, i.e. one lets the algorithm stop as soon as the (cross-)validation performance stops improving.
+- **Number of boosting rounds:** In contrast to random forests, more trees/rounds is not always beneficial because the model begins to overfit after some time. The optimal number of rounds is usually found by early stopping, i.e. one lets the algorithm stop as soon as the (cross-)validation performance stops improving, see the example above.
 
-- **Learning rate:** The learning rate determines training speed resp. the impact of each tree. Typical values are between 0.05 and 0.5. In practical applications, it is set to a value that leads to a reasonable amount of trees (100-1000). Usually, halving the learning rate means twice as much boosting rounds for comparable performance.
+- **Learning rate:** The learning rate determines training speed resp. the impact of each tree. Typical values are between 0.01 and 0.5. In practical applications, it is set to a value that leads to a reasonable amount of trees (100-1000). Usually, halving the learning rate means twice as much boosting rounds for comparable performance.
 
 - **Regularization parameters:** Depending on the implementation, additional parameters are
     - the tree depth (often 3-7) or the number of leaves (often 7-63), 
@@ -211,20 +264,20 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
     - the column subsampling rate (often between 0.6 and 1), 
     - ...
   
-  Reasonable regularization parameters are chosen by randomized or grid search CV. Usually, it takes a couple of iterations until the range of the parameter values have been set appropriately.
+  Reasonable regularization parameters are chosen by trial and error or systematically by randomized or grid search CV. Usually, it takes a couple of iterations until the range of the parameter values have been set appropriately.
 
 Note on tuning: Since learning rate, number of boosting rounds and regularization parameters are heavily interdependent, a "big" randomized grid search CV to choose learning rate, boosting rounds and regularization is often not ideal. Above suggestion (i.e. fix learning rate, select number of rounds by early stopping and do grid search only on regularization parameters) is more focussed, see also the example below.
 
 Note on **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, tune parameters and select models. Ideally, it is consistent with the loss function of the specific algorithm (e.g. RMSE as metric and MSE as loss), but in some cases it might differ.
 For classification, besides studying (multi-)log loss, e.g. one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc.  [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts very well. The confusion matrix tabulates the combinations of actual classes and predicted classes.
 
-## Example: Gradient Boosting
+## Example: XGBoost (tuned)
 
-We will use XGBoost to fit diamond prices using MSE as loss function and evaluation metric.
+We will use XGBoost to fit diamond prices using MSE as loss function and evaluation metric, now using a sophisticated tuning strategy.
 
-The basic strategy is as follows:
+Overall, the tuning strategy is as follows:
 
-1. Using default regularization, set the learning rate to get reasonable number of trees with CV-based early stopping.
+1. Using default regularization parameters, set the learning rate to get reasonable number of trees with CV-based early stopping.
 2. Iterate randomized search CV to tune regularization parameters such as tree depth.
 3. Use the best parameter combination to fit the model on the training data.
 
@@ -234,9 +287,6 @@ library(ggplot2)
 library(xgboost)
 library(splitTools)
 
-# Split into train and test
-ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
-
 # As XGBoost does not understand strings, we encode them by integers
 prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
   to_int <- c("color", "cut", "clarity")
@@ -244,10 +294,13 @@ prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
   data.matrix(X[, x])
 }
 
+# Split into train and test
+ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
+
 y_train <- diamonds$price[ix$train]
 X_train <- prep_xgb(diamonds[ix$train, ])
 
-# XGBoost data handler
+# XGBoost data interface
 dtrain <- xgb.DMatrix(X_train, label = y_train)
 
 # If grid search is to be run again, set tune <- TRUE
@@ -260,7 +313,8 @@ if (tune) {
   # Use default parameters to set learning rate with suitable number of rounds
   params <- list(
     learning_rate = 0.05,
-    objective = "reg:squarederror"
+    objective = "reg:squarederror",
+    eval_metric = "rmse"
   )
   
   # Cross-validation
@@ -280,6 +334,7 @@ if (tune) {
     score = NA,
     learning_rate = 0.05,
     objective = "reg:squarederror",
+    eval_metric = "rmse",
     max_depth = 6:7, 
     min_child_weight = c(1, 10),
     colsample_bytree = c(0.8, 1), 
@@ -344,8 +399,8 @@ library(flashlight)
 
 # Performance on test data
 pred <- predict(fit, prep_xgb(diamonds[ix$test, ]))
-rmse(diamonds$price[ix$test], pred)       # 541 USD
-r_squared(diamonds$price[ix$test], pred)  # 0.982
+rmse(diamonds$price[ix$test], pred)
+r_squared(diamonds$price[ix$test], pred)
 
 # Variable importance regarding MSE improvement
 imp <- xgb.importance(model = fit)
@@ -375,7 +430,7 @@ plot(light_profile(fl, v = "color")) +
 
 ## Exercises
 
-1. Study the documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e. just be refitting the final model. How does the partial dependence plot for `carat` look now?
+1. Study the online documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e. just be refitting the final model. How does the partial dependence plot for `carat` look now?
 2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss both as objective and evaluation metric. Interpret its results.
 
 # Chapter Summary
