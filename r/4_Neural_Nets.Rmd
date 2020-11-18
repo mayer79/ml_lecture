@@ -75,7 +75,7 @@ To gain confidence in neural nets, we first show that parameters estimated by a 
 ```{r}
 library(tidyverse)
 library(keras)
-# use_python(path to python...)
+# use_python(path to python)
 
 # RMSE metric needs to be defined "by hand"
 metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
@@ -606,7 +606,7 @@ plot(light_profile(fl, v = "agecat")) +
 
 # Exercises
 
-1. Fit diamond prices by gamma deviance loss with log-link (i.e. exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on an independent test data set. Interpret the final model. (Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh".)
+1. Fit diamond prices by gamma deviance loss with log-link (i.e. exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it (for simplicity) on the validation data. Interpret the final model. (Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh".)
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
