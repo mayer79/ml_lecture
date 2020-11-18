@@ -653,7 +653,7 @@ input <- layer_input(shape = 4)
 output <- input %>%
   layer_dense(units = 30, activation = 'tanh') %>% 
   layer_dense(units = 15, activation = 'tanh') %>% 
-  layer_dense(units = 1, activation = 'exponential')
+  layer_dense(units = 1, activation = 'exponential') # or activation = k_exp
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
