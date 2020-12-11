@@ -73,7 +73,8 @@ x <- c("carat", "color", "cut", "clarity")
 dia <- diamonds[, c("price", x)]
 
 # Split diamonds into 90% for training and 10% for testing
-ix <- partition(dia$price, p = c(train = 0.9, test = 0.1), seed = 9838, type = "stratified")
+ix <- partition(dia$price, p = c(train = 0.9, test = 0.1), 
+                seed = 9838, type = "stratified")
 
 train <- dia[ix$train, ]
 test <- dia[ix$test, ]
@@ -613,11 +614,6 @@ loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
 }
 
-# RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
-  sqrt(k_mean(k_square(y_true - y_pred)))
-})
-
 # Response and covariables
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
@@ -653,15 +649,14 @@ input <- layer_input(shape = 4)
 output <- input %>%
   layer_dense(units = 30, activation = 'tanh') %>% 
   layer_dense(units = 15, activation = 'tanh') %>% 
-  layer_dense(units = 1, activation = 'exponential') # or activation = k_exp
+  layer_dense(units = 1, activation = k_exp) # or activation = "exponential"
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 nn %>% compile(
   optimizer = optimizer_adam(lr = 0.001),
-  loss = 'mse',
-  metrics = metric_rmse
+  loss = loss_gamma
 )
 
 # Callbacks
@@ -689,7 +684,8 @@ fl <- flashlight(
   y = "price", 
   data = diamonds[ix$valid, ], 
   label = "nn", 
-  metrics = list(Deviance = deviance_gamma, `R squared` = r_squared_gamma),
+  metrics = list(`Gamma deviance` = deviance_gamma, 
+                 `Relative deviance reduction` = r_squared_gamma),
   predict_function = function(m, X) predict(m, prep_nn(X), batch_size = 1000)
 )
 
