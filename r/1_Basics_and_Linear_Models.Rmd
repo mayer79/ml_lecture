@@ -529,7 +529,7 @@ $$
 $$
 Indeed: A one point increase in $X$ is associated with a relative increase in $E(Y)$ of about $\beta \cdot 100\%$.
 
-Since expectations and logarithms cannot be swapped, the calculation is not 100% correct. One consequence of this imperfection is that predictions backtransformed to the scale of $Y$ are systematically too small. One of the motivations of the generalized linear models GLM (see next section) will be to mend this problem in an elegant way.
+Since expectations and logarithms cannot be swapped, the calculation is not 100% correct. One consequence of this imperfection is that predictions backtransformed to the scale of $Y$ are biased. One of the motivations of the generalized linear models GLM (see next section) will be to mend this problem in an elegant way.
 
 #### Example: log(price)
 
@@ -598,6 +598,9 @@ ggplot(to_plot, aes(x = carat, y = price)) +
   geom_point() +
   coord_cartesian(x = c(0.3, 3)) +
   ggtitle("Original scale")
+
+# Relative bias on original scale
+mean(diamonds$price) / mean(exp(fitted(fit))) - 1
 ```
 
 **Comments** 
@@ -607,6 +610,7 @@ ggplot(to_plot, aes(x = carat, y = price)) +
 - **Effect on original scales**: An increase in carat of 1% is associated with a price increase of about 1.67%.
 - **R-squared:** About 93% of the variability in log(price) can be explained by log(carat). The model performs much better than the ones in the previous examples.
 - **RMSE:** Typical prediction errors are in the range of 26%.
+- **Bias:** While unbiased on the log scale, the predictions of this model are about 3% too small after exponentiation. This can be fixed by applying a corresponding bias correction factor.
 
 ## Example: diamonds improved
 
@@ -755,6 +759,9 @@ ggplot(dataCar, aes(x = numclaims)) +
 fit <- glm(numclaims ~ veh_value + veh_body + veh_age + gender + area + agecat,
            data = dataCar, family = poisson(link = "log"))
 summary(fit)
+
+# Bias on frequency scale?
+mean(dataCar$numclaims) / mean(predict(fit, type = "response")) - 1
 ```
 
 **Comments**
@@ -762,6 +769,7 @@ summary(fit)
 - An increase of 1 in `veh_value` increases the log of the expected count by 0.046. On the original count scale, this is an increase of approximately 4.6%. The exact effect is $e^{0.046388}-1 = 0.047 = 4.7\%$.
 - Males produce, on average, about 1.6% less claims. 
 - The deviance 26629 is only 0.5% smaller than the one of the null model 26768. The predictive performance of this model is thus very low: having a claim is a highly random event that cannot be predicted on individual scale.
+- The predictions are unbiased on the frequency scale, a consequence of the fact that the log-link is the natural link for the Poisson model.
 
 ## Example: logistic regression
 
@@ -790,7 +798,7 @@ summary(fit)
 
 ## Exercises
 
-Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the coefficients with those from the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables.
+Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the coefficients with those from the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables. Calculate the relative bias of the predictions on the US Dollar scale.
 
 ```{r}
 library(tidyverse)

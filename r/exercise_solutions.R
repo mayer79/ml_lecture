@@ -46,10 +46,13 @@ dia <- diamonds %>%
 fit <- glm(price ~ log(carat) + color + cut + clarity, 
            data = dia, family = Gamma(link = "log"))
 summary(fit)
+mean(dia$price) / mean(predict(fit, type = "response")) - 1
 
 # Comment: The coefficients are very similar to the linear regression with
 #  log(price) as response. This makes sense, in the end we interpret the 
-#  coefficients in the same way!
+#  coefficients in the same way! The bias is only 0.3%, i.e. much smaller
+#  than the 3% of the OLS with log(price) as response. Still, because
+#  log is not the natural link of the Gamma regression, it is not exactly 0.
 
 #=============================================================================
 # Chapter 2) Model Selection and Validation
