@@ -189,9 +189,9 @@ plot(light_profile(fl, v = "color")) +
 
 # Gradient Boosted Trees
 
-The idea of *boosting* was introduced by Schapire in 1990 [3] and works as follows: A simple model is fit to the data. Then, a next simple model tries to correct the errors from the first model and so on, until some stopping criterion is reached. As simple models, usually **small decision trees** are used, an idea pushed by Jerome Friedman in his famous 2001 article on the very general framework of gradient boosting machines [4]. 
+The idea of *boosting* was introduced by Schapire in 1990 [3] and roughly works as follows: A simple model is fit to the data. Then, a next simple model tries to correct the errors from the first model and so on, until some stopping criterion is reached. As simple models, usually **small decision trees** are used, an idea pushed by Jerome Friedman in his famous 2001 article on the very general framework of gradient boosting machines [4]. 
 
-Modern implementations of such *gradient boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Sept. 25, 2020:
+Modern variants of such *gradient boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Sept. 25, 2020:
 
 ![](../figs/comparison_boosting.PNG).
 
@@ -270,7 +270,7 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
 Note on tuning: Since learning rate, number of boosting rounds and regularization parameters are heavily interdependent, a "big" randomized grid search CV to choose learning rate, boosting rounds and regularization is often not ideal. Above suggestion (i.e. fix learning rate, select number of rounds by early stopping and do grid search only on regularization parameters) is more focussed, see also the example below.
 
 Note on **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, tune parameters and select models. Ideally, it is consistent with the loss function of the specific algorithm (e.g. RMSE as metric and MSE as loss), but in some cases it might differ.
-For classification, besides studying (multi-)log loss, e.g. one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc.  [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts very well. The confusion matrix tabulates the combinations of actual classes and predicted classes.
+For classification, besides studying (multi-)log loss, e.g. one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc.  [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts. The confusion matrix tabulates the combinations of actual classes and predicted classes. Note that such measures derived from the confusion matrix do not enjoy good statistical properties and focussing on them might lead to suboptimal models.
 
 ## Example: XGBoost (tuned)
 
