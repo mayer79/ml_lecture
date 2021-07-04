@@ -17,6 +17,10 @@ Our focus is on *supervised ML*. Depending on if we predict numbers or classes, 
 
 This lecture is being distributed under the [creative commons license](https://creativecommons.org/licenses/by/2.0/).
 
+## How to cite?
+
+Michael Mayer. Introduction to Machine Learning (2020). Web: https://github.com/mayer79/ml_lecture/
+
 ## Organization
 
 The lecture is split into four chapters, each of which is accompanied with an R resp. Python notebook. You will find them in the corresponding subfolders.
