@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Introduction
 
-In the previous chapter, we have met performance measures like the RMSE or the deviance to measure how good our models are. Unfortunately, we cannot fully rely on these values due to overfitting: The more our models overfit, the less we can trust in their "insample" performance, i.e. the performance on the data used to calculate the models. Selecting models based on their insample performance is equally bad. Overfitting should not be rewarded!
+In the previous chapter, we have met performance measures like the RMSE or the deviance to measure how good our models are. Unfortunately, we cannot fully rely on these values due to overfitting: The more our models overfit, the less we can trust in their "insample" performance, i.e., the performance on the data used to calculate the models. Selecting models based on their insample performance is equally bad. Overfitting should not be rewarded!
 
 In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these techniques, we will meet a competitor of the linear model.
 
@@ -69,7 +69,7 @@ diamonds[neighbours, ]
 
 With simple validation, the original data set is partitioned into *training* data used to calculate the models and a separate *validation* data set used to evaluate model performance and/or to select models. Typically, 10%-30% of rows are used for validation.
 
-We can use the validation performance to compare *algorithms* (e.g. regression versus k-nearest-neighbour) and also to choose their *hyperparameters* like the "k" of k-nearest-neighbour.
+We can use the validation performance to compare *algorithms* (regression versus k-nearest-neighbour etc.) and also to choose their *hyperparameters* like the "k" of k-nearest-neighbour.
 
 Furthermore, the performance difference between training and validation data indicates the amount of overfitting.
 
@@ -140,7 +140,7 @@ If our data set is large and training takes long, then the simple validation str
 
 1. Split the data into k pieces $D = \{D_1, \dots, D_k\}$ called "folds". Typical values for k are five or ten.
 2. Set aside one of the pieces ($D_j$) for validation.
-3. Fit the model on all other pieces, i.e. on $D \setminus D_j$.
+3. Fit the model on all other pieces, i.e., on $D \setminus D_j$.
 4. Calculate the model performance on the validation data $D_j$.
 5. Repeat Steps 2-4 until each piece was used for validation once.
 6. The average of the k model performances yields the *CV performance* of the model.
@@ -151,7 +151,7 @@ Note: If cross-validation is fast, you can repeat the process for additional dat
 
 ## Example: cross-validation
 
-We now use five-fold CV on the diamonds data to find the optimal k, i.e. to *tune* our nearest-neighbour approach.
+We now use five-fold CV on the diamonds data to find the optimal k, i.e., to *tune* our nearest-neighbour approach.
 
 ```{r}
 library(tidyverse)
@@ -204,7 +204,7 @@ ggplot(paramGrid, aes(x = k, y = RMSE)) +
 
 # Grid Search
 
-In the above example, we have systematically compared the CV-performance of k-nearest-neighbour by iterating over a grid of possible values for k. Such strategy to *tune* models resp. to select hyperparameters of a model is called **grid search CV**. In the next chapter, we will meet situations where multiple parameters have to be optimized simultaneously. Then, the number of parameter combinations and the grid size explode. To save time, we could evaluate only a random subset of parameter combinations, an approach called **randomized search CV**.
+In the above example, we have systematically compared the CV-performance of k-nearest-neighbour by iterating over a grid of possible values for k. Such strategy to *tune* models, i.e., to select hyperparameters of a model is called **grid search CV**. In the next chapter, we will meet situations where multiple parameters have to be optimized simultaneously. Then, the number of parameter combinations and the grid size explode. To save time, we could evaluate only a random subset of parameter combinations, an approach called **randomized search CV**.
 
 # Test Data and Final Workflow
 
@@ -217,13 +217,13 @@ Depending on whether one does simple validation or cross-validation, the typical
 
 **Workflow A**
 
-1. Split data into train/valid/test, e.g. by ratios 70%/20%/10%.
+1. Split data into train/valid/test, e.g., by ratios 70%/20%/10%.
 2. Train different models on the training data and assess their performance on the validation data. Choose the best model, retrain it on the combination of training and validation data and call it "final model".
 3. Assess the performance of the final model on the test data.
 
 **Workflow B**
 
-1. Split data into train/test, e.g. by ratios 90%/10%.
+1. Split data into train/test, e.g., by ratios 90%/10%.
 2. Evaluate and tune different models by k-fold cross-validation on the training data. Choose the best model, retrain it on the full training data.
 3. Assess performance of the final model on the test data.
 
@@ -310,15 +310,15 @@ rmse(y_test, pred)
 
 The data is often *randomly split* into partitions or folds. As long as rows are *independent*, this leads to honest estimates of model performance as it ensures independent data partitions. 
 
-When rows are not independent, e.g. with time series data or grouped data, such strategy is flawed and leads to too optimistic results. **This is one of the most frequent reasons to end up with a bad model. It is essential to avoid it.**
+When rows are not independent, e.g., with time series data or grouped data, such strategy is flawed and leads to too optimistic results. **This is one of the most frequent reasons to end up with a bad model. It is essential to avoid it.**
 
 ## Time-series data
 
-When data represents a time series, splitting is best done in a way that does not destroy the temporal order. For simple validation, e.g. the first 80% of rows could be used for training and the remaining 20% for validation. 
+When data represents a time series, splitting is best done in a way that does not destroy the temporal order. For simple validation, e.g., the first 80% of rows could be used for training and the remaining 20% for validation. 
 
 ## Grouped data
 
-Often, data is grouped or clustered by some (hopefully known) ID variable, e.g.
+Often, data is grouped or clustered by some (hopefully known) ID variable, e.g.,
 
 - multiple rows belong to the same patient/customer or
 - duplicated rows (accidental or not). 

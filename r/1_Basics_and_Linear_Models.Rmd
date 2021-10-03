@@ -54,7 +54,7 @@ head(diamonds)
 We distinguish variables by their data type.
 
 - **numerical:** The values of a numerical variable are numbers. Taking sums, means and differences makes sense. Examples: house prices, insurance claim frequencies, blood pressure.
-- **categorical:** The values of a categorical variable are categories, e.g. house types, claim types or colors. Depending on whether categories follow a natural order, we talk of *ordered* or *unordered* categoricals. Categories can be encoded by numbers. That does not make the variable numeric though.
+- **categorical:** The values of a categorical variable are categories, such as house types, claim types or colors. Depending on whether categories follow a natural order, we talk of *ordered* or *unordered* categoricals. Categories can be encoded by numbers. That does not make the variable numeric though.
 - **binary:** A binary variable just takes two values (male/female, yes/no, ...) that can be represented by 1/0. It counts as both numeric and categorical.
 
 Data types are important in determining suitable analysis methods.
@@ -71,7 +71,7 @@ There are no unordered categoricals or binary variables in this data set.
 
 ## Descriptive analysis
 
-Statistical modeling always starts with a descriptive analysis of the data. This typically involves a numeric and/or graphical summary of each variable and the most relevant variable pairs, e.g. 
+Statistical modeling always starts with a descriptive analysis of the data. This typically involves a numeric and/or graphical summary of each variable and the most relevant variable pairs, e.g.,
 
 - for numeric variables: mean, standard deviation, quartiles, minimum and maximum; boxplots, mean plots,
 - for categorical variables: absolute or relative counts; bar plots,
@@ -85,7 +85,7 @@ The more time we invest in the descriptive analysis, the more we learn about the
 - identify data errors and problematic outliers (uncommonly small or large values), 
 - find join keys to combine multiple data sources, 
 - detect variables with high number of missing values,
-- detect variables with no or almost no information (e.g. all values the same),
+- detect variables with no or almost no information (for instance when all values are identical),
 - **learn how the data is structured** (what *is* a row? do we deal with time series? are rows grouped to clusters etc.),
 - ...
 
@@ -158,7 +158,7 @@ ggplot(diamonds, aes(y = price, x = clarity)) +
 
 ## Statistical models
 
-The general modeling task is as follows: we want to approximate a *response variable* $Y$ by a function $f$ of $m$ *covariates* $X_1, \dots, X_m$, i.e.
+The general modeling task is as follows: we want to approximate a *response variable* $Y$ by a function $f$ of $m$ *covariates* $X_1, \dots, X_m$, i.e.,
 $$
   Y \approx f(X_1, \dots, X_m).
 $$
@@ -198,7 +198,7 @@ $$
 
 ## Least-squares
 
-The optimal $\hat f$ to estimate $f$ is found by minimizing the sum of squared *prediction errors* resp. *residuals*
+The optimal $\hat f$ to estimate $f$ is found by minimizing the sum of squared *prediction errors* (*residuals*)
 $$
   \sum_{i=1}^n e_i^2 = \sum_{i=1}^n (y_i - \hat y_i)^2.
 $$
@@ -252,7 +252,7 @@ How good is a specific linear regression model? We may consider two aspects, nam
 
 ### Predictive performance
 
-How precise are the model predictions? I.e. how well do predictions correspond with the observed response? In line with the least-squares approach, this is best quantified by the sum of squared prediction errors
+How precise are the model predictions? I.e., how well do predictions correspond with the observed response? In line with the least-squares approach, this is best quantified by the sum of squared prediction errors
 $$
   \sum_{i = 1}^n (y_i - \hat y_i)^2
 $$
@@ -320,13 +320,13 @@ If too many parameters are used in relation to the number of observations, the r
 
 ### Collinearity
 
-If the association between two or more covariates is strong, their coefficients are difficult to interpret because the Ceteris Paribus clause is usually unnatural in such situations. E.g. in a house price model, it is unnatural to study the effect of an additional room, keeping living area fixed. This is even more problematic for causally dependent covariates: imagine a model with $x$ and $x^2$ as covariates. It would certainly not make sense to study the effect of $x$ while keeping $x^2$ fixed. 
+If the association between two or more covariates is strong, their coefficients are difficult to interpret because the Ceteris Paribus clause is usually unnatural in such situations. In a house price model, for instance, it is unnatural to study the effect of an additional room, keeping living area fixed. This is even more problematic for causally dependent covariates: imagine a model with $x$ and $x^2$ as covariates. It would certainly not make sense to study the effect of $x$ while keeping $x^2$ fixed. 
 
 Strong collinearity can be detected by looking at correlations across (numeric) covariates. It is mainly a problem when interpreting effects or for statistical inference of effects. Predictions or other "global" model characteristics like the R-squared are not affected.
 
-Often, collinearity can be reduced by transforming the covariates in a way that makes the Ceteris Paribus clause natural. Instead of e.g. using number of rooms and living area in a house price model, it might help to represent living area by the derived variable "living area per room".
+Often, collinearity can be reduced by transforming the covariates in a way that makes the Ceteris Paribus clause natural. Instead of, e.g., using number of rooms and living area in a house price model, it might help to represent living area by the derived variable "living area per room".
 
-Note: Perfectly collinear covariates (e.g. $X$ and $2X$) cannot be used for algorithmic reasons.
+Note: Perfectly collinear covariates (for example $X$ and $2X$) cannot be used for algorithmic reasons.
 
 ## Categorical covariates
 
@@ -339,7 +339,7 @@ For our diamonds data set, OHE for the variable `color` looks as follows (the fi
 **Comments on categorical covariates**
 
 - **Interpretation:** Interpreting the regression coefficient $\beta_k$ of the dummy variable $D_k$ is nothing special: It tells us how much $E(Y)$ changes when the dummy variable switches from 0 to 1. This amounts to switching from the reference category (the one without dummy) to category $k$.
-- **Integer encoding:** Ordinal categorical covariates are sometimes integer encoded for simplicity, i.e. each category is represented by an integer number. 
+- **Integer encoding:** Ordinal categorical covariates are sometimes integer encoded for simplicity, i.e., each category is represented by an integer number. 
 - **Small categories:** In order to reduce overfitting, small categories are sometimes combined to a level "Other" or are added to the largest category.
 
 ### Example: dummy coding
@@ -370,13 +370,13 @@ These elements are very important for making realistic models.
 
 ### Non-linear terms
 
-Important numeric covariates might be represented by more than just one parameter (= linear slope) to allow for more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature, adding enough multiple polynomial terms can approximate any smooth relationship. 
+Important numeric covariates might be represented by more than just one parameter (= linear slope) to allow for more flexible and non-linear associations to the response. Adding a squared term, e.g., allows for curvature, adding enough multiple polynomial terms can approximate any smooth relationship. 
 
 For example, the model equation for a cubic regression is
 $$
   E(Y) = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3x^3.
 $$
-An alternative to polynomial terms are regression *splines*, i.e. piecewise polynomials. Using non-linear terms makes interpretation of regression coefficients difficult. An option is to study predictions while sliding the covariate values over its range (systematic predictions).
+An alternative to polynomial terms are regression *splines*, i.e., piecewise polynomials. Using non-linear terms makes interpretation of regression coefficients difficult. An option is to study predictions while sliding the covariate values over its range (systematic predictions).
 
 #### Example: cubic regression
 
@@ -408,7 +408,7 @@ ggplot(aes(x = carat, y = price)) +
 
 ### Interaction terms
 
-Once fitted, the effect of a covariate does not depend on the values of the other covariates. This is a direct consequence of the additivity of the model equation. The additivity assumption is sometimes too strict. E.g. treatment effects might be larger for younger patients than for older. Or an extra 0.1 carat of diamond weight is worth more for a beautiful white diamond compared to an unspectacular yellow one. In such cases, adding *interaction terms* provides the necessary flexibility. Mathematically, an interaction term between covariates $X$ and $Z$ equals their product. Practically, it means that the effect $X$ depends on the value of $Z$. 
+Once fitted, the effect of a covariate does not depend on the values of the other covariates. This is a direct consequence of the additivity of the model equation. The additivity assumption is sometimes too strict. E.g., treatment effects might be larger for younger patients than for older. Or an extra 0.1 carat of diamond weight is worth more for a beautiful white diamond compared to an unspectacular yellow one. In such cases, adding *interaction terms* provides the necessary flexibility. Mathematically, an interaction term between covariates $X$ and $Z$ equals their product. Practically, it means that the effect $X$ depends on the value of $Z$. 
 
 **Comments**
 
@@ -447,7 +447,7 @@ ggplot(to_plot, aes(x = carat, y = prediction, group = color, color = color)) +
 
 ### Transformations of covariates
 
-covariates are often transformed before entering the model:
+Covariates are often transformed before entering the model:
 
 - Categorical covariates are dummy coded.
 - Strongly correlated covariates might be decorrelated by forming ratios.
@@ -514,7 +514,7 @@ Assume for a moment that we can swap taking expectations and logarithms (disclai
 $$
   \log(E(Y\mid X = x)) = \alpha + \beta x
 $$
-resp.
+or, after exponentiation,
 $$
   E(Y\mid X = x) =e^{\alpha + \beta x}.
 $$
@@ -647,14 +647,15 @@ dia <- diamonds %>%
 
 # Generalized Linear Model
 
-The linear regression model has many extensions, e.g.
+The linear regression model has many extensions:
 
 - quantile regression to model quantiles of the response instead of its expectation,
 - mixed-models to capture grouped data structures,
 - generalized least-squares to model time series data,
 - penalized regression, an extension to fight overfitting (LASSO, Ridge-Regression, Elastic-Net),
 - neural networks that automatically learn interactions and non-linearities (see later),
-- **the generalized linear model** that e.g. allows to model binary response variables in a natural way.
+- **the generalized linear model** that e.g. allows to model binary response variables in a natural way,
+- ...
 
 This section covers the generalized linear model (GLM). It was introduced in 1972 by Nelder & Wedderburn [2]. 
 
@@ -672,7 +673,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 
 Thus, a GLM has three components:
 
-1. A linear function for the covariate effects, exactly as in linear regression.
+1. A linear function of the covariates, exactly as in linear regression.
 2. The link function $g$. Its purpose is to map $E(Y)$ to the scale of the linear function. Or the other way round: The inverse link $g^{-1}$ maps the linear part to the scale of the response.
 3. A distribution of $Y$ conditional on the covariates.
 
@@ -693,7 +694,7 @@ The following table lists some of the most used GLMs.
 - To find predictions $\hat y$ on the scale of $Y$, one evaluates the linear function (called "linear predictor") and then applies the inverse link $g^{-1}$.
 - Any transformation can be used as link $g$. However, only the *natural/canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(Y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link because of the next property.
 - **Using a log link produces a multiplicative model for $E(Y)$.**
-- The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)} = p$, i.e. modeling the expected response is the same as modeling the probability $p$ of having a 1.
+- The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)} = p$, i.e., modeling the expected response is the same as modeling the probability $p$ of having a 1.
 - The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the m categories.
 - The normal, Poisson and Gamma GLMs are special cases of the *Tweedie GLM*.
 
@@ -701,9 +702,9 @@ The following table lists some of the most used GLMs.
 
 The normal linear model allows us to model $E(Y)$ by an additive linear function. In principle, this would also work for 
 
-- binary responses (e.g. insurance claim yes/no, success yes/no, fraud yes/no), 
-- count responses (e.g. number of insurance claims, number of adverse events),
-- right-skewed responses (e.g. time durations, claim heights, prices).
+- binary responses (insurance claim yes/no, success yes/no, fraud yes/no, ...), 
+- count responses (number of insurance claims, number of adverse events, ...),
+- right-skewed responses (time durations, claim heights, prices, ...).
 
 However, in such cases, an additive linear model equation is usually not very realistic. As such, the main assumption of the linear regression model is violated:
 
@@ -715,7 +716,7 @@ GLMs deal with such problems by using a suitable link function like the logarith
 
 Further advantages of the GLM over the linear regression are:
 
-- Predictions are on the right scale, e.g. probabilities of a binary response are between 0 and 1 if we use the logit link. With linear regression, they could be outside [0, 1].
+- Predictions are on the right scale, e.g., probabilities of a binary response are between 0 and 1 if we use the logit link. With linear regression, they could be outside [0, 1].
 - Inferential statistics are less inaccurate. For the linear regression, they depend on the equal variance assumption which is violated for distributions like Poisson or Gamma.
 
 ## Interpretation of effects
@@ -728,17 +729,17 @@ The interpretation of model coefficients in GLMs is guided by the link function.
 $$
   \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right).
 $$
-It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e. the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The *probability* to get a "6" is 1/6 whereas the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds resp. a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. There is no easy way to interpret the coefficients on the original probability scale.
+It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e., the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The *probability* to get a "6" is 1/6 whereas the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds, thus a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. There is no easy way to interpret the coefficients on the original probability scale.
 
 ![](../figs/log_odds.png)
 
 ## Parameter estimation and deviance
 
-Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*, which is the sum of the loss per row (see table above), eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. It e.g. makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the MSE loss, this equals the usual R-squared.
+Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*, which is the sum of the loss per row (see table above), eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. It sometimes also makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the MSE loss, this equals the usual R-squared.
 
 Remark: The deviance of the logistic regression is equivalent to *cross-entropy* or *log loss*. 
 
-**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
+**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g., if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
 
 ## Example: Poisson count regression
 
