@@ -26,7 +26,7 @@ A decision tree is a simple, easy to interpret modeling technique for both regre
 
 In our journey to estimate the model $f$ by $\hat f$, we have considered mainly linear functions $f$ so far. We now move to a different function class: decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called "Classification and Regression Trees" (CART). 
 
-(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen to optimize the given loss by asking the best "yes/no" question about the covariables, e.g. "is carat < 1?" or "is color better than F?".
+(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen to optimize the given loss by asking the best "yes/no" question about the covariates, e.g. "is carat < 1?" or "is color better than F?".
 
 Typical loss functions (= "objectives") are the MSE for regression problems and information (= cross-entropy = log loss = logistic deviance) or Gini impurity for classification. The latter can be viewed as a "variance" for categorical variables.
 
@@ -63,13 +63,13 @@ predict(fit, dataCar[1, ])
 **Comments**
 
 - The first observation belongs to a person in age category 2 and has a $10'600 hatchback: the first question sends us to the right, the second to the left and the third to the right. This gives us a claim probability of 6.7%.
-- How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all covariables for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariable `agecat` at the value 5 reduced the loss most.
+- How was e.g. the first question (`agecat >= 5`) chosen? The algorithm scans all covariates for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariate `agecat` at the value 5 reduced the loss most.
 
 **Properties of decision trees**
 
-- **Outliers:** In contrast to linear models, outliers in covariables are not an issue because the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in covariables has no effect. Both statements do not hold for the response variable.
+- **Outliers:** In contrast to linear models, outliers in covariates are not an issue because the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in covariates has no effect. Both statements do not hold for the response variable.
 - **Missing values:** Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller/larger than the smallest non-missing value (e.g. -1 for a positive variable).
-- **Categorical covariables:** Unordered categorical covariables are tricky to split because with $\ell$ levels we end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
+- **Categorical covariates:** Unordered categorical covariates are tricky to split because with $\ell$ levels we end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
 - **Greedy:** Partitions are made in a greedy way to optimize the objective in *one step*. Looking ahead more than one step would lead to better models but this is computationally too demanding in practice.
 - **Interactions:** By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large and the tree is deep enough. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.
 - **Extrapolation:** By construction, a decision tree cannot extrapolate. So even a whopping 10 carat diamond cannot get a higher price prediction than the most expensive diamond in the training data.
@@ -82,7 +82,7 @@ These properties typically translate 1:1 to combinations of trees like random fo
 
 In 2001, Leo Breiman introduced a very powerful tree-based algorithm called *random forest*, see [2]. A random forest consists of many decision trees. To ensure that the trees differ, two sources or randomness are injected:
 
-1. Each split scans only a random selection "mtry" of the $m$ covariables to find the best split, usually about $\sqrt{m}$ or $m/3$. "mtry" is the main tuning parameter of a random forest.
+1. Each split scans only a random selection "mtry" of the $m$ covariates to find the best split, usually about $\sqrt{m}$ or $m/3$. "mtry" is the main tuning parameter of a random forest.
 2. Each tree is calculated on a bootstrap sample of the data, i.e. on $n$ observations selected with replacement from the original $n$ rows. This technique is called "bagging", from "**b**ootstrap **agg**regat**ing**". 
 
 Predictions are found by pooling the predictions of all trees, e.g. by averaging or majority voting.
@@ -129,19 +129,19 @@ r_squared(diamonds$price[ix$test], pred)  # 0.9807277
 
 ## Interpreting a "black box"
 
-In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any ML model to study at least *variable importance* and the strongest *effects*, not just its performance. A pure prediction machine is hardly of any interest and might even contain mistakes like using covariables derived from the response. Model interpretation helps to fight such problems and thus also to increase trust in a model.
+In contrast to a single decision tree or a linear model, a combination of many trees is not easy to interpret. It is good practice for any ML model to study at least *variable importance* and the strongest *effects*, not just its performance. A pure prediction machine is hardly of any interest and might even contain mistakes like using covariates derived from the response. Model interpretation helps to fight such problems and thus also to increase trust in a model.
 
 ### Variable importance
 
-There are different approaches to measure the importance of a covariable. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariable $X$ was used in a split or how much loss improvement came from splitting on $X$.
+There are different approaches to measure the importance of a covariate. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariate $X$ was used in a split or how much loss improvement came from splitting on $X$.
 
 Approaches that work for *any* supervised model (including neural nets) include **permutation importance** and **SHAP importance**.
 
 ### Effects
 
-One of the main reasons for the success of modern methods like random forests is the fact that they automatically learn interactions between two or more covariables. Thus, the effect of a covariable $X$ typically depends on the values of other covariables. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding their value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The more natural the Ceteris Paribus clause, the more reliable the partial dependence plots.
+One of the main reasons for the success of modern methods like random forests is the fact that they automatically learn interactions between two or more covariates. Thus, the effect of a covariate $X$ typically depends on the values of other covariates. In the extreme case, the effect of $X$ is different for each observation. The best what we can do is to study the *average effect* of $X$ over many observations, i.e. averaging the effects over interactions. This leads us to **partial dependence plots**: They work for any supervised ML model and are constructed as follows: A couple of observations are selected. Then, their average prediction is visualized against $X$ when sliding their value of $X$ over a reasonable grid of values, *keeping all other variables fixed*. The more natural the Ceteris Paribus clause, the more reliable the partial dependence plots.
 
-Remark: A partial dependence plot of a covariable in a linear regression is simply a visualization of its coefficient.
+Remark: A partial dependence plot of a covariate in a linear regression is simply a visualization of its coefficient.
 
 Alternatives to partial dependence plots include **accumulated local effect plots** and **SHAP dependence plots**. Both relax the Ceteris Paribus clause.
 
@@ -185,7 +185,7 @@ plot(light_profile(fl, v = "color")) +
 ## Exercises
 
 1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
-2. Fit a random forest on the claims data, predicting the binary variable `clm` by the covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e. predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Use a simple train/test split. Interpret the results by split gain importance and partial dependence plots.
+2. Fit a random forest on the claims data, predicting the binary variable `clm` by the covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e. predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Use a simple train/test split. Interpret the results by split gain importance and partial dependence plots.
 
 # Gradient Boosted Trees
 
@@ -432,7 +432,7 @@ plot(light_profile(fl, v = "color")) +
 ## Exercises
 
 1. Study the online documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e. just be refitting the final model. How does the partial dependence plot for `carat` look now?
-2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss both as objective and evaluation metric. Interpret its results.
+2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss both as objective and evaluation metric. Interpret its results.
 
 # Chapter Summary
 

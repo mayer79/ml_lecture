@@ -82,7 +82,7 @@ metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
   sqrt(k_mean(k_square(y_true - y_pred)))
 })
 
-# Input layer: we have 1 covariable
+# Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # Output layer connected to the input layer
@@ -134,7 +134,7 @@ Gradient descent on batches of size 1 is called "stochastic gradient descent" (S
 
 ## Step 2: Hidden layers
 
-Our first neural network above consisted of only an input layer and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariables. The nodes of a hidden layer are sometimes called *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariables in an automatic way. The only ingredients are a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
+Our first neural network above consisted of only an input layer and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, i.e. more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariates. The nodes of a hidden layer are sometimes called *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariates in an automatic way. The only ingredients are a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
 
 Neural nets with more than one hidden layer are called "deep neural nets".
 
@@ -158,7 +158,7 @@ metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
   sqrt(k_mean(k_square(y_true - y_pred)))
 })
 
-# Input layer: we have 1 covariable
+# Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # One hidden layer
@@ -228,7 +228,7 @@ metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
   sqrt(k_mean(k_square(y_true - y_pred)))
 })
 
-# Input layer: we have 1 covariable
+# Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # One hidden layer
@@ -348,7 +348,7 @@ The number of parameters should not be too high compared to the number of rows, 
 
 ## Interpretation
 
-Variable importance of covariables in neural networks can be assessed by permutation importance (how much performance is lost when shuffling column X?) or SHAP importance. Covariable effects can be investigated e.g. by partial dependence plots or SHAP dependence plots.
+Variable importance of covariates in neural networks can be assessed by permutation importance (how much performance is lost when shuffling column X?) or SHAP importance. covariate effects can be investigated e.g. by partial dependence plots or SHAP dependence plots.
 
 # Example: diamonds
 
@@ -367,7 +367,7 @@ metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
   sqrt(k_mean(k_square(y_true - y_pred)))
 })
 
-# Response and covariables
+# Response and covariates
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
@@ -395,7 +395,7 @@ prep_nn <- function(X, x = c("carat", "color", "cut", "clarity"), scaling = sc) 
   scale(X, center = scaling$center, scale = scaling$scale)
 }
 
-# Input layer: we have 4 covariables
+# Input layer: we have 4 covariates
 input <- layer_input(shape = 4)
 
 # Two hidden layers with contracting number of nodes
@@ -487,7 +487,7 @@ data(dataCar)
 
 # use_python(path to python...)
 
-# Response and covariables
+# Response and covariates
 y <- "clm"
 x_emb <- "veh_body"
 x_dense <- c("veh_value", "veh_age", "gender", "area", "agecat")
@@ -630,7 +630,7 @@ Here, we summarize some of the neural network slang.
 - Keras: User-friendly wrapper of TensorFlow.
 - Layer: Main organizational unit of a neural network.
 - Learning rate: Controls the step size of gradient descent, i.e. how aggressive the network learns.
-- Node: Nodes on the input layer are the covariables, nodes on the output layer the response(s) and nodes on a hidden layer are latent variables representing the covariables for the task to predict the response.
+- Node: Nodes on the input layer are the covariates, nodes on the output layer the response(s) and nodes on a hidden layer are latent variables representing the covariates for the task to predict the response.
 - Optimizer: The specific variant of gradient descent.
 - PyTorch: An important implementation of neural networks.
 - Stochastic gradient descent (SGD): Mini-batch gradient descent with batches of size 1.
