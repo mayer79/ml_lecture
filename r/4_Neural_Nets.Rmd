@@ -331,11 +331,11 @@ Pure gradient descent is rarely applied without tweaks because it tends to be st
 ## Custom losses and evaluation metrics
 
 Frameworks like Keras/TensorFlow offer many predefined loss functions and evaluation metrics. Choosing them is a crucial step, just as with tree boosting.
-Using TensorFlow's backend functions, one can define own metrics (see example above for the root-mean-squared error) and loss functions (see exercises).
+Using TensorFlow's backend functions, one can define own metrics and loss functions (see exercises).
 
 ## Overfitting and regularization
 
-Like with linear models, a model with too many parameters will overfit in an undesired way. With about 50 to 100 observations per parameter, overfitting is usually unproblematic. (For image and text data, different rules apply). As with penalized regression or trees, there are ways to actively reduce effects of overfitting in neural nets. The two main options are
+As with linear models, a model with too many parameters will overfit in an undesired way. With about 50 to 100 observations per parameter, overfitting is usually unproblematic. (For image and text data, different rules apply). Besides using less parameters, the main options to reduce overfitting are the following:
 
 - pull the parameters of a layer slightly towards zero by applying L1 and/or L2 penalties to the parameters,
 - add dropout layers. A dropout layer randomly sets some of the node values of the previous layer to 0, switching them off. This is an elegant way to fight overfitting and is related to bagging.
@@ -348,7 +348,7 @@ The number of parameters should not be too high compared to the number of rows, 
 
 ## Interpretation
 
-Variable importance of covariates in neural networks can be assessed by permutation importance (how much performance is lost when shuffling column X?) or SHAP importance. covariate effects can be investigated, e.g., by partial dependence plots or SHAP dependence plots.
+Variable importance of covariates in neural networks can be assessed by permutation importance (how much performance is lost when shuffling column X?) or SHAP importance. Covariate effects can be investigated, e.g., by partial dependence plots or SHAP dependence plots.
 
 # Example: diamonds
 
@@ -622,7 +622,7 @@ Here, we summarize some of the neural network slang.
 - Architecture: The layout of layers and nodes.
 - Backpropagation: An efficient way to calculate gradients.
 - Batch: A couple of data rows used for one mini-batch gradient descent step.
-- Callback: An action during training (save weights, reduce learning rate or stop training).
+- Callback: An action during training (save weights, reduce learning rate, stop training, ...).
 - Epoch: The process of updating the network weights by gradient descent until each observation in the training set was used once.
 - Embedding: A numeric representation of categorical input as learned by the neural net.
 - Encoding: The values of latent variables of a hidden layer, usually the last.

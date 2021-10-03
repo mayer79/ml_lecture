@@ -136,7 +136,7 @@ ggplot(aes(x = k, y = RMSE, group = Data, color = Data)) +
 
 # Cross-Validation (CV)
 
-If our data set is large and training takes long, then the simple validation strategy introduced above is usually good enough. For smaller data or if training is fast, there is a better alternative that utilizes the data in a more economic way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
+If our data set is large and training takes long, then the simple validation strategy introduced above is usually good enough. For smaller data or if training is fast, there is a better alternative that uses the data in a more economic way and takes more robust decisions. It is called **k-fold cross-validation** and works as follows:
 
 1. Split the data into k pieces $D = \{D_1, \dots, D_k\}$ called "folds". Typical values for k are five or ten.
 2. Set aside one of the pieces ($D_j$) for validation.

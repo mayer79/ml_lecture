@@ -69,7 +69,7 @@ predict(fit, dataCar[1, ])
 
 - **Outliers:** In contrast to linear models, outliers in covariates are not an issue because the algorithm only takes into account the sort order of the values. Similarly, taking logarithms in covariates has no effect. Both statements do not hold for the response variable.
 - **Missing values:** Some implementations can deal with missing values in the input. Alternatively, missing values are often replaced by a typical value or a value smaller/larger than the smallest non-missing value (such as -1 for a positive variable).
-- **Categorical covariates:** Unordered categorical covariates are tricky to split because with $\ell$ levels we end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). Some algorithms offer computationally more feasible ways to deal with unordered categoricals.
+- **Categorical covariates:** Unordered categorical covariates are tricky to split because with $\ell$ levels, theoretically, we end up with $2^\ell$ possible partitions. Try to lump small categories together or consider representing the levels by ordered categories (even if it does not make too much sense). One-hot-encoding is an option as well. Some algorithms offer ways to internally deal with unordered categoricals.
 - **Greedy:** Partitions are made in a greedy way to optimize the objective in *one step*. Looking ahead more than one step would lead to better models but this is computationally too demanding in practice.
 - **Interactions:** By their flexible structure, a decision tree can automatically capture interaction effects of any order (and other non-linear effects), at least if the data set is large and the tree is deep enough. This is a big advantage of tree-based methods compared to linear models where these elements have to carefully and manually be accounted for. In the next chapter, we will meet another model class with this advantage: neural nets.
 - **Extrapolation:** By construction, a decision tree cannot extrapolate. So even a whopping 10 carat diamond cannot get a higher price prediction than the most expensive diamond in the training data.
@@ -97,7 +97,7 @@ Predictions are found by pooling the predictions of all trees, e.g., by averagin
 
 ## Example: random forest
 
-Let us now fit a random forest for diamond prices with default parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable. (Throughout the rest of the lecture, we will ignore the problematic aspect of having repeated rows for some diamonds.)
+Let us now fit a random forest for diamond prices with typical parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable. (Throughout the rest of the lecture, we will ignore the problematic aspect of having repeated rows for some diamonds.)
 
 ```{r}
 library(tidyverse)
@@ -189,7 +189,7 @@ plot(light_profile(fl, v = "color")) +
 
 # Gradient Boosted Trees
 
-The idea of *boosting* was introduced by Schapire in 1990 [3] and roughly works as follows: A simple model is fit to the data. Then, a next simple model tries to correct the errors from the first model and so on, until some stopping criterion is reached. As simple models, usually **small decision trees** are used, an idea pushed by Jerome Friedman in his famous 2001 article on the very general framework of gradient boosting machines [4]. 
+The idea of *boosting* was introduced by Schapire in 1990 [3] and roughly works as follows: A simple model is fit to the data. Then, another simple model is added, trying to correct the errors from the first model. This process is repeated until some stopping criterion triggers. As simple models or *base learners*, usually **small decision trees** are used, an idea pushed by Jerome Friedman in his famous 2001 article on the very general framework of gradient boosting machines [4]. 
 
 Modern variants of such *gradient boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Sept. 25, 2020:
 
@@ -283,7 +283,7 @@ Overall, the tuning strategy is as follows:
 3. Use the best parameter combination to fit the model on the training data.
 
 ```{r}
-# This code is pretty long, but may serve as general template
+# This code is pretty long, but may serve as a general template
 library(ggplot2)
 library(xgboost)
 library(splitTools)
