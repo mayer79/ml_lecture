@@ -109,8 +109,15 @@ simple_model %>%
 
 ### Software for the Python version of the lecture
 
-to do
+We will use the conda environment specified in the "py" folder.
 
+1. Install Anaconda
+2. Open conda prompt and use it to navigate to your "ml_lecture/py" folder
+3. conda env create -f environment.yml
+4. Use this environment to run the code of the lecture
+
+Furthermore, download the "Car - csv" dataset on the following [link](http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData/data_sets)
+and put it as "car.csv" into the "py" folder. It is about 4 MB small.
 
 ## Further Reading
 
