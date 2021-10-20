@@ -15,16 +15,49 @@
 # logarithms. Interpret the output of the model. 
 # Does it make sense from a practical perspective?
   
-from math import gamma
+# With scikit-learn
+from plotnine.data import diamonds
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics import mean_squared_error as mse
 
-from sklearn.dummy import DummyRegressor
+y = diamonds["price"]
+cat_vars = ["color", "cut", "clarity"]
+lvl = [diamonds[x].cat.categories.to_numpy() for x in cat_vars]
 
+model = make_pipeline(
+    ColumnTransformer(
+        transformers=[
+            ("linear", "passthrough", ["carat"]),
+            ("dummies", OneHotEncoder(categories=lvl, drop="first"), cat_vars)
+        ],
+        verbose_feature_names_out=False
+    ),
+    LinearRegression()
+)
+model.fit(diamonds, y)
 
-library(tidyverse)
-dia <- diamonds %>% 
-  mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
-fit <- lm(price ~ carat + color + cut + clarity, data = dia)
-summary(fit)
+print(f"RMSE: {mse(y, model.predict(diamonds), squared=False):.3f}")
+print(f"R-squared: {model.score(diamonds, y):.2%}")
+print("Intercept", model[-1].intercept_)
+feature_names = model[:-1].get_feature_names_out()
+results = pd.DataFrame(
+    model[-1].coef_,
+    columns=["Estimates"],
+    index=feature_names
+)
+results
+
+# With statsmodels
+from plotnine.data import diamonds
+from statsmodels.formula.api import ols
+
+model2 = ols("price ~ carat + color + cut + clarity", data=diamonds)
+results2 = model2.fit()
+results2.summary()
 
 # Comments
 # Model quality: About 92% of price variations are explained by covariates.
@@ -45,13 +78,20 @@ summary(fit)
 # those from the corresponding linear regression with `log(price)` as response. 
 # Use dummy coding for the three categorical variables.
 
-library(tidyverse)
-dia <- diamonds %>% 
-  mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
-fit <- glm(price ~ log(carat) + color + cut + clarity, 
-           data = dia, family = Gamma(link = "log"))
-summary(fit)
-mean(dia$price) / mean(predict(fit, type = "response")) - 1
+from plotnine.data import diamonds
+import numpy as np
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+model = smf.glm(
+    "price ~ np.log(carat) + color + cut + clarity", data=diamonds, 
+    family=sm.families.Gamma(sm.families.links.log())
+)
+result = model.fit()
+result.summary()
+
+bias = diamonds["price"].mean() / result.predict(diamonds).mean() - 1
+print(f"Relative bias on USD scale: {bias:.3%}")
 
 # Comment: The coefficients are very similar to the linear regression with
 #  log(price) as response. This makes sense, in the end we interpret the 
