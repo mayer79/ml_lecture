@@ -654,83 +654,64 @@ plot(light_profile(fl, v = "agecat")) +
 # and had to replace the "relu" activations by "tanh". Furthermore, the 
 # response needed to be transformed from int to float32)
 
-import numpy as np
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.metrics import RootMeanSquaredError as RMSE
-
+# Load data and specify preprocessing
 from plotnine.data import diamonds
-
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 
-# Cast price as float
-diamonds["price"] = diamonds["price"].astype("float32")
+diamonds["price"] = diamonds["price"].astype("float32")  # for TensorFlow
 
-# Ordinal encoder for cut, color, and clarity
 ord_features = ["cut", "color", "clarity"]
 ord_levels = [
     diamonds[x].cat.categories.to_list() for x in ord_features
 ]
-ord_encoder = OrdinalEncoder(categories=ord_levels)
 
-# Data preprocessing pipeline
 preprocessor = make_pipeline(
     ColumnTransformer(
         transformers=[
-            ("ordinal", ord_encoder, ord_features),
+            ("ordinal", OrdinalEncoder(categories=ord_levels), ord_features),
             ("numeric", "passthrough", ["carat"])
         ]
     ),
     StandardScaler()
 )
 
-# Train/valid split
 df_train, df_valid, y_train, y_valid = train_test_split(
-    diamonds, 
-    diamonds["price"], 
-    test_size=0.2, 
-    random_state=341
+    diamonds, diamonds["price"], test_size=0.2, random_state=341
 )
 
 X_train = preprocessor.fit_transform(df_train)
 X_valid = preprocessor.transform(df_valid)
 
-# Input layer: we have 4 covariates
-inputs = keras.Input(shape=(4,))
-
-# One hidden layer with 5 nodes
-x = layers.Dense(30, activation="tanh")(inputs)
-x = layers.Dense(15, activation="tanh")(x)
-
-# Output layer now connected to the last hidden layer
-outputs = layers.Dense(1, activation=K.exp)(x)
-
-# Create model
-model = keras.Model(inputs=inputs, outputs=outputs)
-# model.summary()
-
-# Define Gamma loss
+# Modeling
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.metrics import RootMeanSquaredError as RMSE
 import keras.backend as K
+
 def loss_gamma(y_true, y_pred):
   return -K.log(y_true / y_pred) + y_true / y_pred
 
-# Compile model
+inputs = keras.Input(shape=4)
+x = layers.Dense(30, activation="tanh")(inputs)
+x = layers.Dense(15, activation="tanh")(x)
+outputs = layers.Dense(1, activation=K.exp)(x)
+
+model = keras.Model(inputs=inputs, outputs=outputs)
+
 model.compile(
     loss=loss_gamma,
     optimizer=keras.optimizers.Adam(learning_rate=0.001)
 )
 
-# Callbacks
 cb = [
     keras.callbacks.EarlyStopping(patience=20),
     keras.callbacks.ReduceLROnPlateau(patience=5)
 ]
 
-# Fit model
 tf.random.set_seed(88)
 history = model.fit(
     x=X_train,
@@ -740,33 +721,32 @@ history = model.fit(
     validation_data=(X_valid, y_valid),
     callbacks=cb,
     verbose=1
-)     
+)
 
 # Training RMSE over epochs
 import matplotlib.pyplot as plt
-plt.plot(history.history["loss"])
-plt.plot(history.history["val_loss"], color="orange")
-plt.title("Training Gamma loss over epochs")
-plt.legend(["Training", "Validation"])
-plt.ylim((0, 3))
-plt.ylabel("Gamma loss")
-plt.xlabel("Epoch")
+
+plt.plot(history.history["loss"], label="Training")
+plt.plot(history.history["val_loss"], label="Validation")
+plt.legend()
+plt.gca().set(
+    title="Training Gamma loss over epochs",
+    xlabel="Epoch",
+    ylabel="Gamma loss",
+    ylim=(0, 3)
+)
 plt.grid()
 plt.show()
 
 # Interpretation
-from sklearn.metrics import mean_gamma_deviance
+from sklearn.metrics import mean_gamma_deviance as deviance
 from sklearn.dummy import DummyRegressor
 import dalex as dx
 
-# Performance
 dummy = DummyRegressor().fit(X_train, y_train)
-dev_null = mean_gamma_deviance(y_valid, dummy.predict(X_valid))
-dev = mean_gamma_deviance(y_valid, model.predict(X_valid))
-deviance_explained = (dev_null - dev) / dev_null
-print(f"% deviance explained: {deviance_explained:.2%}")
+d0, d = (deviance(y_valid, m.predict(X_valid)) for m in (dummy, model))
+print(f"% deviance explained: {(d0 - d) / d0:.2%}")
 
-# Set up explainer
 def pred_fun(m, X):
     return m.predict(preprocessor.transform(X), batch_size=1000).flatten()
 
@@ -778,11 +758,9 @@ exp = dx.Explainer(
     verbose=False
 )
 
-# Permutation importance
 vi = exp.model_parts()
 vi.plot()
 
-# Partial dependence
 pdp_num = exp.model_profile(
     type="partial",
     label="Partial depencence for numeric variables",
