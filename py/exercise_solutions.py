@@ -15,7 +15,7 @@
 # logarithms. Interpret the output of the model. 
 # Does it make sense from a practical perspective?
   
-# With scikit-learn
+# Via scikit-learn
 from plotnine.data import diamonds
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -43,6 +43,7 @@ model.fit(diamonds, y)
 print(f"RMSE: {mse(y, model.predict(diamonds), squared=False):.3f}")
 print(f"R-squared: {model.score(diamonds, y):.2%}")
 print("Intercept", model[-1].intercept_)
+
 feature_names = model[:-1].get_feature_names_out()
 results = pd.DataFrame(
     model[-1].coef_,
@@ -51,7 +52,7 @@ results = pd.DataFrame(
 )
 results
 
-# With statsmodels
+# Via statsmodels
 from plotnine.data import diamonds
 from statsmodels.formula.api import ols
 
