@@ -47,9 +47,7 @@ You can preview the html outputs of the R lecture by clicking on these links:
 3. [Trees](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/3_Trees.html)
 4. [Neural Nets](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/4_Neural_Nets.html)
 
-The corresponding outputs of the Python lecture:
-
-4. [Neural Nets](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/python/py/4_Neural_Nets.html)
+The Python html files can be downloaded from the repository.
 
 ## Prerequisites
 
@@ -57,13 +55,25 @@ In order to be able to follow the lecture, you should be familiar with
 
 - Descriptive statistics
 - Linear regression
-- R/Python
+- R or Python
 
 To get the lecture notes both as html and code-notebooks, clone this repository by running 
 
 ```
 git clone https://github.com/mayer79/ml_lecture.git
 ```
+
+### Software for the Python version of the lecture
+
+We will use the conda environment specified in the "py" folder.
+
+1. Install Anaconda (if not yet available on your machine)
+2. Open conda prompt and use it to navigate to your "ml_lecture/py" folder
+3. Type in the conda prompt: "conda env create -f environment.yml"
+4. Use this environment to run the code of the lecture
+
+Furthermore, download the "Car - csv" dataset on the following [link](http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData/data_sets)
+and put it as "car.csv" into the "py" folder. It is about 4 MB small.
 
 ### Software for the R version of the lecture
 
@@ -110,18 +120,6 @@ simple_model %>%
       epochs = 20,
       batch_size = 10)
 ```
-
-### Software for the Python version of the lecture
-
-We will use the conda environment specified in the "py" folder.
-
-1. Install Anaconda
-2. Open conda prompt and use it to navigate to your "ml_lecture/py" folder
-3. conda env create -f environment.yml
-4. Use this environment to run the code of the lecture
-
-Furthermore, download the "Car - csv" dataset on the following [link](http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData/data_sets)
-and put it as "car.csv" into the "py" folder. It is about 4 MB small.
 
 ## Further Reading
 
