@@ -47,6 +47,10 @@ You can preview the html outputs of the R lecture by clicking on these links:
 3. [Trees](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/3_Trees.html)
 4. [Neural Nets](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/4_Neural_Nets.html)
 
+The corresponding outputs of the Python lecture:
+
+4. [Neural Nets](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/python/py/4_Neural_Nets.html)
+
 ## Prerequisites
 
 In order to be able to follow the lecture, you should be familiar with
