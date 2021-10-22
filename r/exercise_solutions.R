@@ -119,7 +119,7 @@ paramGrid[order(paramGrid$RMSE)[1], ]
 rmse_reg <- c()
 
 for (fold in folds) {
-  fit <- lm(price ~ log(carat) + color + cut + carat, data = train[fold, ])
+  fit <- lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
   pred <- predict(fit, newdata = train[-fold, ])
   rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
 }
@@ -197,7 +197,7 @@ paramGrid[order(paramGrid$RMSE)[1], ]
 rmse_reg <- c()
 
 for (fold in folds) {
-  fit <- lm(price ~ log(carat) + color + cut + carat, data = train[fold, ])
+  fit <- lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
   pred <- predict(fit, newdata = train[-fold, ])
   rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
 }
