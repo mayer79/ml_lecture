@@ -58,7 +58,7 @@ diamonds[neighbours, ]
 
 **Comments** 
 
-- The five nearest diamonds are extremely similar. The second one is the observation of interest itself, introducing a relevant amount of overfitting.
+- The five nearest diamonds are extremely similar. One of them is the observation of interest itself, introducing a relevant amount of overfitting.
 - The average price of these five observations gives us the nearest-neighbour prediction for the 10'000th diamond.
 - Would we get better results for a different choice of the number of neighbours k?
 - Three lines are identical up to the perspective variables (`depth`, `table`, `x`, `y`, `z`). These rows most certainly represent the same diamond, introducing additional overfit. We need to keep this problematic aspect of the diamonds data in mind.
