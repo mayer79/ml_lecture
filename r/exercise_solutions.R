@@ -268,7 +268,8 @@ r_squared_gamma(test$price, pred) # 0.982464 relative deviance gain
 
 # Comments: The optimal degree seems to be 8 with a CV deviance of 0.01575.
 # There seems to be some amount of CV overfit as the deviance evaluated on 
-# the test data is worse.
+# the test data is worse. Caution: Instead of using such high degree polynomial, 
+# it is almost always better to use regression splines.
 
 #=============================================================================
 # Exercise 4

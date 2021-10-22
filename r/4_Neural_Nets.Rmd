@@ -377,7 +377,7 @@ ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
 train <- diamonds[ix$train, ]
 valid <- diamonds[ix$valid, ]
 
-y_train <- as.numeric(train[[y]])  # integers are not auto-casted by all tf versions
+y_train <- as.numeric(train[[y]])  # integers are not auto-cast by all tf versions
 y_valid <- as.numeric(valid[[y]])
 
 X_train <- train[, x]
