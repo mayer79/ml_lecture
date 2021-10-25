@@ -54,7 +54,7 @@ head(diamonds)
 We distinguish variables by their data type.
 
 - **numerical:** The values of a numerical variable are numbers. Taking sums, means and differences makes sense. Examples: house prices, insurance claim frequencies, blood pressure.
-- **categorical:** The values of a categorical variable are categories, e.g. house types, claim types or colors. Depending on whether categories follow a natural order, we talk of *ordered* or *unordered* categoricals. Categories can be encoded by numbers. That does not make the variable numeric though.
+- **categorical:** The values of a categorical variable are categories, such as house types, claim types or colors. Depending on whether categories follow a natural order, we talk of *ordered* or *unordered* categoricals. Categories can be encoded by numbers. That does not make the variable numeric though.
 - **binary:** A binary variable just takes two values (male/female, yes/no, ...) that can be represented by 1/0. It counts as both numeric and categorical.
 
 Data types are important in determining suitable analysis methods.
@@ -71,7 +71,7 @@ There are no unordered categoricals or binary variables in this data set.
 
 ## Descriptive analysis
 
-Statistical modeling always starts with a descriptive analysis of the data. This typically involves a numeric and/or graphical summary of each variable and the most relevant variable pairs, e.g. 
+Statistical modeling always starts with a descriptive analysis of the data. This typically involves a numeric and/or graphical summary of each variable and the most relevant variable pairs, e.g.,
 
 - for numeric variables: mean, standard deviation, quartiles, minimum and maximum; boxplots, mean plots,
 - for categorical variables: absolute or relative counts; bar plots,
@@ -85,7 +85,7 @@ The more time we invest in the descriptive analysis, the more we learn about the
 - identify data errors and problematic outliers (uncommonly small or large values), 
 - find join keys to combine multiple data sources, 
 - detect variables with high number of missing values,
-- detect variables with no or almost no information (e.g. all values the same),
+- detect variables with no or almost no information (for instance when all values are identical),
 - **learn how the data is structured** (what *is* a row? do we deal with time series? are rows grouped to clusters etc.),
 - ...
 
@@ -158,22 +158,22 @@ ggplot(diamonds, aes(y = price, x = clarity)) +
 
 ## Statistical models
 
-The general modeling task is as follows: we want to approximate a *response variable* $Y$ by a function $f$ of $m$ *covariables* $X_1, \dots, X_m$, i.e.
+The general modeling task is as follows: we want to approximate a *response variable* $Y$ by a function $f$ of $m$ *covariates* $X_1, \dots, X_m$, i.e.,
 $$
   Y \approx f(X_1, \dots, X_m).
 $$
 The function $f$ is unknown and we want to estimate it by $\hat f$ from observed data. 
 
-Note: Think of the response $Y$ and the covariables $X_1, \dots, X_m$ as columns in a data set.
+Note: Think of the response $Y$ and the covariates $X_1, \dots, X_m$ as columns in a data set.
 
 Normally, we are interested in modeling a specific property of $Y$, usually its expectation $E(Y)$ (= theoretic mean). In that case, we can make above approximate relationship more explicit by writing down the *model equation*
 $$
   E(Y) = f(X_1, \dots, X_m).
 $$
 
-Once found, $\hat f$ serves as our prediction function that can be applied to fresh data. Furthermore, we can investigate the structure of $\hat f$ to gain insights about the relationship between response and covariables: what variables are especially important? how do they influence the response?
+Once found, $\hat f$ serves as our prediction function that can be applied to fresh data. Furthermore, we can investigate the structure of $\hat f$ to gain insights about the relationship between response and covariates: what variables are especially important? how do they influence the response?
 
-**Remark:** Other terms for "response variable" are "output", "target" or "dependent variable". Other terms for "covariable" are "input", "feature", "independent variable" or "predictor".
+**Remark:** Other terms for "response variable" are "output", "target" or "dependent variable". Other terms for "covariate" are "input", "feature", "independent variable" or "predictor".
 
 # Linear Regression
 
@@ -185,29 +185,29 @@ The model equation of the linear regression is as follows:
 $$
   E(Y) = f(X_1, \dots, X_m) = \beta_0 + \beta_1 X_1 + \cdots + \beta_m X_m.
 $$
-It relates the covariables $X_1, \dots, X_m$ to the expected response $E(Y)$ by a *linear* formula in the parameters $\beta_0, \dots, \beta_m$. The additive constant $\beta_0$ is called the *intercept*. The parameter $\beta_j$ tells us by how much $Y$ is expected to change when $X_j$ is increased by 1, **keeping all other covariables fixed** ("Ceteris Paribus"). Indeed:
+It relates the covariates $X_1, \dots, X_m$ to the expected response $E(Y)$ by a *linear* formula in the parameters $\beta_0, \dots, \beta_m$. The additive constant $\beta_0$ is called the *intercept*. The parameter $\beta_j$ tells us by how much $Y$ is expected to change when $X_j$ is increased by 1, **keeping all other covariates fixed** ("Ceteris Paribus"). Indeed:
 $$
   E(Y \mid X_j = x + 1) - E(Y \mid X_j = x) = \beta_j (x + 1) - \beta_j x = \beta_j.
 $$
 The parameter $\beta_j$ is called *effect* of $X_j$ on the expected response $E(Y)$.
 
-A linear regression with just one covariable is called a *simple* linear regression with equation 
+A linear regression with just one covariate is called a *simple* linear regression with equation 
 $$
   E(Y) = \alpha + \beta X.
 $$
 
 ## Least-squares
 
-The optimal $\hat f$ to estimate $f$ is found by minimizing the sum of squared *prediction errors* resp. *residuals*
+The optimal $\hat f$ to estimate $f$ is found by minimizing the sum of squared *prediction errors* (*residuals*)
 $$
   \sum_{i=1}^n e_i^2 = \sum_{i=1}^n (y_i - \hat y_i)^2.
 $$
 $y_i$ is the observed response of observation $i$ and $\hat y_i$ its prediction (or *fitted value*)
 $$
-  \hat y_i = \hat f(\text{Values of covariables of observation } i).
+  \hat y_i = \hat f(\text{Values of covariates of observation } i).
 $$
 
-Once the model is fitted, we can use the coefficients $\hat\beta_0, \dots, \hat\beta_m$ to make predictions and to study empirical effects of the covariables on the expected response.
+Once the model is fitted, we can use the coefficients $\hat\beta_0, \dots, \hat\beta_m$ to make predictions and to study empirical effects of the covariates on the expected response.
 
 ### Example: simple linear regression
 
@@ -252,7 +252,7 @@ How good is a specific linear regression model? We may consider two aspects, nam
 
 ### Predictive performance
 
-How precise are the model predictions? I.e. how well do predictions correspond with the observed response? In line with the least-squares approach, this is best quantified by the sum of squared prediction errors
+How precise are the model predictions? I.e., how well do predictions correspond with the observed response? In line with the least-squares approach, this is best quantified by the sum of squared prediction errors
 $$
   \sum_{i = 1}^n (y_i - \hat y_i)^2
 $$
@@ -262,7 +262,7 @@ $$
 $$
 To quantify the size of the typical prediction error on the same scale as $Y$, we can take the square-root of the MSE and study the *root-mean-squared error* (RMSE). Minimizing MSE also minimizes RMSE.
 
-Besides an *absolute* performance measure like the RMSE, we gain additional insights by studying a relative performance measure like the **R-squared**. It measures the relative decrease in MSE compared to the MSE of the "empty" or "null" model consisting only of an intercept. Put differently, the R-squared measures the proportion of variability of $Y$ explained by the covariables.
+Besides an *absolute* performance measure like the RMSE, we gain additional insights by studying a relative performance measure like the **R-squared**. It measures the relative decrease in MSE compared to the MSE of the "empty" or "null" model consisting only of an intercept. Put differently, the R-squared measures the proportion of variability of $Y$ explained by the covariates.
 
 #### Example: simple linear regression (continued)
 
@@ -290,7 +290,7 @@ MSE_empty <- mse(diamonds$price, predict(empty_model, diamonds))
 
 ### Model assumptions
 
-The main assumption of linear regression is a **correctly specified model equation** in the sense that predictions are not systematically too high or too small for certain values of the covariables. In a simple regression setting, this means that the points in the scatterplot are located *around* the regression line for all covariable values. For a multiple linear regression, this translates to the empirical condition that residuals (differences between observed and fitted response) do not show bias if plotted against covariable values.
+The main assumption of linear regression is a **correctly specified model equation** in the sense that predictions are not systematically too high or too small for certain values of the covariates. In a simple regression setting, this means that the points in the scatterplot are located *around* the regression line for all covariate values. For a multiple linear regression, this translates to the empirical condition that residuals (differences between observed and fitted response) do not show bias if plotted against covariate values.
 
 Additional assumptions like independence of rows, constant variance of the error term $\varepsilon$ in the equation
 $$
@@ -308,11 +308,11 @@ Here, we list some problems that frequently occurs with linear regression. We wi
 
 ### Missing values
 
-Like many other ML algorithms, linear regression cannot deal with missing values. Rows with missing response can be safely dropped, while missing values in covariables should usually be dealt with. The simplest (often too naive) approach is to fill missing values with a typical value such as the mean or the most frequent value.
+Like many other ML algorithms, linear regression cannot deal with missing values. Rows with missing response can be safely dropped, while missing values in covariates should usually be dealt with. The simplest (often too naive) approach is to fill missing values with a typical value such as the mean or the most frequent value.
 
 ### Outliers
 
-Gross outliers in covariables can distort the result of the linear regression. Do not delete them, but try to reduce their effect by taking logarithms or by using more robust regression techniques. Outliers in the response can be problematic as well, especially for inferential statistics.
+Gross outliers in covariates can distort the result of the linear regression. Do not delete them, but try to reduce their effect by taking logarithms or by using more robust regression techniques. Outliers in the response can be problematic as well, especially for inferential statistics.
 
 ### Overfitting
 
@@ -320,15 +320,15 @@ If too many parameters are used in relation to the number of observations, the r
 
 ### Collinearity
 
-If the association between two or more covariables is strong, their coefficients are difficult to interpret because the Ceteris Paribus clause is usually unnatural in such situations. E.g. in a house price model, it is unnatural to study the effect of an additional room, keeping living area fixed. This is even more problematic for causally dependent covariables: imagine a model with $x$ and $x^2$ as covariables. It would certainly not make sense to study the effect of $x$ while keeping $x^2$ fixed. 
+If the association between two or more covariates is strong, their coefficients are difficult to interpret because the Ceteris Paribus clause is usually unnatural in such situations. In a house price model, for instance, it is unnatural to study the effect of an additional room, keeping living area fixed. This is even more problematic for causally dependent covariates: imagine a model with $x$ and $x^2$ as covariates. It would certainly not make sense to study the effect of $x$ while keeping $x^2$ fixed. 
 
-Strong collinearity can be detected by looking at correlations across (numeric) covariables. It is mainly a problem when interpreting effects or for statistical inference of effects. Predictions or other "global" model characteristics like the R-squared are not affected.
+Strong collinearity can be detected by looking at correlations across (numeric) covariates. It is mainly a problem when interpreting effects or for statistical inference of effects. Predictions or other "global" model characteristics like the R-squared are not affected.
 
-Often, collinearity can be reduced by transforming the covariables in a way that makes the Ceteris Paribus clause natural. Instead of e.g. using number of rooms and living area in a house price model, it might help to represent living area by the derived variable "living area per room".
+Often, collinearity can be reduced by transforming the covariates in a way that makes the Ceteris Paribus clause natural. Instead of, e.g., using number of rooms and living area in a house price model, it might help to represent living area by the derived variable "living area per room".
 
-Note: Perfectly collinear covariables (e.g. $X$ and $2X$) cannot be used for algorithmic reasons.
+Note: Perfectly collinear covariates (for example $X$ and $2X$) cannot be used for algorithmic reasons.
 
-## Categorical covariables
+## Categorical covariates
 
 Since algorithms usually only understand numbers, categorical variables have to be encoded by numbers. The standard approach is called **one-hot-encoding** (OHE) and works as follows: Each level $x_k$ of the categorical variable $X$ gets its own binary **dummy** variable $D_k = 1(X = x_k)$, indicating if $X$ has this particular value or not. In linear models, one of the dummy variables ($D_1$, say) needs to be dropped due to perfect collinearity (for each row, the sum of OHE variables is always 1). Its level is automatically being represented by the intercept. This variant of OHE is called **dummy coding**.
 
@@ -336,15 +336,15 @@ For our diamonds data set, OHE for the variable `color` looks as follows (the fi
 
 ![](../figs/ohe.PNG)
 
-**Comments on categorical covariables**
+**Comments on categorical covariates**
 
 - **Interpretation:** Interpreting the regression coefficient $\beta_k$ of the dummy variable $D_k$ is nothing special: It tells us how much $E(Y)$ changes when the dummy variable switches from 0 to 1. This amounts to switching from the reference category (the one without dummy) to category $k$.
-- **Integer encoding:** Ordinal categorical covariables are sometimes integer encoded for simplicity, i.e. each category is represented by an integer number. 
+- **Integer encoding:** Ordinal categorical covariates are sometimes integer encoded for simplicity, i.e., each category is represented by an integer number. 
 - **Small categories:** In order to reduce overfitting, small categories are sometimes combined to a level "Other" or are added to the largest category.
 
 ### Example: dummy coding
 
-Let us now extend the simple linear regression for diamond prices by adding dummy variables for the categorical covariable `color`.
+Let us now extend the simple linear regression for diamond prices by adding dummy variables for the categorical covariate `color`.
 
 ```{r}
 library(ggplot2)
@@ -354,7 +354,7 @@ summary(fit)
 
 **Comments**
 
-- **Slope:** Adding the covariable `color` has changed the slope of `carat` from 7756 in the simple linear regression to 8067. This is the effect of `carat` *adjusted* for `color`.
+- **Slope:** Adding the covariate `color` has changed the slope of `carat` from 7756 in the simple linear regression to 8067. This is the effect of `carat` *adjusted* for `color`.
 - **Effects:** Each dummy variable of `color` has received its own coefficient. Switching from the reference color "D" to "E" is associated with a price reduction of 94 USD. The effect of color "F" compared to color "D" is about -80 USD.
 - **Confounding:** In contrast to the unintuitive descriptive result (worse colors tend to higher prices), worse colors are associated with lower prices now. Adjusting for carat has solved that mystery. It seems that the diamond size had *confounded* the association between color and price. A regression model accounts for such confounding effects.
 
@@ -370,13 +370,13 @@ These elements are very important for making realistic models.
 
 ### Non-linear terms
 
-Important numeric covariables might be represented by more than just one parameter (= linear slope) to allow for more flexible and non-linear associations to the response. Adding a squared term e.g. allows for curvature, adding enough multiple polynomial terms can approximate any smooth relationship. 
+Important numeric covariates might be represented by more than just one parameter (= linear slope) to allow for more flexible and non-linear associations to the response. Adding a squared term, e.g., allows for curvature, adding enough multiple polynomial terms can approximate any smooth relationship. 
 
 For example, the model equation for a cubic regression is
 $$
   E(Y) = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3x^3.
 $$
-An alternative to polynomial terms are regression *splines*, i.e. piecewise polynomials. Using non-linear terms makes interpretation of regression coefficients difficult. An option is to study predictions while sliding the covariable values over its range (systematic predictions).
+An alternative to polynomial terms are regression *splines*, i.e., piecewise polynomials. Using non-linear terms makes interpretation of regression coefficients difficult. An option is to study predictions while sliding the covariate values over its range (systematic predictions).
 
 #### Example: cubic regression
 
@@ -408,7 +408,7 @@ ggplot(aes(x = carat, y = price)) +
 
 ### Interaction terms
 
-Once fitted, the effect of a covariable does not depend on the values of the other covariables. This is a direct consequence of the additivity of the model equation. The additivity assumption is sometimes too strict. E.g. treatment effects might be larger for younger patients than for older. Or an extra 0.1 carat of diamond weight is worth more for a beautiful white diamond compared to an unspectacular yellow one. In such cases, adding *interaction terms* provides the necessary flexibility. Mathematically, an interaction term between covariables $X$ and $Z$ equals their product. Practically, it means that the effect $X$ depends on the value of $Z$. 
+Once fitted, the effect of a covariate does not depend on the values of the other covariates. This is a direct consequence of the additivity of the model equation. The additivity assumption is sometimes too strict. E.g., treatment effects might be larger for younger patients than for older. Or an extra 0.1 carat of diamond weight is worth more for a beautiful white diamond compared to an unspectacular yellow one. In such cases, adding *interaction terms* provides the necessary flexibility. Mathematically, an interaction term between covariates $X$ and $Z$ equals their product. Practically, it means that the effect $X$ depends on the value of $Z$. 
 
 **Comments**
 
@@ -418,7 +418,7 @@ Once fitted, the effect of a covariable does not depend on the values of the oth
 
 #### Example: interactions
 
-Let us now fit a linear regression for diamond prices with covariables `carat` and `color`, once without and once with interaction. We interpret the resulting models by looking at systematic predictions (sliding both carat and color over their range).
+Let us now fit a linear regression for diamond prices with covariates `carat` and `color`, once without and once with interaction. We interpret the resulting models by looking at systematic predictions (sliding both carat and color over their range).
 
 ```{r}
 library(tidyverse)
@@ -445,15 +445,15 @@ ggplot(to_plot, aes(x = carat, y = prediction, group = color, color = color)) +
 - In the model with interactions (right image), we get different slopes and intercepts per color, just as if we would have fitted a simple linear regression *per color*. The larger the diamonds, the larger the color effects.
 - The slopes are not very much different across colors, so the interaction effects are small.
 
-### Transformations of covariables
+### Transformations of covariates
 
-Covariables are often transformed before entering the model:
+Covariates are often transformed before entering the model:
 
-- Categorical covariables are dummy coded.
-- Strongly correlated covariables might be decorrelated by forming ratios.
+- Categorical covariates are dummy coded.
+- Strongly correlated covariates might be decorrelated by forming ratios.
 - Logarithms neutralize gross outliers.
 
-Not surprisingly, coefficients explain how the *transformed* variables acts on the expected response. For a log-transformed covariable $X$, we can even interpret the coefficient regarding the **untransformed** $X$. In the model equation
+Not surprisingly, coefficients explain how the *transformed* variables acts on the expected response. For a log-transformed covariate $X$, we can even interpret the coefficient regarding the **untransformed** $X$. In the model equation
 $$
   E(Y\mid X = x) = \alpha + \beta \log(x),
 $$
@@ -462,11 +462,11 @@ $$
   E(Y\mid X = 101\% \cdot x) - E(Y\mid X = x) = \alpha + \beta \log (1.01 \cdot x) - \alpha - \beta \log(x) \\ 
   = \beta \log\left(\frac{1.01 \cdot x}{x}\right)= \beta \log(1.01) \approx \beta/100.
 $$
-Thus, taking logarithms of covariables not only deals with outliers, it also offers us the possibility to talk about percentages.
+Thus, taking logarithms of covariates not only deals with outliers, it also offers us the possibility to talk about percentages.
 
 #### Example: log(carat)
 
-What would our simple linear regression provide with logarithmic carat as single covariable?
+What would our simple linear regression provide with logarithmic carat as single covariate?
 
 ```{r}
 library(tidyverse)
@@ -501,7 +501,7 @@ ggplot(to_plot, aes(x = carat, y = price)) +
 
 ### Logarithmic response
 
-We have seen that taking logarithms not only reduces outlier effects in covariables but they also allow to think in percentages. What happens if we log-transform the response variable? The model of a simple linear regression would be
+We have seen that taking logarithms not only reduces outlier effects in covariates but they also allow to think in percentages. What happens if we log-transform the response variable? The model of a simple linear regression would be
 $$
   E(\log(Y) \mid X = x) = \alpha + \beta x.
 $$  
@@ -514,7 +514,7 @@ Assume for a moment that we can swap taking expectations and logarithms (disclai
 $$
   \log(E(Y\mid X = x)) = \alpha + \beta x
 $$
-resp.
+or, after exponentiation,
 $$
   E(Y\mid X = x) =e^{\alpha + \beta x}.
 $$
@@ -572,7 +572,7 @@ ggplot(to_plot, aes(x = carat, y = price)) +
 
 #### Example: log(carat) and log(price)
 
-Using logarithms for either price or carat did not provide a satisfactory model yet. What about applying logarithms to both response and covariable at the same time?
+Using logarithms for either price or carat did not provide a satisfactory model yet. What about applying logarithms to both response and covariate at the same time?
 
 ```{r}
 library(tidyverse)
@@ -614,7 +614,7 @@ mean(diamonds$price) / mean(exp(fitted(fit))) - 1
 
 ## Example: diamonds improved
 
-To end the section on linear regression, we extend the log-log-example above by adding `color`, `cut` and `clarity` as categorical covariables.
+To end the section on linear regression, we extend the log-log-example above by adding `color`, `cut` and `clarity` as categorical covariates.
 
 ```{r}
 library(tidyverse)
@@ -629,8 +629,8 @@ summary(fit)
 **Comments**
 
 - **Effects:** All effects of the multiple linear regression look plausible.
-- **Interpretation:** For every % more carat, we can expect an increase in price of about 1.9% (keeping everything else fixed). After all, a big diamond is worth more than its two halves. Diamonds with the second best color "E" are about 5% cheaper than those with the best color (keeping everything else fixed). The multiplicative effects of categorical covariables clearly make more sense here than the additive effects without logarithmic response.
-- **R-squared:** About 98% of the variability in log-prices can be explained by our four covariables. Adding the three categorical covariables has considerably improved the precision of the model.
+- **Interpretation:** For every % more carat, we can expect an increase in price of about 1.9% (keeping everything else fixed). After all, a big diamond is worth more than its two halves. Diamonds with the second best color "E" are about 5% cheaper than those with the best color (keeping everything else fixed). The multiplicative effects of categorical covariates clearly make more sense here than the additive effects without logarithmic response.
+- **R-squared:** About 98% of the variability in log-prices can be explained by our four covariates. Adding the three categorical covariates has considerably improved the precision of the model.
 - **RMSE:** The typical prediction error is about 13%.
 
 ## Exercises
@@ -647,14 +647,15 @@ dia <- diamonds %>%
 
 # Generalized Linear Model
 
-The linear regression model has many extensions, e.g.
+The linear regression model has many extensions:
 
 - quantile regression to model quantiles of the response instead of its expectation,
 - mixed-models to capture grouped data structures,
 - generalized least-squares to model time series data,
 - penalized regression, an extension to fight overfitting (LASSO, Ridge-Regression, Elastic-Net),
 - neural networks that automatically learn interactions and non-linearities (see later),
-- **the generalized linear model** that e.g. allows to model binary response variables in a natural way.
+- **the generalized linear model** that e.g. allows to model binary response variables in a natural way,
+- ...
 
 This section covers the generalized linear model (GLM). It was introduced in 1972 by Nelder & Wedderburn [2]. 
 
@@ -668,13 +669,13 @@ or similarly
 $$
   E(Y) = g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m),
 $$
-where $Y$ conditional on the covariables belongs to the so-called exponential dispersion family and $g$ is a transformation. 
+where $Y$ conditional on the covariates belongs to the so-called exponential dispersion family and $g$ is a transformation. 
 
 Thus, a GLM has three components:
 
-1. A linear function for the covariable effects, exactly as in linear regression.
+1. A linear function of the covariates, exactly as in linear regression.
 2. The link function $g$. Its purpose is to map $E(Y)$ to the scale of the linear function. Or the other way round: The inverse link $g^{-1}$ maps the linear part to the scale of the response.
-3. A distribution of $Y$ conditional on the covariables.
+3. A distribution of $Y$ conditional on the covariates.
 
 The following table lists some of the most used GLMs.
 
@@ -693,7 +694,7 @@ The following table lists some of the most used GLMs.
 - To find predictions $\hat y$ on the scale of $Y$, one evaluates the linear function (called "linear predictor") and then applies the inverse link $g^{-1}$.
 - Any transformation can be used as link $g$. However, only the *natural/canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(Y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link because of the next property.
 - **Using a log link produces a multiplicative model for $E(Y)$.**
-- The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)} = p$, i.e. modeling the expected response is the same as modeling the probability $p$ of having a 1.
+- The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)} = p$, i.e., modeling the expected response is the same as modeling the probability $p$ of having a 1.
 - The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the m categories.
 - The normal, Poisson and Gamma GLMs are special cases of the *Tweedie GLM*.
 
@@ -701,9 +702,9 @@ The following table lists some of the most used GLMs.
 
 The normal linear model allows us to model $E(Y)$ by an additive linear function. In principle, this would also work for 
 
-- binary responses (e.g. insurance claim yes/no, success yes/no, fraud yes/no), 
-- count responses (e.g. number of insurance claims, number of adverse events),
-- right-skewed responses (e.g. time durations, claim heights, prices).
+- binary responses (insurance claim yes/no, success yes/no, fraud yes/no, ...), 
+- count responses (number of insurance claims, number of adverse events, ...),
+- right-skewed responses (time durations, claim heights, prices, ...).
 
 However, in such cases, an additive linear model equation is usually not very realistic. As such, the main assumption of the linear regression model is violated:
 
@@ -715,7 +716,7 @@ GLMs deal with such problems by using a suitable link function like the logarith
 
 Further advantages of the GLM over the linear regression are:
 
-- Predictions are on the right scale, e.g. probabilities of a binary response are between 0 and 1 if we use the logit link. With linear regression, they could be outside [0, 1].
+- Predictions are on the right scale, e.g., probabilities of a binary response are between 0 and 1 if we use the logit link. With linear regression, they could be outside [0, 1].
 - Inferential statistics are less inaccurate. For the linear regression, they depend on the equal variance assumption which is violated for distributions like Poisson or Gamma.
 
 ## Interpretation of effects
@@ -728,21 +729,21 @@ The interpretation of model coefficients in GLMs is guided by the link function.
 $$
   \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right).
 $$
-It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e. the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The *probability* to get a "6" is 1/6 whereas the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds resp. a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. There is no easy way to interpret the coefficients on the original probability scale.
+It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e., the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The *probability* to get a "6" is 1/6 whereas the *odds* to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds, thus a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called *odds ratios*. There is no easy way to interpret the coefficients on the original probability scale.
 
 ![](../figs/log_odds.png)
 
 ## Parameter estimation and deviance
 
-Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*, which is the sum of the loss per row (see table above), eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. It e.g. makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the MSE loss, this equals the usual R-squared.
+Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called *deviance*, which is the sum of the loss per row (see table above), eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. It sometimes also makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the MSE loss, this equals the usual R-squared.
 
 Remark: The deviance of the logistic regression is equivalent to *cross-entropy* or *log loss*. 
 
-**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g. if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
+**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g., if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
 
 ## Example: Poisson count regression
 
-We now model claim counts for the `insuranceData` by a Poisson GLM with its natural link function, the log. It makes sure that we can interpret covariable effects on a relative scale and that predictions are positive.
+We now model claim counts for the `insuranceData` by a Poisson GLM with its natural link function, the log. It makes sure that we can interpret covariate effects on a relative scale and that predictions are positive.
 
 ```{r}
 library(ggplot2)
@@ -773,7 +774,7 @@ mean(dataCar$numclaims) / mean(predict(fit, type = "response")) - 1
 
 ## Example: logistic regression
 
-In order to illustrate logistic regression, we will model the binary variable "claim yes=1/no=0" of the claims data by a logistic regression. Its logit link ensures that predicted probabilities are between 0 and 1 and that covariables act in a multiplicative way on the odds of having a claim.
+In order to illustrate logistic regression, we will model the binary variable "claim yes=1/no=0" of the claims data by a logistic regression. Its logit link ensures that predicted probabilities are between 0 and 1 and that covariates act in a multiplicative way on the odds of having a claim.
 
 ```{r}
 library(ggplot2)

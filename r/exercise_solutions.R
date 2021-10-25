@@ -22,7 +22,7 @@ fit <- lm(price ~ carat + color + cut + clarity, data = dia)
 summary(fit)
 
 # Comments
-# Model quality: About 92% of price variations are explained by covariables.
+# Model quality: About 92% of price variations are explained by covariates.
 #  Typical prediction error is 1157 USD.
 # Effects: All effects point into the intuitively right direction
 #  (larger stones are more expensive, worse color are less expensive etc.)
@@ -70,7 +70,7 @@ library(FNN)
 library(splitTools)
 library(MetricsWeighted)
 
-# Covariables
+# Covariates
 x <- c("carat", "color", "cut", "clarity")
 
 dia <- diamonds[, c("price", x)]
@@ -119,7 +119,7 @@ paramGrid[order(paramGrid$RMSE)[1], ]
 rmse_reg <- c()
 
 for (fold in folds) {
-  fit <- lm(price ~ log(carat) + color + cut + carat, data = train[fold, ])
+  fit <- lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
   pred <- predict(fit, newdata = train[-fold, ])
   rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
 }
@@ -140,7 +140,7 @@ rmse(y_test, pred)
 
 # Regarding the problem that some diamonds seem to appear multiple times in 
 # the data: As an alternative to *grouped* splitting, repeat the last example 
-# also on data deduplicated by `price` and all covariables. Do the results change? 
+# also on data deduplicated by `price` and all covariates. Do the results change? 
 # Do you think these results are overly pessimistic?
 
 library(tidyverse)
@@ -148,7 +148,7 @@ library(FNN)
 library(splitTools)
 library(MetricsWeighted)
 
-# Covariables
+# Covariates
 x <- c("carat", "color", "cut", "clarity")
 
 dia <- diamonds[, c("price", x)]
@@ -197,7 +197,7 @@ paramGrid[order(paramGrid$RMSE)[1], ]
 rmse_reg <- c()
 
 for (fold in folds) {
-  fit <- lm(price ~ log(carat) + color + cut + carat, data = train[fold, ])
+  fit <- lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
   pred <- predict(fit, newdata = train[-fold, ])
   rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
 }
@@ -220,7 +220,7 @@ rmse(y_test, pred)
 #=============================================================================
 
 # Use cross-validation to select the best polynomial degree to represent 
-# `log(carat)` in the Gamma GLM with log-link (with additional covariables 
+# `log(carat)` in the Gamma GLM with log-link (with additional covariates 
 # `color`, `cut`, and `clarity`). Evaluate the result on an independent 
 # test data.
 
@@ -268,14 +268,15 @@ r_squared_gamma(test$price, pred) # 0.982464 relative deviance gain
 
 # Comments: The optimal degree seems to be 8 with a CV deviance of 0.01575.
 # There seems to be some amount of CV overfit as the deviance evaluated on 
-# the test data is worse.
+# the test data is worse. Caution: Instead of using such high degree polynomial, 
+# it is almost always better to use regression splines.
 
 #=============================================================================
 # Exercise 4
 #=============================================================================
 
 # Optional: Compare the linear regression for `price` (using `log(carat)`, 
-# `color`, `cut`, and `clarity` as covariables) with a corresponding Gamma GLM 
+# `color`, `cut`, and `clarity` as covariates) with a corresponding Gamma GLM 
 # with log-link by simple validation. Use once (R)MSE for comparison and once 
 # Gamma deviance. What do you observe?
 
@@ -325,7 +326,7 @@ rmse(dia$price[ix$test], pred)
 #=============================================================================
 
 # Fit a random forest on the claims data, predicting the binary variable `clm` 
-# by the covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, 
+# by the covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, 
 # and `agecat`. Choose a suitable tree-depth by maximizing OOB error on the 
 # training data. Make sure to fit a *probability random forest*, i.e. 
 # predicting probabilities, not classes. Additionally, make sure to work with 
@@ -438,7 +439,7 @@ fl <- flashlight(model = fit,
 plot(light_profile(fl, v = "carat", n_bins = 40)) +
   labs(title = "Partial dependence plot for carat", y = "price")
 
-# Comment: The argument is called "monotone_constraints". For each covariable,
+# Comment: The argument is called "monotone_constraints". For each covariate,
 # a value 0 means no constraint, a value -1 means a negative constraints,
 # and a value 1 means positive constraint. Applying the constraint now leads
 # to a monotonically increasing partial dependence plot. This is extremely
@@ -450,7 +451,7 @@ plot(light_profile(fl, v = "carat", n_bins = 40)) +
 #=============================================================================
 
 # Develop a strong XGBoost model for the claims data set with binary response 
-# `clm` and covariables `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, 
+# `clm` and covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, 
 # and `agecat`. Use a clean cross-validation/test approach. 
 # Use log loss both as objective and evaluation metric. Interpret its results.
 
@@ -617,7 +618,7 @@ loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
 }
 
-# Response and covariables
+# Response and covariates
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
@@ -645,7 +646,7 @@ prep_nn <- function(X, x = c("carat", "color", "cut", "clarity"), scaling = sc) 
   scale(X, center = scaling$center, scale = scaling$scale)
 }
 
-# Input layer: we have 4 covariables
+# Input layer: we have 4 covariates
 input <- layer_input(shape = 4)
 
 # Two hidden layers with contracting number of nodes
