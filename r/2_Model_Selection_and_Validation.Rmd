@@ -13,7 +13,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE
+)
 ```
 
 # Introduction
@@ -99,9 +103,11 @@ y_valid <- valid$price
 X_train <- scale(data.matrix(train[, x]))
 
 # Apply training scale to validation data
-X_valid <- scale(data.matrix(valid[, x]),
-                 center = attr(X_train, "scaled:center"),
-                 scale = attr(X_train, "scaled:scale"))
+X_valid <- scale(
+  data.matrix(valid[, x]),
+  center = attr(X_train, "scaled:center"),
+  scale = attr(X_train, "scaled:scale")
+)
 
 # Tuning grid with different values for parameter k
 paramGrid <- data.frame(train = NA, valid = NA, k = 1:20)
@@ -246,7 +252,12 @@ dia <- diamonds[, c("price", x)]
 # dia <- unique(dia)  #  -> Exercise 2
 
 # Split diamonds into 90% for training and 10% for testing
-ix <- partition(dia$price, p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
+ix <- partition(
+  dia$price, 
+  p = c(train = 0.9, test = 0.1), 
+  seed = 9838, 
+  type = "basic"
+)
 
 train <- dia[ix$train, ]
 test <- dia[ix$test, ]
@@ -258,9 +269,11 @@ y_test <- test$price
 X_train <- scale(data.matrix(train[, x]))
 
 # Apply training scale to test data
-X_test <- scale(data.matrix(test[, x]),
-                center = attr(X_train, "scaled:center"),
-                scale = attr(X_train, "scaled:scale"))
+X_test <- scale(
+  data.matrix(test[, x]),
+  center = attr(X_train, "scaled:center"),
+  scale = attr(X_train, "scaled:scale")
+)
 
 # Split training data into folds
 nfolds <- 5
@@ -274,8 +287,12 @@ for (i in 1:nrow(paramGrid)) {
   scores <- c()
   
   for (fold in folds) {
-    pred <- knn.reg(X_train[fold, ], test = X_train[-fold, ], 
-                    k = k, y = y_train[fold])$pred
+    pred <- knn.reg(
+      X_train[fold, ], 
+      test = X_train[-fold, ], 
+      k = k, 
+      y = y_train[fold]
+    )$pred
     scores[length(scores) + 1] <- rmse(y_train[-fold], pred)
   }
   paramGrid[i, "RMSE"] <- mean(scores)
@@ -288,7 +305,10 @@ paramGrid[order(paramGrid$RMSE)[1], ]
 rmse_reg <- c()
 
 for (fold in folds) {
-  fit <- lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
+  fit <- lm(
+    price ~ log(carat) + color + cut + clarity, 
+    data = train[fold, ]
+  )
   pred <- predict(fit, newdata = train[-fold, ])
   rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
 }

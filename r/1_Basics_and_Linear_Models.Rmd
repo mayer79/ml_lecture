@@ -13,12 +13,13 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning = FALSE,
-                      message = FALSE, 
-                      fig.height = 5,
-                      fig.width = 6)
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE,
+  message = FALSE, 
+  fig.height = 5,
+  fig.width = 6
+)
 ```
 
 # Basics
@@ -348,6 +349,7 @@ Let us now extend the simple linear regression for diamond prices by adding dumm
 
 ```{r}
 library(ggplot2)
+
 fit <- lm(price ~ carat + factor(color, ordered = FALSE), data = diamonds)
 summary(fit)
 ```
@@ -390,6 +392,7 @@ And here the model including systematic predictions.
 
 ```{r}
 library(tidyverse)
+
 fit <- lm(price ~ poly(carat, 3), data = diamonds)
 
 # Plot effect of carat on average price
@@ -423,15 +426,29 @@ Let us now fit a linear regression for diamond prices with covariates `carat` an
 ```{r}
 library(tidyverse)
 
-no_interaction <- lm(price ~ carat + factor(color, ordered = FALSE), data = diamonds)
-with_interaction <- lm(price ~ carat * factor(color, ordered = FALSE), data = diamonds)
+no_interaction <- lm(
+  price ~ carat + factor(color, ordered = FALSE), 
+  data = diamonds
+)
+with_interaction <- lm(
+  price ~ carat * factor(color, ordered = FALSE), 
+  data = diamonds
+)
 
 # Plot effect of carat grouped by color
-to_plot <- expand.grid(carat = seq(0.3, 2.5, by = 0.1), 
-            color = levels(diamonds$color)) %>% 
-  mutate(no_interaction = predict(no_interaction, .),
-         with_interaction = predict(with_interaction, .)) %>% 
-  pivot_longer(ends_with("interaction"), names_to = "model", values_to = "prediction")
+to_plot <- expand.grid(
+    carat = seq(0.3, 2.5, by = 0.1), 
+    color = levels(diamonds$color)
+  ) %>% 
+  mutate(
+    no_interaction = predict(no_interaction, .),
+    with_interaction = predict(with_interaction, .)
+  ) %>% 
+  pivot_longer(
+    ends_with("interaction"), 
+    names_to = "model", 
+    values_to = "prediction"
+  )
 
 ggplot(to_plot, aes(x = carat, y = prediction, group = color, color = color)) +
   geom_line() +
@@ -620,7 +637,10 @@ To end the section on linear regression, we extend the log-log-example above by 
 library(tidyverse)
 
 dia <- diamonds %>% 
-  mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
+  mutate_at(
+    c("color", "cut", "clarity"), 
+    function(z) factor(z, ordered = FALSE)
+  )
 
 fit <- lm(log(price) ~ log(carat) + color + cut + clarity, data = dia)
 summary(fit)
@@ -642,7 +662,10 @@ library(tidyverse)
 
 # Turn ordered factors into unordered ones
 dia <- diamonds %>% 
-  mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
+  mutate_at(
+    c("color", "cut", "clarity"), 
+    function(z) factor(z, ordered = FALSE)
+  )
 ```
 
 # Generalized Linear Model
@@ -748,6 +771,7 @@ We now model claim counts for the `insuranceData` by a Poisson GLM with its natu
 ```{r}
 library(ggplot2)
 library(insuranceData)
+
 data(dataCar)
 
 summary(dataCar)
@@ -757,8 +781,11 @@ ggplot(dataCar, aes(x = numclaims)) +
   geom_bar(fill = "orange") +
   ggtitle("Distribution of 'numclaims'")
 
-fit <- glm(numclaims ~ veh_value + veh_body + veh_age + gender + area + agecat,
-           data = dataCar, family = poisson(link = "log"))
+fit <- glm(
+  numclaims ~ veh_value + veh_body + veh_age + gender + area + agecat,
+  data = dataCar, 
+  family = poisson(link = "log")
+)
 summary(fit)
 
 # Bias on frequency scale?
@@ -779,6 +806,7 @@ In order to illustrate logistic regression, we will model the binary variable "c
 ```{r}
 library(ggplot2)
 library(insuranceData)
+
 data(dataCar)
 
 # Distribution of the claim count
@@ -786,8 +814,11 @@ ggplot(dataCar, aes(x = factor(clm))) +
   geom_bar(fill = "orange") +
   ggtitle("Distribution of 'clm'")
 
-fit <- glm(clm ~ veh_value + veh_body + veh_age + gender + area + agecat,
-           data = dataCar, family = binomial(link = "logit"))
+fit <- glm(
+  clm ~ veh_value + veh_body + veh_age + gender + area + agecat,
+  data = dataCar, 
+  family = binomial(link = "logit")
+)
 summary(fit)
 ```
 
@@ -799,15 +830,17 @@ summary(fit)
 
 ## Exercises
 
-Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the coefficients with those from the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables. Calculate the relative bias of the predictions on the US Dollar scale.
+Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the coefficients with those from the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables. Calculate the relative bias of the predictions on the US Dollar scale
 
 ```{r}
 library(tidyverse)
 
 # Turn ordered factors into unordered ones
 dia <- diamonds %>% 
-  mutate_at(c("color", "cut", "clarity"), function(z) factor(z, ordered = FALSE))
-
+  mutate_at(
+    c("color", "cut", "clarity"), 
+    function(z) factor(z, ordered = FALSE)
+  )
 ```
 
 # Chapter Summary
