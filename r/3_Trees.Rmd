@@ -13,7 +13,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE
+)
 ```
 
 # Introduction
@@ -42,15 +46,18 @@ We will use the `dataCar` data set to predict the claim probability with a decis
 library(rpart)
 library(rpart.plot)
 library(insuranceData)
+
 data(dataCar)
 
-fit <- rpart(clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
-             data = dataCar,
-             method = "class", 
-             parms = list(split = "information"),
-             xval = 0,
-             cp = -1,
-             maxdepth = 3)
+fit <- rpart(
+  clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
+  data = dataCar,
+  method = "class", 
+  parms = list(split = "information"),
+  xval = 0,
+  cp = -1,
+  maxdepth = 3
+)
 
 prp(fit, type = 2, extra = 7, shadow.col = "gray",
     faclen = 0, box.palette = "auto", branch.type = 4, 
@@ -108,11 +115,13 @@ library(MetricsWeighted)
 # Train/test split
 ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
 
-fit <- ranger(price ~ carat + color + cut + clarity, 
-              num.trees = 500,
-              data = diamonds[ix$train, ], 
-              importance = "impurity",
-              seed = 83)
+fit <- ranger(
+  price ~ carat + color + cut + clarity, 
+  num.trees = 500,
+  data = diamonds[ix$train, ], 
+  importance = "impurity",
+  seed = 83
+)
 fit
 
 # Performance on test data
@@ -158,22 +167,28 @@ imp <- imp / sum(imp)
 barplot(imp, horiz = TRUE, col = "orange")
 
 # Effects on the prediction, averaged over all interactions
-fl <- flashlight(model = fit, 
-                 y = "price", 
-                 data = diamonds[ix$train, ], 
-                 label = "rf", 
-                 predict_function = function(m, X) predict(m, X)$predictions)
+fl <- flashlight(
+  model = fit, 
+  y = "price", 
+  data = diamonds[ix$train, ], 
+  label = "rf", 
+  predict_function = function(m, X) predict(m, X)$predictions
+)
 
-plot(light_profile(fl, v = "carat", n_bins = 40)) +
+light_profile(fl, v = "carat", n_bins = 40) %>% 
+  plot() +
   labs(title = "Partial dependence plot for carat", y = "price")
 
-plot(light_profile(fl, v = "clarity")) +
+light_profile(fl, v = "clarity") %>% 
+  plot() +
   labs(title = "Partial dependence plot for clarity", y = "price")
 
-plot(light_profile(fl, v = "cut")) +
+light_profile(fl, v = "cut") %>% 
+  plot() +
   labs(title = "Partial dependence plot for cut", y = "price")
 
-plot(light_profile(fl, v = "color")) +
+light_profile(fl, v = "color") %>% 
+  plot() +
   labs(title = "Partial dependence plot for color", y = "price")
 ```
 
@@ -342,7 +357,7 @@ if (tune) {
     subsample = c(0.8, 1), 
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
-     #   tree_method = "hist",   # when data is large
+    # tree_method = "hist",   # when data is large
     min_split_loss = c(0, 1e-04)
   )
 
@@ -408,22 +423,28 @@ imp <- xgb.importance(model = fit)
 xgb.plot.importance(imp)
 
 # Partial dependence plots
-fl <- flashlight(model = fit, 
-                 y = "price", 
-                 data = diamonds[ix$train, ], 
-                 label = "xgb", 
-                 predict_function = function(m, X) predict(m, prep_xgb(X)))
+fl <- flashlight(
+  model = fit, 
+  y = "price", 
+  data = diamonds[ix$train, ], 
+  label = "xgb", 
+  predict_function = function(m, X) predict(m, prep_xgb(X))
+)
 
-plot(light_profile(fl, v = "carat", n_bins = 40)) +
+light_profile(fl, v = "carat", n_bins = 40) %>% 
+  plot() +
   labs(title = "Partial dependence plot for carat", y = "price")
 
-plot(light_profile(fl, v = "clarity")) +
+light_profile(fl, v = "clarity") %>% 
+  plot() +
   labs(title = "Partial dependence plot for clarity", y = "price")
 
-plot(light_profile(fl, v = "cut")) +
+light_profile(fl, v = "cut") %>% 
+  plot() +
   labs(title = "Partial dependence plot for cut", y = "price")
 
-plot(light_profile(fl, v = "color")) +
+light_profile(fl, v = "color") %>% 
+  plot() +
   labs(title = "Partial dependence plot for color", y = "price")
 ```
 

@@ -13,7 +13,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE
+)
 ```
 
 # Introduction
@@ -75,12 +79,16 @@ To gain confidence in neural nets, we first show that parameters estimated by a 
 ```{r}
 library(tidyverse)
 library(keras)
+
 # use_python(path to python)
 
 # RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
-  sqrt(k_mean(k_square(y_true - y_pred)))
-})
+metric_rmse <- custom_metric(
+  name = "rmse", 
+  metric_fn = function(y_true, y_pred) {
+    sqrt(k_mean(k_square(y_true - y_pred)))
+  }
+)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
@@ -92,9 +100,10 @@ output <- input %>%
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
+
 nn %>% compile(
   optimizer = optimizer_adam(lr = 1),
-  loss = 'mse',
+  loss = "mse",
   metrics = metric_rmse
 )
 
@@ -151,12 +160,16 @@ The following code is identical to the last one up to one extra line of code spe
 ```{r}
 library(tidyverse)
 library(keras)
+
 # use_python(path to python...)
 
 # RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
-  sqrt(k_mean(k_square(y_true - y_pred)))
-})
+metric_rmse <- custom_metric(
+  name = "rmse", 
+  metric_fn = function(y_true, y_pred) {
+    sqrt(k_mean(k_square(y_true - y_pred)))
+  }
+)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
@@ -169,9 +182,10 @@ output <- input %>%
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
+
 nn %>% compile(
   optimizer = optimizer_adam(lr = 1),
-  loss = 'mse',
+  loss = "mse",
   metrics = metric_rmse
 )
 
@@ -221,27 +235,31 @@ Again, the code is very similar to the last one, with the exception of using a h
 ```{r}
 library(tidyverse)
 library(keras)
+
 # use_python(path to python...)
 
 # RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
-  sqrt(k_mean(k_square(y_true - y_pred)))
-})
+metric_rmse <- custom_metric(
+  name = "rmse", 
+  metric_fn = function(y_true, y_pred) {
+    sqrt(k_mean(k_square(y_true - y_pred)))
+  }
+)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # One hidden layer
 output <- input %>%
-  layer_dense(units = 5, activation = 'tanh') %>% 
-  layer_dense(units = 1, activation = 'linear')
+  layer_dense(units = 5, activation = "tanh") %>% 
+  layer_dense(units = 1, activation = "linear")
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 
 nn %>% compile(
   optimizer = optimizer_adam(lr = 0.2),
-  loss = 'mse',
+  loss = "mse",
   metrics = metric_rmse
 )
 
@@ -360,12 +378,16 @@ We will now fit a neural net with two hidden layers (30 and 15 nodes) and a tota
 library(tidyverse)
 library(splitTools)
 library(keras)
+
 # use_python(path to python...)
 
 # RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric("rmse", function(y_true, y_pred) {
-  sqrt(k_mean(k_square(y_true - y_pred)))
-})
+metric_rmse <- custom_metric(
+  name = "rmse", 
+  metric_fn = function(y_true, y_pred) {
+    sqrt(k_mean(k_square(y_true - y_pred)))
+  }
+)
 
 # Response and covariates
 y <- "price"
@@ -377,7 +399,8 @@ ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
 train <- diamonds[ix$train, ]
 valid <- diamonds[ix$valid, ]
 
-y_train <- as.numeric(train[[y]])  # integers are not auto-cast by all tf versions
+# attention: integers are not auto-cast by all tf versions
+y_train <- as.numeric(train[[y]])  
 y_valid <- as.numeric(valid[[y]])
 
 X_train <- train[, x]
@@ -400,16 +423,19 @@ input <- layer_input(shape = 4)
 
 # Two hidden layers with contracting number of nodes
 output <- input %>%
-  layer_dense(units = 30, activation = 'relu') %>% 
-  layer_dense(units = 15, activation = 'relu') %>% 
-  layer_dense(units = 1, activation = 'linear')
+  layer_dense(units = 30, activation = "relu") %>% 
+  layer_dense(units = 15, activation = "relu") %>% 
+  layer_dense(units = 1, activation = "linear")
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
+
+tensorflow::set_random_seed(499)
+
 nn %>% compile(
   optimizer = optimizer_adam(lr = 0.3),
-  loss = 'mse',
+  loss = "mse",
   metrics = metric_rmse
 )
 
@@ -450,22 +476,28 @@ fl <- flashlight(
 )
 
 # Performance on validation data
-plot(light_performance(fl), fill = "orange")
+light_performance(fl) %>% 
+  plot(fill = "orange")
 
 # Permutation importance
-plot(light_importance(fl, v = x), fill = "orange")
+light_importance(fl, v = x) %>% 
+  plot(fill = "orange")
 
 # Partial dependence plots
-plot(light_profile(fl, v = "carat", n_bins = 40)) +
+light_profile(fl, v = "carat", n_bins = 40) %>% 
+  plot() +
   labs(title = "Partial dependence plot for carat", y = "price")
 
-plot(light_profile(fl, v = "clarity")) +
+light_profile(fl, v = "clarity") %>% 
+  plot() +
   labs(title = "Partial dependence plot for clarity", y = "price")
 
-plot(light_profile(fl, v = "cut")) +
+light_profile(fl, v = "cut") %>% 
+  plot() +
   labs(title = "Partial dependence plot for cut", y = "price")
 
-plot(light_profile(fl, v = "color")) +
+light_profile(fl, v = "color") %>%
+  plot() +
   labs(title = "Partial dependence plot for color", y = "price")
 ```
 
@@ -483,6 +515,7 @@ library(tidyverse)
 library(keras)
 library(splitTools)
 library(insuranceData)
+
 data(dataCar)
 
 # use_python(path to python...)
@@ -526,26 +559,27 @@ input_veh_body <- layer_input(shape = 1, name = "veh_body")
 
 # Embedding of veh_body
 emb_veh_body <- input_veh_body %>% 
-  layer_embedding(input_dim = nlevels(dataCar$veh_body) + 1, 
-                  output_dim = 1) %>% 
+  layer_embedding(input_dim = nlevels(dataCar$veh_body) + 1, output_dim = 1) %>% 
   layer_flatten()
 
 # Combine dense input and embedding
-outputs <- list(input_dense, emb_veh_body) %>% 
-      layer_concatenate() %>% 
-      layer_dense(30, activation = "tanh") %>% 
-      layer_dense(1, activation = "sigmoid")
+outputs <- list(input_dense, emb_veh_body) %>%
+  layer_concatenate() %>% 
+  layer_dense(30, activation = "tanh") %>% 
+  layer_dense(1, activation = "sigmoid")
 
 # Input
-inputs <- list(dense1 = input_dense, 
-               veh_body = input_veh_body)
+inputs <- list(dense1 = input_dense, veh_body = input_veh_body)
 
 # Create and compile model
 nn <- keras_model(inputs = inputs, outputs = outputs)
 summary(nn)
+
+tensorflow::set_random_seed(443)
+
 nn %>% compile(
   optimizer = optimizer_adam(lr = 0.0001),
-  loss = 'binary_crossentropy'
+  loss = "binary_crossentropy"
 )
 
 # Callbacks
@@ -585,22 +619,28 @@ fl <- flashlight(
 )
 
 # Performance on validation data
-plot(light_performance(fl), fill = "orange")
+light_performance(fl) %>% 
+  plot(fill = "orange")
 
 # Permutation importance
-plot(light_importance(fl, v = x), fill = "orange")
+light_importance(fl, v = x) %>% 
+  plot(fill = "orange")
 
 # Partial dependence
-plot(light_profile(fl, v = "veh_value", breaks = seq(0, 5, by = 0.1))) %>% 
+light_profile(fl, v = "veh_value", breaks = seq(0, 5, by = 0.1)) %>% 
+  plot() %>% 
   labs(title = "Partial dependence plot for veh_value", y = "price")
 
-plot(light_profile(fl, v = "veh_body"), rotate_x = TRUE) +
+light_profile(fl, v = "veh_body") %>% 
+  plot(rotate_x = TRUE) +
   labs(title = "Partial dependence plot for veh_body", y = "price")
 
-plot(light_profile(fl, v = "area")) +
+light_profile(fl, v = "area") %>% 
+  plot() +
   labs(title = "Partial dependence plot for area", y = "price")
 
-plot(light_profile(fl, v = "agecat")) +
+light_profile(fl, v = "agecat") %>% 
+  plot() +
   labs(title = "Partial dependence plot for agecat", y = "price")
 ```
 
