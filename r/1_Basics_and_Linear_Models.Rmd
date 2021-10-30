@@ -830,7 +830,7 @@ summary(fit)
 
 ## Exercises
 
-Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the coefficients with those from the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables. Calculate the relative bias of the predictions on the US Dollar scale.
+Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, `color`, `cut`, and `clarity`. Compare the coefficients with those from the corresponding linear regression with `log(price)` as response. Use dummy coding for the three categorical variables. Calculate the relative bias of the predictions on the US Dollar scale
 
 ```{r}
 library(tidyverse)

@@ -399,7 +399,7 @@ ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
 train <- diamonds[ix$train, ]
 valid <- diamonds[ix$valid, ]
 
-# attention: integers are not auto-cast by all tf versions
+# Integers are not auto-cast by all TF versions...
 y_train <- as.numeric(train[[y]])  
 y_valid <- as.numeric(valid[[y]])
 
@@ -418,6 +418,10 @@ prep_nn <- function(X, x = c("carat", "color", "cut", "clarity"), scaling = sc) 
   scale(X, center = scaling$center, scale = scaling$scale)
 }
 
+# Trying to make things reproducible...
+k_clear_session()
+tensorflow::set_random_seed(499)
+
 # Input layer: we have 4 covariates
 input <- layer_input(shape = 4)
 
@@ -430,8 +434,6 @@ output <- input %>%
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
-
-tensorflow::set_random_seed(499)
 
 nn %>% compile(
   optimizer = optimizer_adam(lr = 0.3),
@@ -553,6 +555,10 @@ prep_nn <- function(X, dense = x_dense, emb = x_emb, scaling = sc) {
   c(list(dense1 = X_dense), emb)
 }
 
+# Trying to make things reproducible...
+k_clear_session()
+tensorflow::set_random_seed(469)
+
 # Inputs
 input_dense <- layer_input(shape = length(x_dense), name = "dense1")
 input_veh_body <- layer_input(shape = 1, name = "veh_body")
@@ -574,8 +580,6 @@ inputs <- list(dense1 = input_dense, veh_body = input_veh_body)
 # Create and compile model
 nn <- keras_model(inputs = inputs, outputs = outputs)
 summary(nn)
-
-tensorflow::set_random_seed(443)
 
 nn %>% compile(
   optimizer = optimizer_adam(lr = 0.0001),
@@ -614,7 +618,10 @@ fl <- flashlight(
   y = y, 
   data = dataCar[ix$valid, ], 
   label = "nn", 
-  metrics = list(logLoss = logLoss, `R squared` = r_squared_bernoulli),
+  metrics = list(
+    logLoss = logLoss, 
+    `R squared` = r_squared_bernoulli
+  ),
   predict_function = function(m, X) predict(m, prep_nn(X), batch_size = 1000)
 )
 
@@ -646,12 +653,14 @@ light_profile(fl, v = "agecat") %>%
 
 # Exercises
 
-1. Fit diamond prices by gamma deviance loss with log-link (exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it (for simplicity) on the validation data. Interpret the final model. (Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh".)
+1. Fit diamond prices by gamma deviance loss with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it (for simplicity) on the validation dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
+
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
 }
 ```
+
 2. Study either the optional claims data example or build your own neural net, predicting claim yes/no. For simplicity, you can represent the categorical feature `veh_body` by integers.
 
 # Neural Network Slang
