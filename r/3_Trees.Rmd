@@ -200,7 +200,7 @@ light_profile(fl, v = "color") %>%
 ## Exercises
 
 1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
-2. Fit a random forest on the claims data, predicting the binary variable `clm` by the covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e., predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Use a simple train/test split. Interpret the results by split gain importance and partial dependence plots.
+2. Fit a random forest on the claims data for the binary variable `clm` using covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree depth either by cross-validation or by minimizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e., predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Evaluate the final model on an independent test dataset. Interpret the results by split gain importance and partial dependence plots.
 
 # Gradient Boosted Trees
 

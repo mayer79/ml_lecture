@@ -335,7 +335,7 @@ pred <- predict(fit, dia[ix$test, ])$predictions
 rmse(dia$price[ix$test], pred)
 ```
 
-**Comment:* The results are essentially identical because log is a monotonic transformation. Differences might come from implementation tricks of `ranger()`.
+**Comment:* The results are essentially identical because log is a monotonic transformation. Differences might come from implementation tricks.
 
 ### Exercise 2
 
@@ -373,13 +373,13 @@ r_squared(dataCar[ix$test, "clm"], pred) # 0.002069925
 r_squared_bernoulli(dataCar[ix$test, "clm"], pred) # 0.004246408
 ```
 
-**Comment:** Test performance with small tree depth 5 seem to be best according to OOB results. When studying relative performance metrics like the relative deviance gain, we can see that performance of the model is very low. TPL claims seem to be mostly determined by bad luck, which makes sense.
+**Comment:** Test performance with small tree depth seems to be best. When studying relative performance metrics like the relative deviance gain, we can see that performance of the model is very low. TPL claims seem to be mostly determined by bad luck, which makes sense.
 
 ```{r}
 # Variable importance regarding Gini improvement
 imp <- sort(importance(fit))
 imp <- imp / sum(imp)
-barplot(imp, horiz = TRUE, col = "orange", cex.names = 0.8)
+barplot(imp, horiz = TRUE, col = "orange", cex.names = 0.8, las = 2)
 
 # Partial dependence plot for the strongest predictor "veh_value"
 fl <- flashlight(
