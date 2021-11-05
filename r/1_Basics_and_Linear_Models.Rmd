@@ -706,7 +706,7 @@ The following table lists some of the most used GLMs.
 |------------|-------------|-----------------------|-------------|---------------|------------------|----------------
 | Linear     | Normal      | $(-\infty, \infty)$   | Identity    | Identity      | MSE              | $(y - \hat y)^2$
 | Logistic   | Binary      | $\{0, 1\}$            | logit       | logit         | Binary cross-entropy    | $-(y\log(\hat y) + (1-y) \log(1-\hat y))$
-| Poisson    | Poisson     | $\{0, 1, \dots\}$     | log         | log           | Poisson deviance | $2(y \log(y / \hat y) - (y - \hat y))$
+| Poisson    | Poisson     | $[0, \infty)$         | log         | log           | Poisson deviance | $2(y \log(y / \hat y) - (y - \hat y))$
 | Gamma      | Gamma       | $(0, \infty)$         | 1/x         | log           | Gamma deviance   | $2 ((y - \hat y) / \hat y - \log(y / \hat y))$
 | Multinomial| Multinomial | $\{C_1, \dots, C_m\}$ | mlogit      | mlogit        | Categorical cross-entropy    | $-\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$
 
@@ -739,7 +739,7 @@ GLMs deal with such problems by using a suitable link function like the logarith
 
 Further advantages of the GLM over the linear regression are:
 
-- Predictions are on the right scale, e.g., probabilities of a binary response are between 0 and 1 if we use the logit link. With linear regression, they could be outside [0, 1].
+- Predictions are on the right scale: For instance, probabilities of a binary response are between 0 and 1 when using the logit link. With linear regression, they could be outside [0, 1]. Similarly, predictions of a Poisson or Gamma regression with log link are strictly positive, while they could be even negative with linear regression.
 - Inferential statistics are less inaccurate. For the linear regression, they depend on the equal variance assumption which is violated for distributions like Poisson or Gamma.
 
 ## Interpretation of effects

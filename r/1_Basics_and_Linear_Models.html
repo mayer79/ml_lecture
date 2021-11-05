@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2021-10-30" />
+<meta name="date" content="2021-11-05" />
 
 <title>Basics and Linear Models</title>
 
@@ -327,7 +327,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Basics and Linear Models</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2021-10-30</h4>
+<h4 class="date">2021-11-05</h4>
 
 </div>
 
@@ -1096,7 +1096,7 @@ div.tocify {
 <tr class="odd">
 <td>Poisson</td>
 <td>Poisson</td>
-<td><span class="math inline">\(\{0, 1, \dots\}\)</span></td>
+<td><span class="math inline">\([0, \infty)\)</span></td>
 <td>log</td>
 <td>log</td>
 <td>Poisson deviance</td>
@@ -1150,7 +1150,7 @@ div.tocify {
 <p>GLMs deal with such problems by using a suitable link function like the logarithm. At least for the first two examples, this could not be achieved by a linear regression with log response because log(0) is not defined.</p>
 <p>Further advantages of the GLM over the linear regression are:</p>
 <ul>
-<li>Predictions are on the right scale, e.g., probabilities of a binary response are between 0 and 1 if we use the logit link. With linear regression, they could be outside [0, 1].</li>
+<li>Predictions are on the right scale: For instance, probabilities of a binary response are between 0 and 1 when using the logit link. With linear regression, they could be outside [0, 1]. Similarly, predictions of a Poisson or Gamma regression with log link are strictly positive, while they could be even negative with linear regression.</li>
 <li>Inferential statistics are less inaccurate. For the linear regression, they depend on the equal variance assumption which is violated for distributions like Poisson or Gamma.</li>
 </ul>
 </div>
@@ -1341,7 +1341,7 @@ div.tocify {
 </div>
 <div id="exercises-1" class="section level2" number="3.7">
 <h2 number="3.7"><span class="header-section-number">3.7</span> Exercises</h2>
-<p>Fit a Gamma regression with log-link to explain diamond prices by <code>log(carat)</code>, <code>color</code>, <code>cut</code>, and <code>clarity</code>. Compare the coefficients with those from the corresponding linear regression with <code>log(price)</code> as response. Use dummy coding for the three categorical variables. Calculate the relative bias of the predictions on the US Dollar scale.</p>
+<p>Fit a Gamma regression with log-link to explain diamond prices by <code>log(carat)</code>, <code>color</code>, <code>cut</code>, and <code>clarity</code>. Compare the coefficients with those from the corresponding linear regression with <code>log(price)</code> as response. Use dummy coding for the three categorical variables. Calculate the relative bias of the predictions on the US Dollar scale</p>
 <div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Turn ordered factors into unordered ones</span></span>
