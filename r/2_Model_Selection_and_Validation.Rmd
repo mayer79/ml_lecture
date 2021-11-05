@@ -91,7 +91,8 @@ library(MetricsWeighted)
 x <- c("carat", "color", "cut", "clarity")
 
 # Split diamonds into 80% for "training" and 20% for validation
-ix <- partition(diamonds$price, p = c(train = 0.8, valid = 0.2), seed = 9838, type = "basic")
+ix <- partition(diamonds$price, p = c(train = 0.8, valid = 0.2), 
+                seed = 9838, type = "basic")
 
 train <- diamonds[ix$train, ]
 valid <- diamonds[ix$valid, ]
@@ -252,12 +253,8 @@ dia <- diamonds[, c("price", x)]
 # dia <- unique(dia)  #  -> Exercise 2
 
 # Split diamonds into 90% for training and 10% for testing
-ix <- partition(
-  dia$price, 
-  p = c(train = 0.9, test = 0.1), 
-  seed = 9838, 
-  type = "basic"
-)
+ix <- partition(dia$price, p = c(train = 0.9, test = 0.1),
+                seed = 9838, type = "basic")
 
 train <- dia[ix$train, ]
 test <- dia[ix$test, ]
@@ -357,9 +354,8 @@ In this chapter, we have met strategies to estimate model performance in a fair 
 
 # Exercises
 
-1. Apply *stratified* splitting (on the response `price`) throughout the last example. Do the results change?
-2. Regarding the problem that some diamonds seem to appear multiple times in the data: As an alternative to *grouped* splitting, repeat the last example also on data deduplicated by `price` and all covariates. Do the results change? Do you think these results are overly pessimistic?
-3. Use cross-validation to select the best polynomial degree to represent `log(carat)` in the Gamma GLM with log-link (with additional covariates `color`, `cut`, and `clarity`). Evaluate the result on an independent test data.
-4. Optional: Compare the linear regression for `price` (using `log(carat)`, `color`, `cut`, and `clarity` as covariates) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?
+1. Regarding the problem that some diamonds seem to appear multiple times in the data: As an alternative to *grouped* splitting, repeat the last example also on data deduplicated by `price` and all covariates. Do the results change? Which results do you trust more?
+2. Use cross-validation to select the best polynomial degree to represent `log(carat)` in the Gamma GLM with log-link (with additional covariates `color`, `cut`, and `clarity`). Evaluate the result on an independent test data.
+3. Optional: Compare the linear regression for `price` (using `log(carat)`, `color`, `cut`, and `clarity` as covariates) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?
 
 

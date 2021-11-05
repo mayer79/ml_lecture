@@ -78,91 +78,6 @@ library(MetricsWeighted)
 # Covariates
 x <- c("carat", "color", "cut", "clarity")
 
-dia <- diamonds[, c("price", x)]
-
-# Split diamonds into 90% for training and 10% for testing
-ix <- partition(
-  dia$price, 
-  p = c(train = 0.9, test = 0.1), 
-  seed = 9838, 
-  type = "stratified"
-)
-
-train <- dia[ix$train, ]
-test <- dia[ix$test, ]
-
-y_train <- train$price
-y_test <- test$price
-
-# Standardize training data
-X_train <- scale(data.matrix(train[, x]))
-
-# Apply training scale to test data
-X_test <- scale(
-  data.matrix(test[, x]),
-  center = attr(X_train, "scaled:center"),
-  scale = attr(X_train, "scaled:scale")
-)
-
-# Split training data into folds
-nfolds <- 5
-folds <- create_folds(y_train, k = nfolds, seed = 9838, type = "stratified")
-
-# Cross-validation performance of k-nearest-neighbour for k = 1-20
-paramGrid <- data.frame(RMSE = NA, k = 1:20)
-
-for (i in 1:nrow(paramGrid)) {
-  k <- paramGrid[i, "k"]
-  scores <- c()
-  
-  for (fold in folds) {
-    pred <- knn.reg(
-      X_train[fold, ], 
-      test = X_train[-fold, ], 
-      k = k, 
-      y = y_train[fold]
-    )$pred
-    scores[length(scores) + 1] <- rmse(y_train[-fold], pred)
-  }
-  paramGrid[i, "RMSE"] <- mean(scores)
-}
-
-# Best k along with its CV performance
-paramGrid[order(paramGrid$RMSE)[1], ]
-
-# Cross-validation performance of linear regression
-rmse_reg <- c()
-
-for (fold in folds) {
-  fit <- lm(
-    price ~ log(carat) + color + cut + clarity, 
-    data = train[fold, ]
-  )
-  pred <- predict(fit, newdata = train[-fold, ])
-  rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
-}
-(rmse_reg <- mean(rmse_reg))
-
-# The overall best model is 6-nearest-neighbour
-pred <- knn.reg(X_train, test = X_test, k = 6, y = y_train)$pred
-
-# Test performance for the best model
-rmse(y_test, pred)
-```
-
-**Comment:** The CV results are slightly better and the test performance is clearly worse. Both might be by chance.
-
-## Exercise 2
-
-```{r}
-library(tidyverse)
-library(FNN)
-library(splitTools)
-library(MetricsWeighted)
-
-# Covariates
-x <- c("carat", "color", "cut", "clarity")
-
 dia <- unique(diamonds[, c("price", x)])
 
 # Split diamonds into 90% for training and 10% for testing
@@ -237,7 +152,7 @@ rmse(y_test, pred)
 
 **Comments:** The test performance of the best model (5-NN) seems clearly worse than the one without deduplication (~700 USD RMSE vs ~600). CV performance well corresponds to test performance. Overall, this is probably the more realistic performance than the one obtained from the original data set. Still, as certain rows could be identical by chance, our deduplication approach might be slightly too conservative. The true performance will probably be somewhere between the two approaches.
 
-## Exercise 3
+## Exercise 2
 
 ```{r}
 library(tidyverse)
@@ -299,7 +214,7 @@ r_squared_gamma(test$price, pred) # 0.982464 relative deviance gain
 
 **Comments:** The optimal degree seems to be 8 with a CV deviance of 0.01575. There seems to be some amount of CV overfit as the deviance evaluated on the test data is worse. Caution: Instead of using such high degree polynomial, it is almost always better to use regression splines.
 
-## Exercise 4 (optional)
+## Exercise 3 (optional)
 
 Solution not shown here.
 
