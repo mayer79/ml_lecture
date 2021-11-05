@@ -546,8 +546,8 @@ sc <- list(
   scale = attr(scale(data.matrix(X_train[, x_dense])), "scaled:scale")
 )
 
-# Function that maps data.frame to scaled network input (a list with a dense part 
-# and each embedding as separat integer vector)
+# Function that maps data.frame to scaled network input (a list with a dense 
+# part and each embedding as separat integer vector)
 prep_nn <- function(X, dense = x_dense, emb = x_emb, scaling = sc) {
   X_dense <- data.matrix(X[, dense, drop = FALSE])
   X_dense <- scale(X_dense, center = scaling$center, scale = scaling$scale)
