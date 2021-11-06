@@ -1,6 +1,7 @@
 name: ml_lecture
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - jupyterlab=3.1.7
   - keras=2.4.3
@@ -11,6 +12,7 @@ dependencies:
   - python=3.8.11
   - seaborn=0.11.2
   - tensorflow=2.3.0
+  - xgboost=1.5.0
   - pip:
     - plotnine==0.8.0
     - scikit-learn==1.0
