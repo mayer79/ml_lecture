@@ -502,20 +502,20 @@ fl <- flashlight(
 )
 
 light_profile(fl, v = "veh_value", breaks = seq(0, 5, by = 0.1)) %>% 
-  plot() %>% 
-  labs(title = "Partial dependence plot for veh_value", y = "price")
+  plot() +
+  ggtitle("Partial dependence plot for veh_value")
 
 light_profile(fl, v = "veh_body") %>% 
   plot(rotate_x = TRUE) +
-  labs(title = "Partial dependence plot for veh_body", y = "price")
+  ggtitle("Partial dependence plot for veh_body")
 
 light_profile(fl, v = "area") %>% 
   plot() +
-  labs(title = "Partial dependence plot for area", y = "price")
+  ggtitle("Partial dependence plot for area")
 
 light_profile(fl, v = "agecat") %>% 
   plot() +
-  labs(title = "Partial dependence plot for agecat", y = "price")
+  ggtitle("Partial dependence plot for agecat")
 ```
 
 ### Exercise 3 (Optional). Solution not shown.
