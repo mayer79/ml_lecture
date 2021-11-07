@@ -454,6 +454,7 @@ light_profile(fl, v = "color") %>%
 
 1. Study the online documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e., just by refitting the final model. How does the partial dependence plot for `carat` look now?
 2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss both as objective and evaluation metric. Interpret its results.
+3. Optional. Study the documentation of [LightGBM](https://lightgbm.readthedocs.io/en/latest/). Use LightGBM to develop a strong competitor to the XGBoost diamond model. The XGBoost code needs to be slightly adapted. Compare grid search time.
 
 # Chapter Summary
 

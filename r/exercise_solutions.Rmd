@@ -518,6 +518,7 @@ light_profile(fl, v = "agecat") %>%
   labs(title = "Partial dependence plot for agecat", y = "price")
 ```
 
+### Exercise 3 (Optional). Solution not shown.
 
 # Chapter 4: Neural Nets
 

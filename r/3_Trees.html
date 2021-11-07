@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2021-10-30" />
+<meta name="date" content="2021-11-07" />
 
 <title>Trees</title>
 
@@ -327,7 +327,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Trees</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2021-10-30</h4>
+<h4 class="date">2021-11-07</h4>
 
 </div>
 
@@ -521,7 +521,7 @@ div.tocify {
 <h2 number="3.5"><span class="header-section-number">3.5</span> Exercises</h2>
 <ol style="list-style-type: decimal">
 <li>In above example, replace carat by its logarithm. Do the results change compared to the example without logs?</li>
-<li>Fit a random forest on the claims data, predicting the binary variable <code>clm</code> by the covariates <code>veh_value</code>, <code>veh_body</code>, <code>veh_age</code>, <code>gender</code>, <code>area</code>, and <code>agecat</code>. Choose a suitable tree-depth by maximizing OOB error on the training data. Make sure to fit a <em>probability random forest</em>, i.e., predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Use a simple train/test split. Interpret the results by split gain importance and partial dependence plots.</li>
+<li>Fit a random forest on the claims data for the binary variable <code>clm</code> using covariates <code>veh_value</code>, <code>veh_body</code>, <code>veh_age</code>, <code>gender</code>, <code>area</code>, and <code>agecat</code>. Choose a suitable tree depth either by cross-validation or by minimizing OOB error on the training data. Make sure to fit a <em>probability random forest</em>, i.e., predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Evaluate the final model on an independent test dataset. Interpret the results by split gain importance and partial dependence plots.</li>
 </ol>
 </div>
 </div>
@@ -580,21 +580,21 @@ div.tocify {
 ## 
 ## [11] train-rmse:3253.448486  valid-rmse:3277.595947 
 ## [21] train-rmse:2031.219604  valid-rmse:2053.321045 
-## [31] train-rmse:1320.096313  valid-rmse:1341.627319 
-## [41] train-rmse:922.695618   valid-rmse:945.051270 
+## [31] train-rmse:1320.096191  valid-rmse:1341.627319 
+## [41] train-rmse:922.695618   valid-rmse:945.051208 
 ## [51] train-rmse:712.652771   valid-rmse:737.448364 
 ## [61] train-rmse:609.268250   valid-rmse:636.470093 
-## [71] train-rmse:560.695801   valid-rmse:588.422729 
+## [71] train-rmse:560.695740   valid-rmse:588.422729 
 ## [81] train-rmse:536.747437   valid-rmse:564.706177 
-## [91] train-rmse:524.547363   valid-rmse:552.418335 
+## [91] train-rmse:524.547363   valid-rmse:552.418274 
 ## [101]    train-rmse:517.337219   valid-rmse:546.371338 
 ## [111]    train-rmse:512.805786   valid-rmse:543.228577 
 ## [121]    train-rmse:509.448639   valid-rmse:541.877441 
 ## [131]    train-rmse:506.467041   valid-rmse:541.363586 
-## [141]    train-rmse:503.744751   valid-rmse:541.322327 
+## [141]    train-rmse:503.744720   valid-rmse:541.322327 
 ## [151]    train-rmse:501.164459   valid-rmse:541.234863 
-## [161]    train-rmse:498.374176   valid-rmse:541.427856 
-## [171]    train-rmse:496.245941   valid-rmse:541.457275 
+## [161]    train-rmse:498.374207   valid-rmse:541.427856 
+## [171]    train-rmse:496.246002   valid-rmse:541.457275 
 ## Stopping. Best iteration:
 ## [155]    train-rmse:500.108521   valid-rmse:541.190918</code></pre>
 <p><strong>Comments:</strong></p>
@@ -786,6 +786,7 @@ div.tocify {
 <ol style="list-style-type: decimal">
 <li>Study the online documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e., just by refitting the final model. How does the partial dependence plot for <code>carat</code> look now?</li>
 <li>Develop a strong XGBoost model for the claims data set with binary response <code>clm</code> and covariates <code>veh_value</code>, <code>veh_body</code>, <code>veh_age</code>, <code>gender</code>, <code>area</code>, and <code>agecat</code>. Use a clean cross-validation/test approach. Use log loss both as objective and evaluation metric. Interpret its results.</li>
+<li>Optional. Study the documentation of <a href="https://lightgbm.readthedocs.io/en/latest/">LightGBM</a>. Use LightGBM to develop a strong competitor to the XGBoost diamond model. The XGBoost code needs to be slightly adapted. Compare grid search time.</li>
 </ol>
 </div>
 </div>
