@@ -1,14 +1,14 @@
 # Scikit-Learn
 
 - PoissonRegressor tricky to "tune" to get same results as statsmodels and R.
-- How to do stratified cross-validation if stratification is not to be done on the response?
+- How to do stratified cross-validation for non-discrete responses? -> Unclear
 - D2 is the default scorer of GammaRegressor. What is its name? "r2"?
 I would like to track D2 and "neg_mean_gamma_deviance" together in cross-validation.
 
 # Dalex
 
 model_profile
-- Wish 1: Option to relax y scale
+- Wish 1: Option to relax y scale -> implemented
 - Wish 2: variable_splits -> specify only subset
 
 Made two issues on dalex github page.
