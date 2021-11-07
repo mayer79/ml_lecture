@@ -169,7 +169,6 @@ barplot(imp, horiz = TRUE, col = "orange")
 # Effects on the prediction, averaged over all interactions
 fl <- flashlight(
   model = fit, 
-  y = "price", 
   data = diamonds[ix$train, ], 
   label = "rf", 
   predict_function = function(m, X) predict(m, X)$predictions
@@ -214,7 +213,7 @@ Predictions are calculated similar to random forests, i.e., by combining predict
 
 ## Example: XGBoost (untuned)
 
-As an initial example on gradient boosting and XGBoost, we fit a model for diamond prices with MSE loss. The number of rounds/trees is chosen by early stopping on the validation data, i.e. until validation RMSE stops improving for a couple or rounds. The learning rate (weight of each tree) is chosen by trial and error in order to end up with a reasonably small/large number of trees, see the next section for more details.
+As an initial example on gradient boosting and XGBoost, we fit a model for diamond prices with MSE loss. The number of rounds/trees is chosen by early stopping on the validation data, i.e., until validation RMSE stops improving for a couple or rounds. The learning rate (weight of each tree) is chosen by trial and error in order to end up with a reasonably small/large number of trees, see the next section for more details.
 
 ```{r}
 library(ggplot2)
@@ -243,7 +242,7 @@ dvalid <- xgb.DMatrix(X_valid, label = y_valid)
 
 # Minimal set of parameters
 params <- list(
-  learning_rate = 0.05,
+  learning_rate = 0.02,
   objective = "reg:squarederror",
   eval_metric = "rmse"
 )
@@ -253,7 +252,7 @@ fit <- xgb.train(
   params = params, 
   data = dtrain, 
   watchlist = list(train = dtrain, valid = dvalid),
-  print_every_n = 10,
+  print_every_n = 40,
   nrounds = 5000, 
   early_stopping_rounds = 20
 )
@@ -328,7 +327,7 @@ tune <- FALSE
 if (tune) {
   # Use default parameters to set learning rate with suitable number of rounds
   params <- list(
-    learning_rate = 0.05,
+    learning_rate = 0.02,
     objective = "reg:squarederror",
     eval_metric = "rmse"
   )
@@ -339,16 +338,16 @@ if (tune) {
     data = dtrain,
     nrounds = 5000,
     nfold = 5,
-    early_stopping_rounds = 10,
+    early_stopping_rounds = 20,
     verbose = 0
   )
-  cvm   # -> a lr of 5% provides about 160 trees, which is a convenient amount
+  cvm   # -> a lr of 0.02 provides about 400 trees, which is a convenient amount
    
   # Final grid search after some iterations
   grid <- expand.grid(
     iteration = NA,
     score = NA,
-    learning_rate = 0.05,
+    learning_rate = 0.02,
     objective = "reg:squarederror",
     eval_metric = "rmse",
     max_depth = 6:7, 
@@ -377,7 +376,7 @@ if (tune) {
       data = dtrain,
       nrounds = 5000,
       nfold = 5,
-      early_stopping_rounds = 10,
+      early_stopping_rounds = 20,
       verbose = 0
     )
     
@@ -425,7 +424,6 @@ xgb.plot.importance(imp)
 # Partial dependence plots
 fl <- flashlight(
   model = fit, 
-  y = "price", 
   data = diamonds[ix$train, ], 
   label = "xgb", 
   predict_function = function(m, X) predict(m, prep_xgb(X))

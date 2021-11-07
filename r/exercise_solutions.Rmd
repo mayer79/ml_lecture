@@ -298,8 +298,7 @@ barplot(imp, horiz = TRUE, col = "orange", cex.names = 0.8, las = 2)
 
 # Partial dependence plot for the strongest predictor "veh_value"
 fl <- flashlight(
-  model = fit, 
-  y = "clm", 
+  model = fit,
   data = dataCar[ix$train, ], 
   label = "rf", 
   predict_function = function(m, X) predict(m, X)$predictions[, 2]
@@ -353,8 +352,7 @@ fit <- xgb.train(
 library(flashlight)
 
 fl <- flashlight(
-  model = fit, 
-  y = "price", 
+  model = fit,
   data = diamonds[ix$train, ], 
   label = "xgb", 
   predict_function = function(m, X) predict(m, prep_xgb(X))
@@ -401,7 +399,7 @@ tune <- FALSE
 if (tune) {
   # Use default parameters to set learning rate with suitable number of rounds
   params <- list(
-    learning_rate = 0.03,
+    learning_rate = 0.02,
     objective = "binary:logistic",
     eval_metric = "logloss"
   )
@@ -412,7 +410,7 @@ if (tune) {
     data = dtrain,
     nrounds = 5000,
     nfold = 5,
-    early_stopping_rounds = 10,
+    early_stopping_rounds = 20,
     verbose = 0
   )
   cvm 
@@ -421,7 +419,7 @@ if (tune) {
   grid <- expand.grid(
     iteration = NA,
     score = NA,
-    learning_rate = 0.03,
+    learning_rate = 0.02,
     objective = "binary:logistic",
     eval_metric = "logloss",
     max_depth = 3:6, 
@@ -450,7 +448,7 @@ if (tune) {
       data = dtrain,
       nrounds = 5000,
       nfold = 5,
-      early_stopping_rounds = 10,
+      early_stopping_rounds = 20,
       verbose = 0
     )
     
@@ -492,10 +490,9 @@ r_squared_bernoulli(dataCar$clm[ix$test], pred) # 0.00427
 imp <- xgb.importance(model = fit)
 xgb.plot.importance(imp)
 
-# Partial dependence plots
+# Some partial dependence plots
 fl <- flashlight(
   model = fit, 
-  y = "clm", 
   data = dataCar[ix$train, ], 
   label = "xgb", 
   predict_function = function(m, X) predict(m, prep_xgb(X))
