@@ -335,10 +335,10 @@ dtrain <- xgb.DMatrix(X_train, label = y_train)
 
 # Load grid and select best iteration. If interactive, use r/gridsearch/...
 grid <- readRDS("gridsearch/diamonds_xgb.rds")
-grid <- grid[order(grid$score), ]
+grid <- grid[order(grid$cv_score), ]
 
 # Monotone constraints for carat
-params <- as.list(grid[1, -(1:2)])
+params <- as.list(grid[1, -(1:3)])
 params$monotone_constraints <- c(1, 0, 0, 0)
 
 # Fit final, tuned model with monotone constraints for carat
@@ -411,19 +411,21 @@ if (tune) {
     nrounds = 5000,
     nfold = 5,
     early_stopping_rounds = 20,
-    verbose = 0
+    showsd = FALSE, 
+    print_every_n = 50
   )
   cvm 
   
   # Grid
   grid <- expand.grid(
     iteration = NA,
-    score = NA,
+    cv_score = NA,
+    train_score = NA,
     learning_rate = 0.02,
     objective = "binary:logistic",
     eval_metric = "logloss",
     max_depth = 3:6, 
-    min_child_weight = c(1, 10),
+    min_child_weight = c(0.1, 1),
     colsample_bytree = c(0.8, 1), 
     subsample = c(0.8, 1), 
     reg_lambda = c(0, 2.5, 5, 7.5),
@@ -454,7 +456,7 @@ if (tune) {
     
     # Store result
     grid[i, 1] <- cvm$best_iteration
-    grid[i, 2] <- cvm$evaluation_log[[4]][cvm$best_iteration]
+    grid[i, 2:3] <- cvm$evaluation_log[, c(4, 2)][cvm$best_iteration]
     setTxtProgressBar(pb, i)
     
     # Save grid to survive hard crashs. If interactive, use r/gridsearch/...
@@ -464,11 +466,12 @@ if (tune) {
 
 # Load grid and select best iteration. If interactive use r/gridsearch/...
 grid <- readRDS("gridsearch/claims_xgb.rds")
-grid <- grid[order(grid$score), ]
+grid <- grid[order(grid$cv_score), ]
+head(grid)
 
 # Fit final, tuned model
 fit <- xgb.train(
-  params = as.list(grid[1, -(1:2)]), 
+  params = as.list(grid[1, -(1:3)]), 
   data = dtrain, 
   nrounds = grid[1, "iteration"]
 )
@@ -484,7 +487,7 @@ deviance_bernoulli(dataCar$clm[ix$test], pred)
 # Relative performance
 r_squared_bernoulli(dataCar$clm[ix$test], pred) # 0.00427
 # Relative performance gain is very low, but very slightly better than 
-# with the tuned random forest.
+# of the tuned random forest.
 
 # Variable importance regarding loss improvement
 imp <- xgb.importance(model = fit)
@@ -562,7 +565,8 @@ if (tune) {
     data = dtrain,
     nrounds = 5000,
     nfold = 5,
-    early_stopping_rounds = 20
+    early_stopping_rounds = 20,
+    eval_freq = 50
   )
   cvm 
   
@@ -616,6 +620,7 @@ if (tune) {
 # Load grid and select best iteration. If interactive use r/gridsearch/...
 grid <- readRDS("gridsearch/claims_lgb.rds")
 grid <- grid[order(grid$score), ]
+head(grid)
 
 # Fit final, tuned model
 fit <- lgb.train(

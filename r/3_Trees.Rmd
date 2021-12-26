@@ -252,7 +252,7 @@ fit <- xgb.train(
   params = params, 
   data = dtrain, 
   watchlist = list(train = dtrain, valid = dvalid),
-  print_every_n = 40,
+  print_every_n = 50,
   nrounds = 5000, 
   early_stopping_rounds = 20
 )
@@ -290,15 +290,15 @@ For classification, besides studying (multi-)log loss, e.g., one sometimes consi
 
 We will use XGBoost to fit diamond prices using MSE as loss function and evaluation metric, now using a sophisticated tuning strategy.
 
-Overall, the tuning strategy is as follows:
+Overall, the modelling strategy is as follows:
 
 1. Using default regularization parameters, set the learning rate to get reasonable number of trees with CV-based early stopping.
-2. Iterate randomized search CV to tune regularization parameters such as tree depth.
-3. Use the best parameter combination to fit the model on the training data.
+2. Use randomized search CV with early stopping to tune regularization parameters such as tree depth. Iterate if needed.
+3. Use the best parameter combination (incl. number of trees) to fit the model on the training data. "Best" typically means in terms of CV performance. Depending on the situation, it can also mean "good performance and not too heavy overfit compared to training performance" or "good performance and not too many trees" or some other criterion.
 
 ```{r}
 # This code is pretty long, but may serve as a general template
-library(ggplot2)
+library(tidyverse)
 library(xgboost)
 library(splitTools)
 
@@ -338,15 +338,17 @@ if (tune) {
     data = dtrain,
     nrounds = 5000,
     nfold = 5,
-    early_stopping_rounds = 20,
-    verbose = 0
+    early_stopping_rounds = 20, 
+    showsd = FALSE, 
+    print_every_n = 50
   )
-  cvm   # -> a lr of 0.02 provides about 400 trees, which is a convenient amount
+  cvm   # -> a lr of 0.02 provides about 380 trees, which is a convenient amount
    
   # Final grid search after some iterations
   grid <- expand.grid(
     iteration = NA,
-    score = NA,
+    cv_score = NA,
+    train_score = NA,
     learning_rate = 0.02,
     objective = "reg:squarederror",
     eval_metric = "rmse",
@@ -382,7 +384,7 @@ if (tune) {
     
     # Store result
     grid[i, 1] <- cvm$best_iteration
-    grid[i, 2] <- cvm$evaluation_log[[4]][cvm$best_iteration]
+    grid[i, 2:3] <- cvm$evaluation_log[, c(4, 2)][cvm$best_iteration]
     setTxtProgressBar(pb, i)
   
     # Save grid to survive hard crashs
@@ -392,11 +394,12 @@ if (tune) {
 
 # Load grid and select best iteration
 grid <- readRDS("gridsearch/diamonds_xgb.rds")
-grid <- grid[order(grid$score), ]
+grid <- grid[order(grid$cv_score), ]
+head(grid)
 
 # Fit final, tuned model
 fit <- xgb.train(
-  params = as.list(grid[1, -(1:2)]), 
+  params = as.list(grid[1, -(1:3)]), 
   data = dtrain, 
   nrounds = grid[1, "iteration"]
 )
