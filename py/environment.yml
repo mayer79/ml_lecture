@@ -17,6 +17,6 @@ dependencies:
   - pip:
     - plotnine==0.8.0
     - scikit-learn==1.0
-    - dalex==1.4.0
+    - dalex==1.4.1
     - nb-black
 
