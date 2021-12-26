@@ -154,7 +154,10 @@ If our data set is large and training takes long, then the simple validation str
 
 The CV performance is a good basis to choose the best and final model among alternatives. The final model is retrained on all folds.
 
-Note: If cross-validation is fast, you can repeat the process for additional data splits. Such *repeated* cross-validation leads to even more robust results.
+**Notes**
+
+- The "best" model is typically the one with best CV performance. Depending on the situation, it could also be a model with "good CV performance and not too heavy overfit compared to insample performance" or some other reasonable criterion.
+- If cross-validation is fast, you can repeat the process for additional data splits. Such *repeated* cross-validation leads to even more robust results.
 
 ## Example: cross-validation
 

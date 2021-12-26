@@ -3101,10 +3101,10 @@ div.tocify {
 ## Will train until valid_rmse hasn&#39;t improved in 20 rounds.
 ## 
 ## [51] train-rmse:2116.673340  valid-rmse:2139.018555 
-## [101]    train-rmse:958.129211   valid-rmse:980.326965 
-## [151]    train-rmse:619.763672   valid-rmse:646.728577 
+## [101]    train-rmse:958.129150   valid-rmse:980.326965 
+## [151]    train-rmse:619.763611   valid-rmse:646.728577 
 ## [201]    train-rmse:539.210266   valid-rmse:566.944885 
-## [251]    train-rmse:518.318787   valid-rmse:547.480835 
+## [251]    train-rmse:518.318848   valid-rmse:547.480835 
 ## [301]    train-rmse:509.809540   valid-rmse:542.069702 
 ## [351]    train-rmse:504.316467   valid-rmse:541.437134 
 ## Stopping. Best iteration:
@@ -3142,7 +3142,7 @@ div.tocify {
 <ol style="list-style-type: decimal">
 <li>Using default regularization parameters, set the learning rate to get reasonable number of trees with CV-based early stopping.</li>
 <li>Use randomized search CV with early stopping to tune regularization parameters such as tree depth. Iterate if needed.</li>
-<li>Use the best parameter combination (incl. number of trees) to fit the model on the training data. “Best” typically means in terms of CV performance. Depending on the situation, it can also mean “good performance and not too heavy overfit compared to training performance” or “good performance and not too many trees” or some other criterion.</li>
+<li>Use the best parameter combination (incl. number of trees) to fit the model on the training data. “Best” typically means in terms of CV performance. As mentioned in the last chapter and depending on the situation, it can also mean “good CV performance and not too heavy overfit compared to insample performance” or some other reasonable criterion.</li>
 </ol>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This code is pretty long, but may serve as a general template</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>

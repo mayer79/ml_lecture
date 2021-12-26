@@ -294,7 +294,7 @@ Overall, the modelling strategy is as follows:
 
 1. Using default regularization parameters, set the learning rate to get reasonable number of trees with CV-based early stopping.
 2. Use randomized search CV with early stopping to tune regularization parameters such as tree depth. Iterate if needed.
-3. Use the best parameter combination (incl. number of trees) to fit the model on the training data. "Best" typically means in terms of CV performance. Depending on the situation, it can also mean "good performance and not too heavy overfit compared to training performance" or "good performance and not too many trees" or some other criterion.
+3. Use the best parameter combination (incl. number of trees) to fit the model on the training data. "Best" typically means in terms of CV performance. As mentioned in the last chapter and depending on the situation, it can also mean "good CV performance and not too heavy overfit compared to insample performance" or some other reasonable criterion.
 
 ```{r}
 # This code is pretty long, but may serve as a general template
