@@ -680,7 +680,8 @@ library(tidyverse)
 library(splitTools)
 library(keras)
 
-# use_python(path to python...)
+# Path to conda env with TensorFlow
+# keras::use_condaenv(path_to_conda_env)
 
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred

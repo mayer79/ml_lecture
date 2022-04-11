@@ -18,6 +18,10 @@ knitr::opts_chunk$set(
   warning = FALSE, 
   message = FALSE
 )
+
+# Path to conda env with TensorFlow
+# keras::use_condaenv(path_to_conda_env)
+
 ```
 
 # Introduction
@@ -80,7 +84,8 @@ To gain confidence in neural nets, we first show that parameters estimated by a 
 library(tidyverse)
 library(keras)
 
-# use_python(path to python)
+# Path to conda env with TensorFlow
+# use_condaenv(path_to_conda_env)
 
 # RMSE metric needs to be defined "by hand"
 metric_rmse <- custom_metric(
@@ -161,7 +166,8 @@ The following code is identical to the last one up to one extra line of code spe
 library(tidyverse)
 library(keras)
 
-# use_python(path to python...)
+# Path to conda env with TensorFlow
+# use_condaenv(path_to_conda_env)
 
 # RMSE metric needs to be defined "by hand"
 metric_rmse <- custom_metric(
@@ -236,7 +242,8 @@ Again, the code is very similar to the last one, with the exception of using a h
 library(tidyverse)
 library(keras)
 
-# use_python(path to python...)
+# Path to conda env with TensorFlow
+# use_condaenv(path_to_conda_env)
 
 # RMSE metric needs to be defined "by hand"
 metric_rmse <- custom_metric(
@@ -379,7 +386,8 @@ library(tidyverse)
 library(splitTools)
 library(keras)
 
-# use_python(path to python...)
+# Path to conda env with TensorFlow
+# use_condaenv(path_to_conda_env)
 
 # RMSE metric needs to be defined "by hand"
 metric_rmse <- custom_metric(
@@ -520,7 +528,8 @@ library(insuranceData)
 
 data(dataCar)
 
-# use_python(path to python...)
+# Path to conda env with TensorFlow
+# use_condaenv(path_to_conda_env)
 
 # Response and covariates
 y <- "clm"
