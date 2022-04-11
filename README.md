@@ -93,18 +93,22 @@ Note: we use default [black](https://github.com/psf/black) as autoformatter.
     - `insuranceData`
     - `lightgbm` (optional)
 
-`keras` requires a Python installation with Tensorflow >=2.0. If you do not have Python installed and are not behind a company firewall, you can simply run the following two lines to get it.
+`keras` requires a Python installation with Tensorflow >=2.0. If you do not have Python installed and are not behind a company firewall, you can simply run the following two lines to get a minimal Python bundle with TensorFlow.
 
 ```
 library(keras)
 install_keras()
 ```
 
+If this fails, an option is to install Python as outlined in the section above and then set the corresponding `conda_env` path with `use_condaenv()`.
+
 Run the following code to test `keras`.
 
 ```
 library(keras)
-# use_python(path to Python)
+
+# Path to conda env with TensorFlow
+# use_condaenv(path_to_conda_env)
 
 input <- layer_input(shape = 3)
 
