@@ -79,7 +79,7 @@ Furthermore, the performance difference between training and validation data ind
 
 ## Example: simple validation
 
-What k provides the best RMSE on 20% validation data of the diamonds data?
+We now use a 80%/20% split on the diamonds data to calculate RMSE of 5-nearest-neighbour on both training and validation data. What k provides the best validation RMSE?
 
 ```{r}
 library(tidyverse)
@@ -110,6 +110,20 @@ X_valid <- scale(
   scale = attr(X_train, "scaled:scale")
 )
 
+# Performance on training data
+pred_train <- knn.reg(X_train, test = X_train, k = 5, y = y_train)$pred
+cat("Training RMSE:", rmse(y_train, pred_train))
+
+# Performance on valid data
+pred_valid <- knn.reg(X_train, test = X_valid, k = 5, y = y_train)$pred
+cat("Validation RMSE:", rmse(y_valid, pred_valid))
+```
+
+**Comment:** Validation RMSE is substantially worse than training RMSE, a clear sign of overfitting. However, it is still much better than the (full-sample) performance of linear regression (see Exercise 1, Chapter 1).
+
+Can we find a k with better validation RMSE?
+
+```{r}
 # Tuning grid with different values for parameter k
 paramGrid <- data.frame(train = NA, valid = NA, k = 1:20)
     
