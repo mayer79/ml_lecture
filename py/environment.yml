@@ -1,9 +1,9 @@
 name: ml_lecture
 channels:
-  - defaults
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.8.11
+  - python=3.8
   - pip=21.2.2
   - jupyterlab=3.1.7
   - matplotlib=3.4.2
