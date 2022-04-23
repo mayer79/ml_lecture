@@ -514,7 +514,7 @@ ggplot(to_plot, aes(x = carat, y = price)) +
 
 - Indeed, we have fitted a logarithmic relationship between carat and price. The scatterplots (on log-scale and back-transformed to original scale) reveal that this does not make much sense. The model looks wrong. Shouldn't we better take the logarithm of *price*?
 - As usual, we can say that a one-point increase in `log(carat)` leads to a expected price increase of 5836 USD.
-- Back-transformed, this amounts to saying that a 1% increase in `carat` is associated with a price increase of about 5836/100 = 60 CHF.
+- Back-transformed, this amounts to saying that a 1% increase in `carat` is associated with a price increase of about 5836/100 = 60 USD.
 
 ### Logarithmic response
 
