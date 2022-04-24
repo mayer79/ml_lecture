@@ -1,4 +1,4 @@
-# Introduction to Machine Learning
+# Introduction to Machine Learning <a href='https://github.com/mayer79/ml_lecture'><img src='logo.png' align="right" height="200" /></a>
 
 #### Michael Mayer
 
