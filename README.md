@@ -130,10 +130,11 @@ simple_model %>%
 
 ## Optional Topics to Discuss
 
-- Basics and Linear Models: quantile regression; random effects; penalized regression
-- Model Selection and Validation: classic approaches without data splitting; when is overfitting (un-)problematic?
+- Basics and Linear Models: random effects; penalized regression
+- Model Selection and Validation: is it always necessary?
 - Trees: supervised clustering; SHAP; interaction constraints
 - Neural Nets: transfer learning; PyTorch; image data; autoencoders
+- General: distribution of predictions; quantile regression; when is overfitting (un-)problematic?
 
 ## Further Reading
 

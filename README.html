@@ -254,6 +254,7 @@ if (window.hljs) {
 
 
 
+
 <style type="text/css">
 .main-container {
   max-width: 940px;
@@ -274,6 +275,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -369,16 +373,20 @@ pre code {
 <div id="overview" class="section level2">
 <h2>Overview</h2>
 <p>Welcome to this training course on machine learning (ML).</p>
-<p>ML can be viewed as a collection of statistical algorithms used to</p>
+<p>ML can be viewed as a collection of statistical algorithms used
+to</p>
 <ol style="list-style-type: decimal">
 <li>predict values (supervised ML) or to</li>
 <li>investigate data structure (unsupervised ML).</li>
 </ol>
-<p>Our focus is on <em>supervised ML</em>. Depending on if we predict numbers or classes, we talk about <em>regression</em> or <em>classification</em>.</p>
+<p>Our focus is on <em>supervised ML</em>. Depending on if we predict
+numbers or classes, we talk about <em>regression</em> or
+<em>classification</em>.</p>
 </div>
 <div id="copyright" class="section level2">
 <h2>Copyright</h2>
-<p>This lecture is being distributed under the <a href="https://creativecommons.org/licenses/by/2.0/">creative commons license</a>.</p>
+<p>This lecture is being distributed under the <a href="https://creativecommons.org/licenses/by/2.0/">creative commons
+license</a>.</p>
 </div>
 <div id="how-to-cite" class="section level2">
 <h2>How to cite?</h2>
@@ -386,7 +394,9 @@ pre code {
 </div>
 <div id="organization" class="section level2">
 <h2>Organization</h2>
-<p>The lecture is split into four chapters, each of which is accompanied with an R/Python notebook. You will find them in the corresponding subfolders.</p>
+<p>The lecture is split into four chapters, each of which is accompanied
+with an R/Python notebook. You will find them in the corresponding
+subfolders.</p>
 <ol style="list-style-type: decimal">
 <li>Basics and Linear Models
 <ul>
@@ -404,37 +414,50 @@ pre code {
 <li>Neural Nets</li>
 </ol>
 <p>All examples are self-contained.</p>
-<p>Each chapter will take us about two hours and is accompanied by exercises.</p>
-<p>You can preview the html outputs of the R lecture by clicking on these links:</p>
+<p>Each chapter will take us about two hours and is accompanied by
+exercises.</p>
+<p>You can preview the html outputs of the R lecture by clicking on
+these links:</p>
 <ol style="list-style-type: decimal">
-<li><a href="https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/1_Basics_and_Linear_Models.html">Basics and Linear Models</a></li>
-<li><a href="https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/2_Model_Selection_and_Validation.html">Model Selection and Validation</a></li>
+<li><a href="https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/1_Basics_and_Linear_Models.html">Basics
+and Linear Models</a></li>
+<li><a href="https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/2_Model_Selection_and_Validation.html">Model
+Selection and Validation</a></li>
 <li><a href="https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/3_Trees.html">Trees</a></li>
-<li><a href="https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/4_Neural_Nets.html">Neural Nets</a></li>
+<li><a href="https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/4_Neural_Nets.html">Neural
+Nets</a></li>
 </ol>
-<p>The Python html files can be downloaded from the repository as well, but are not linked.</p>
+<p>The Python html files can be downloaded from the repository as well,
+but are not linked.</p>
 </div>
 <div id="prerequisites" class="section level2">
 <h2>Prerequisites</h2>
-<p>In order to be able to follow the lecture, you should be familiar with</p>
+<p>In order to be able to follow the lecture, you should be familiar
+with</p>
 <ul>
 <li>Descriptive statistics</li>
 <li>Linear regression</li>
 <li>R or Python</li>
 </ul>
-<p>To get the lecture notes both as html and code-notebooks, clone this repository by running</p>
+<p>To get the lecture notes both as html and code-notebooks, clone this
+repository by running</p>
 <pre><code>git clone https://github.com/mayer79/ml_lecture.git</code></pre>
 <div id="software-and-data-for-the-python-version-of-the-lecture" class="section level3">
 <h3>Software (and data) for the Python version of the lecture</h3>
 <p>We will use the conda environment specified in the “py” folder.</p>
 <ol style="list-style-type: decimal">
 <li>Install Anaconda (if not yet available on your machine)</li>
-<li>Open the conda prompt and use it to navigate to your “ml_lecture/py” folder</li>
+<li>Open the conda prompt and use it to navigate to your “ml_lecture/py”
+folder</li>
 <li>Type in the conda prompt: “conda env create -f environment.yml”</li>
 <li>Use this environment to run the code of the lecture, e.g., in <a href="https://code.visualstudio.com/">Visual Studio Code</a> or <a href="https://jupyterlab.readthedocs.io/en/stable/">Jupyterlab</a></li>
 </ol>
-<p>Furthermore, download the “<strong>Car</strong> [Data - csv]” dataset on the following <a href="http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData/data_sets">link</a> and put it as “car.csv” into the “py” folder. It is about 4 MB small.</p>
-<p>Note: we use default <a href="https://github.com/psf/black">black</a> as autoformatter.</p>
+<p>Furthermore, download the “<strong>Car</strong> [Data - csv]” dataset
+on the following <a href="http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData/data_sets">link</a>
+and put it as “car.csv” into the “py” folder. It is about 4 MB
+small.</p>
+<p>Note: we use default <a href="https://github.com/psf/black">black</a>
+as autoformatter.</p>
 </div>
 <div id="software-for-the-r-version-of-the-lecture" class="section level3">
 <h3>Software for the R version of the lecture</h3>
@@ -455,10 +478,15 @@ pre code {
 <li><code>lightgbm</code> (optional)</li>
 </ul></li>
 </ul>
-<p><code>keras</code> requires a Python installation with Tensorflow &gt;=2.0. If you do not have Python installed and are not behind a company firewall, you can simply run the following two lines to get a minimal Python bundle with TensorFlow.</p>
+<p><code>keras</code> requires a Python installation with Tensorflow
+&gt;=2.0. If you do not have Python installed and are not behind a
+company firewall, you can simply run the following two lines to get a
+minimal Python bundle with TensorFlow.</p>
 <pre><code>library(keras)
 install_keras()</code></pre>
-<p>If this fails, an option is to install Python as outlined in the section above and then set the corresponding <code>conda_env</code> path with <code>use_condaenv()</code>.</p>
+<p>If this fails, an option is to install Python as outlined in the
+section above and then set the corresponding <code>conda_env</code> path
+with <code>use_condaenv()</code>.</p>
 <p>Run the following code to test <code>keras</code>.</p>
 <pre><code>library(keras)
 
@@ -486,21 +514,34 @@ simple_model %&gt;%
 <div id="optional-topics-to-discuss" class="section level2">
 <h2>Optional Topics to Discuss</h2>
 <ul>
-<li>Basics and Linear Models: quantile regression; random effects; penalized regression</li>
-<li>Model Selection and Validation: classic approaches without data splitting; when is overfitting (un-)problematic?</li>
+<li>Basics and Linear Models: random effects; penalized regression</li>
+<li>Model Selection and Validation: is it always necessary?</li>
 <li>Trees: supervised clustering; SHAP; interaction constraints</li>
-<li>Neural Nets: transfer learning; PyTorch; image data; autoencoders</li>
+<li>Neural Nets: transfer learning; PyTorch; image data;
+autoencoders</li>
+<li>General: distribution of predictions; quantile regression; when is
+overfitting (un-)problematic?</li>
 </ul>
 </div>
 <div id="further-reading" class="section level2">
 <h2>Further Reading</h2>
 <ul>
-<li><p>James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). <em>An Introduction to Statistical Learning - with Applications in R</em>. New York, USA: Springer New York Inc.</p></li>
-<li><p>Hastie, T., Tibshirani, R., Friedman, J. (2001). <em>The Elements of Statistical Learning</em>. New York, USA: Springer New York Inc.</p></li>
-<li><p>Wickham, H., Grolemund, G. (2017). <em>R for Data Science: Import, Tidy, Transform, Visualize, and Model Data</em>. O’Reilly Media.</p></li>
-<li><p>VanderPlas, J. (2016). <em>Python data science handbook : essential tools for working with data</em>. Sebastopol, CA: O’Reilly Media, Inc.</p></li>
-<li><p>Chollet, F. (2017). <em>Deep Learning with Python</em>. Manning.</p></li>
-<li><p>Chollet, F., Allaire, J. J. (2018). <em>Deep Learning with R</em>. Manning.</p></li>
+<li><p>James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). <em>An
+Introduction to Statistical Learning - with Applications in R</em>. New
+York, USA: Springer New York Inc.</p></li>
+<li><p>Hastie, T., Tibshirani, R., Friedman, J. (2001). <em>The Elements
+of Statistical Learning</em>. New York, USA: Springer New York
+Inc.</p></li>
+<li><p>Wickham, H., Grolemund, G. (2017). <em>R for Data Science:
+Import, Tidy, Transform, Visualize, and Model Data</em>. O’Reilly
+Media.</p></li>
+<li><p>VanderPlas, J. (2016). <em>Python data science handbook :
+essential tools for working with data</em>. Sebastopol, CA: O’Reilly
+Media, Inc.</p></li>
+<li><p>Chollet, F. (2017). <em>Deep Learning with Python</em>.
+Manning.</p></li>
+<li><p>Chollet, F., Allaire, J. J. (2018). <em>Deep Learning with
+R</em>. Manning.</p></li>
 </ul>
 </div>
 </div>
