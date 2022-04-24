@@ -20,7 +20,7 @@ This lecture is being distributed under the [creative commons license](https://c
 
 ## How to cite?
 
-Michael Mayer. Introduction to Machine Learning (2021). Web: https://github.com/mayer79/ml_lecture/
+Michael Mayer. Introduction to Machine Learning with R or Python (2022). Web: https://github.com/mayer79/ml_lecture/
 
 ## Organization
 
