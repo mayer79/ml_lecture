@@ -5,6 +5,7 @@
 ## Overview
 
 Welcome to this training course on machine learning (ML). 
+It is both available in R and Python.
 
 ML can be viewed as a collection of statistical algorithms used to
 
