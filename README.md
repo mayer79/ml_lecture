@@ -128,6 +128,13 @@ simple_model %>%
       batch_size = 10)
 ```
 
+## Optional Topics to Discuss
+
+- Basics and Linear Models: quantile regression; random effects; penalized regression
+- Model Selection and Validation: classic approaches without data splitting; when is overfitting (un-)problematic?
+- Trees: supervised clustering; SHAP; interaction constraints
+- Neural Nets: transfer learning; PyTorch; image data; autoencoders
+
 ## Further Reading
 
 - James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). *An Introduction to Statistical Learning - with Applications in R*. New York, USA: Springer New York Inc.
