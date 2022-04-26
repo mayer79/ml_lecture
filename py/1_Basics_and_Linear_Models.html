@@ -13968,7 +13968,7 @@ a.anchor-link {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
@@ -13980,28 +13980,6 @@ a.anchor-link {
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>The lab_black extension is already loaded. To reload it, use:
-  %reload_ext lab_black
-</pre>
-</div>
-</div>
-
-</div>
-
 </div>
 
 </div>
@@ -14661,20 +14639,8 @@ $$</p>
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>Prediction for 1.3 carat diamond?
--Using &#39;predict&#39;: 7769.001
+-Using &#39;predict&#39;: 7826.993
 -By hand:         7826.993
-</pre>
-</div>
-</div>
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>C:\Users\Michael\anaconda3\envs\ml_lecture\lib\site-packages\sklearn\base.py:434: UserWarning: X has feature names, but LinearRegression was fitted without feature names
 </pre>
 </div>
 </div>
@@ -14749,7 +14715,8 @@ or, equivalently, by the <em>mean-squared-error</em>
 $$
   \text{MSE} = \frac{1}{n}\sum_{i = 1}^n (y_i - \hat y_i)^2.
 $$
-To quantify the size of the typical prediction error on the same scale as $Y$, we can take the square-root of the MSE and study the <em>root-mean-squared error</em> (RMSE). Minimizing MSE also minimizes RMSE.</p>
+To quantify the size of the typical prediction error on the same scale as $Y$, we can take the square-root of the MSE and study the <em>root-mean-squared error</em> (RMSE). Minimizing MSE also minimizes RMSE.
+The squared error, i.e., the function that quantifies the prediction error of a single observation, is an example of a <em>loss function</em>. Later, we will meed other loss functions.</p>
 <p>Besides an <em>absolute</em> performance measure like the RMSE, we gain additional insights by studying a relative performance measure like the <strong>R-squared</strong>. It measures the relative decrease in MSE compared to the MSE of the "empty" or "null" model consisting only of an intercept. Put differently, the R-squared measures the proportion of variability of $Y$ explained by the covariates.</p>
 <h4 id="Example:-simple-linear-regression-(continued)">Example: simple linear regression (continued)<a class="anchor-link" href="#Example:-simple-linear-regression-(continued)">&#182;</a></h4><p>Let us calculate these performance measures for the simple linear regression above.</p>
 
@@ -14873,10 +14840,10 @@ and normal distribution of $\varepsilon$ guarantee optimality of the least-squar
   <th>Method:</th>             <td>Least Squares</td>  <th>  F-statistic:       </th>  <td>4.893e+04</td> 
 </tr>
 <tr>
-  <th>Date:</th>             <td>Fri, 12 Nov 2021</td> <th>  Prob (F-statistic):</th>   <td>  0.00</td>   
+  <th>Date:</th>             <td>Tue, 26 Apr 2022</td> <th>  Prob (F-statistic):</th>   <td>  0.00</td>   
 </tr>
 <tr>
-  <th>Time:</th>                 <td>09:30:18</td>     <th>  Log-Likelihood:    </th> <td>-4.6998e+05</td>
+  <th>Time:</th>                 <td>22:18:22</td>     <th>  Log-Likelihood:    </th> <td>-4.6998e+05</td>
 </tr>
 <tr>
   <th>No. Observations:</th>      <td> 53940</td>      <th>  AIC:               </th>  <td>9.400e+05</td> 
@@ -14993,17 +14960,17 @@ and normal distribution of $\varepsilon$ guarantee optimality of the least-squar
 
 
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<style>#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 {color: black;background-color: white;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 pre{padding: 0;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-toggleable {background-color: white;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-estimator:hover {background-color: #d4ebff;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-item {z-index: 1;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-parallel-item:only-child::after {width: 0;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348 div.sk-container {display: inline-block;position: relative;}</style><div id="sk-1db3a6dd-ce2a-4352-b2b4-7be39a969348" class"sk-top-container"><div class="sk-container"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="1f942cbf-9094-46ab-ab21-d1a34b963789" type="checkbox" ><label class="sk-toggleable__label" for="1f942cbf-9094-46ab-ab21-d1a34b963789">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[('columntransformer',
+<style>#sk-c4bb7af9-fad0-469e-a451-500487394ed7 {color: black;background-color: white;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 pre{padding: 0;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-toggleable {background-color: white;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-estimator:hover {background-color: #d4ebff;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-item {z-index: 1;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-parallel-item:only-child::after {width: 0;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-c4bb7af9-fad0-469e-a451-500487394ed7 div.sk-container {display: inline-block;position: relative;}</style><div id="sk-c4bb7af9-fad0-469e-a451-500487394ed7" class"sk-top-container"><div class="sk-container"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="4450b316-483f-4930-9c0d-4b6a2c4f45e8" type="checkbox" ><label class="sk-toggleable__label" for="4450b316-483f-4930-9c0d-4b6a2c4f45e8">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[('columntransformer',
                  ColumnTransformer(transformers=[('linear', 'passthrough',
                                                   ['carat']),
                                                  ('dummies',
                                                   OneHotEncoder(drop='first'),
                                                   ['color'])],
                                    verbose_feature_names_out=False)),
-                ('linearregression', LinearRegression())])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="16bcefc5-c547-4214-9089-1177536add11" type="checkbox" ><label class="sk-toggleable__label" for="16bcefc5-c547-4214-9089-1177536add11">columntransformer: ColumnTransformer</label><div class="sk-toggleable__content"><pre>ColumnTransformer(transformers=[('linear', 'passthrough', ['carat']),
+                ('linearregression', LinearRegression())])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="53cc7c9a-2067-4ce9-aa80-40f7d158fa1a" type="checkbox" ><label class="sk-toggleable__label" for="53cc7c9a-2067-4ce9-aa80-40f7d158fa1a">columntransformer: ColumnTransformer</label><div class="sk-toggleable__content"><pre>ColumnTransformer(transformers=[('linear', 'passthrough', ['carat']),
                                 ('dummies', OneHotEncoder(drop='first'),
                                  ['color'])],
-                  verbose_feature_names_out=False)</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="efe4fb4c-73eb-4ecf-bb26-595e478054f1" type="checkbox" ><label class="sk-toggleable__label" for="efe4fb4c-73eb-4ecf-bb26-595e478054f1">linear</label><div class="sk-toggleable__content"><pre>['carat']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="9510dfa1-6b50-483c-a8f1-c444f07d68ca" type="checkbox" ><label class="sk-toggleable__label" for="9510dfa1-6b50-483c-a8f1-c444f07d68ca">passthrough</label><div class="sk-toggleable__content"><pre>passthrough</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="4499fdbd-8042-453f-9188-762e3f17e867" type="checkbox" ><label class="sk-toggleable__label" for="4499fdbd-8042-453f-9188-762e3f17e867">dummies</label><div class="sk-toggleable__content"><pre>['color']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="c257f0c8-21d9-4760-9eb5-a60d88c3b9d0" type="checkbox" ><label class="sk-toggleable__label" for="c257f0c8-21d9-4760-9eb5-a60d88c3b9d0">OneHotEncoder</label><div class="sk-toggleable__content"><pre>OneHotEncoder(drop='first')</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="f0790610-1548-4716-9a66-58f62a584f6b" type="checkbox" ><label class="sk-toggleable__label" for="f0790610-1548-4716-9a66-58f62a584f6b">LinearRegression</label><div class="sk-toggleable__content"><pre>LinearRegression()</pre></div></div></div></div></div></div></div>
+                  verbose_feature_names_out=False)</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="98057a99-faef-4f97-8b1f-acba17300742" type="checkbox" ><label class="sk-toggleable__label" for="98057a99-faef-4f97-8b1f-acba17300742">linear</label><div class="sk-toggleable__content"><pre>['carat']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="8e606e98-2ee8-4f56-8e7a-1083b5baaae7" type="checkbox" ><label class="sk-toggleable__label" for="8e606e98-2ee8-4f56-8e7a-1083b5baaae7">passthrough</label><div class="sk-toggleable__content"><pre>passthrough</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="9f2f6934-4b3b-4e5e-9ea2-0740b13a7d83" type="checkbox" ><label class="sk-toggleable__label" for="9f2f6934-4b3b-4e5e-9ea2-0740b13a7d83">dummies</label><div class="sk-toggleable__content"><pre>['color']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a93fa478-351f-4eec-a0b7-d751882a4c84" type="checkbox" ><label class="sk-toggleable__label" for="a93fa478-351f-4eec-a0b7-d751882a4c84">OneHotEncoder</label><div class="sk-toggleable__content"><pre>OneHotEncoder(drop='first')</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="c58f29c5-92fc-43d5-81db-ff2f5813115b" type="checkbox" ><label class="sk-toggleable__label" for="c58f29c5-92fc-43d5-81db-ff2f5813115b">LinearRegression</label><div class="sk-toggleable__content"><pre>LinearRegression()</pre></div></div></div></div></div></div></div>
 </div>
 
 </div>
@@ -15499,7 +15466,7 @@ RMSE: 2065.555
 <ul>
 <li>Indeed, we have fitted a logarithmic relationship between carat and price. The scatterplots (on log-scale and back-transformed to original scale) reveal that this does not make much sense. The model looks wrong. Shouldn't we better take the logarithm of <em>price</em>?</li>
 <li>As usual, we can say that a one-point increase in <code>log(carat)</code> leads to a expected price increase of 5836 USD.</li>
-<li>Back-transformed, this amounts to saying that a 1% increase in <code>carat</code> is associated with a price increase of about 5836/100 = 60 CHF.</li>
+<li>Back-transformed, this amounts to saying that a 1% increase in <code>carat</code> is associated with a price increase of about 5836/100 = 60 USD.</li>
 </ul>
 <h3 id="Logarithmic-response">Logarithmic response<a class="anchor-link" href="#Logarithmic-response">&#182;</a></h3><p>We have seen that taking logarithms not only reduces outlier effects in covariates but they also allow to think in percentages. What happens if we log-transform the response variable? The model of a simple linear regression would be
 $$
@@ -15788,10 +15755,10 @@ Relative bias on original scale: 3.1%
   <th>Method:</th>             <td>Least Squares</td>  <th>  F-statistic:       </th>  <td>1.693e+05</td>
 </tr>
 <tr>
-  <th>Date:</th>             <td>Mon, 27 Dec 2021</td> <th>  Prob (F-statistic):</th>   <td>  0.00</td>  
+  <th>Date:</th>             <td>Tue, 26 Apr 2022</td> <th>  Prob (F-statistic):</th>   <td>  0.00</td>  
 </tr>
 <tr>
-  <th>Time:</th>                 <td>13:36:41</td>     <th>  Log-Likelihood:    </th>  <td>  31967.</td> 
+  <th>Time:</th>                 <td>22:18:32</td>     <th>  Log-Likelihood:    </th>  <td>  31967.</td> 
 </tr>
 <tr>
   <th>No. Observations:</th>      <td> 53940</td>      <th>  AIC:               </th> <td>-6.390e+04</td>
@@ -16111,7 +16078,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <ol>
 <li>A linear function of the covariates, exactly as in linear regression.</li>
 <li>The link function $g$. Its purpose is to map $E(Y)$ to the scale of the linear function. Or the other way round: The inverse link $g^{-1}$ maps the linear part to the scale of the response.</li>
-<li>A distribution of $Y$ conditional on the covariates.</li>
+<li>A distribution of $Y$ conditional on the covariates. It implies the loss function to be minimized.</li>
 </ol>
 <p>The following table lists some of the most used GLMs.</p>
 <table>
@@ -16122,7 +16089,6 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <th>Natural link</th>
 <th>Typical link</th>
 <th>Loss function</th>
-<th>Loss of one row</th>
 </tr>
 </thead>
 <tbody>
@@ -16132,8 +16098,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <td>$(-\infty, \infty)$</td>
 <td>Identity</td>
 <td>Identity</td>
-<td>MSE</td>
-<td>$(y - \hat y)^2$</td>
+<td>Squared error: $(y - \hat y)^2$</td>
 </tr>
 <tr>
 <td>Logistic</td>
@@ -16141,8 +16106,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <td>$\{0, 1\}$</td>
 <td>logit</td>
 <td>logit</td>
-<td>Binary cross-entropy</td>
-<td>$-(y\log(\hat y) + (1-y) \log(1-\hat y))$</td>
+<td>Binary cross-entropy: $-(y\log(\hat y) + (1-y) \log(1-\hat y))$</td>
 </tr>
 <tr>
 <td>Poisson</td>
@@ -16150,8 +16114,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <td>$[0, \infty)$</td>
 <td>log</td>
 <td>log</td>
-<td>Poisson deviance</td>
-<td>$2(y \log(y / \hat y) - (y - \hat y))$</td>
+<td>Unit Poisson deviance:  $2(y \log(y / \hat y) - (y - \hat y))$</td>
 </tr>
 <tr>
 <td>Gamma</td>
@@ -16159,8 +16122,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <td>$(0, \infty)$</td>
 <td>1/x</td>
 <td>log</td>
-<td>Gamma deviance</td>
-<td>$2 ((y - \hat y) / \hat y - \log(y / \hat y))$</td>
+<td>Unit Gamma deviance: $2 ((y - \hat y) / \hat y - \log(y / \hat y))$</td>
 </tr>
 <tr>
 <td>Multinomial</td>
@@ -16168,8 +16130,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <td>$\{C_1, \dots, C_m\}$</td>
 <td>mlogit</td>
 <td>mlogit</td>
-<td>Categorical cross-entropy</td>
-<td>$-\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$</td>
+<td>Categorical cross-entropy: $-\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$</td>
 </tr>
 </tbody>
 </table>
@@ -16212,8 +16173,8 @@ $$
 It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e., the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The <em>probability</em> to get a "6" is 1/6 whereas the <em>odds</em> to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds, thus a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called <em>odds ratios</em>. There is no easy way to interpret the coefficients on the original probability scale.</li>
 </ul>
 <p><img src="../figs/log_odds.png" alt=""></p>
-<h2 id="Parameter-estimation-and-deviance">Parameter estimation and deviance<a class="anchor-link" href="#Parameter-estimation-and-deviance">&#182;</a></h2><p>Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective or loss function called <em>deviance</em>, which is the sum of the loss per row (see table above), eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as MSE for linear regression. It sometimes also makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the MSE loss, this equals the usual R-squared.</p>
-<p>Remark: The deviance of the logistic regression is equivalent to <em>cross-entropy</em> or <em>log loss</em>.</p>
+<h2 id="Parameter-estimation-and-deviance">Parameter estimation and deviance<a class="anchor-link" href="#Parameter-estimation-and-deviance">&#182;</a></h2><p>Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective criterion called <em>deviance</em>, which is the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes also makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the normal linear regression model, this equals the usual R-squared.</p>
+<p>Remark: The unit deviance of the logistic regression is equivalent to <em>cross-entropy</em> or <em>log loss</em>.</p>
 <p><strong>Outlook:</strong> The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g., if the response is binary, one typically selects binary cross-entropy as the optimization criterion.</p>
 <h2 id="Example:-Poisson-count-regression">Example: Poisson count regression<a class="anchor-link" href="#Example:-Poisson-count-regression">&#182;</a></h2><p>We now model claim counts for the <code>insuranceData</code> by a Poisson GLM with its natural link function, the log. It makes sure that we can interpret covariate effects on a relative scale and that predictions are positive.</p>
 
@@ -16390,7 +16351,7 @@ It maps probabilities to the real line. The inverse logit ("sigmoidal transforma
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Distribution of the claim count:
+<pre>Distribution of the claim counts:
 0    63232
 1     4333
 2      271
@@ -16599,10 +16560,10 @@ Name: numclaims, dtype: int64
   <th>Method:</th>                <td>IRLS</td>       <th>  Log-Likelihood:    </th> <td> -18032.</td>
 </tr>
 <tr>
-  <th>Date:</th>            <td>Mon, 27 Dec 2021</td> <th>  Deviance:          </th> <td>  26629.</td>
+  <th>Date:</th>            <td>Tue, 26 Apr 2022</td> <th>  Deviance:          </th> <td>  26629.</td>
 </tr>
 <tr>
-  <th>Time:</th>                <td>11:39:16</td>     <th>  Pearson chi2:      </th> <td>7.21e+04</td>
+  <th>Time:</th>                <td>22:18:39</td>     <th>  Pearson chi2:      </th> <td>7.21e+04</td>
 </tr>
 <tr>
   <th>No. Iterations:</th>          <td>6</td>        <th>  Pseudo R-squ. (CS):</th> <td>0.002047</td>
@@ -16948,7 +16909,7 @@ Intercept: -1.375
 <span class="n">car</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 
 <span class="c1"># Describe response</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distribution of claim (y/n):&quot;</span><span class="p">,</span> <span class="n">car</span><span class="p">[</span><span class="s2">&quot;clm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(),</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distribution of claim (y/n):&quot;</span><span class="p">,</span> <span class="n">car</span><span class="p">[</span><span class="s2">&quot;clm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(),</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Deviance of intercept only model (= null deviance)</span>
 <span class="n">mod0</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">glm</span><span class="p">(</span><span class="s2">&quot;clm ~ 1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">car</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">sm</span><span class="o">.</span><span class="n">families</span><span class="o">.</span><span class="n">Binomial</span><span class="p">())</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
@@ -17014,10 +16975,10 @@ Null deviance: 33766.798
   <th>Method:</th>                <td>IRLS</td>       <th>  Log-Likelihood:    </th> <td> -16816.</td>
 </tr>
 <tr>
-  <th>Date:</th>            <td>Mon, 27 Dec 2021</td> <th>  Deviance:          </th> <td>  33632.</td>
+  <th>Date:</th>            <td>Tue, 26 Apr 2022</td> <th>  Deviance:          </th> <td>  33632.</td>
 </tr>
 <tr>
-  <th>Time:</th>                <td>12:03:56</td>     <th>  Pearson chi2:      </th> <td>6.78e+04</td>
+  <th>Time:</th>                <td>22:18:51</td>     <th>  Pearson chi2:      </th> <td>6.78e+04</td>
 </tr>
 <tr>
   <th>No. Iterations:</th>          <td>6</td>        <th>  Pseudo R-squ. (CS):</th> <td>0.001986</td>
