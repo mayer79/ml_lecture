@@ -140,7 +140,7 @@ Neural nets are typically fitted by **mini-batch gradient descent**, using **bac
 
 1. Initiate the parameters with random values. 
 2. Forward step: Use the parameters to predict all observations of a *batch*. A batch is a randomly selected subset of the full data set.
-3. Backpropagation step: Change the parameters in the right direction, making the loss of the current batch smaller. This involves calculating derivatives ("gradients") of the loss function (e.g. MSE) with respect to all parameters. Backpropagation does so in a layer-per-layer fashion, making heavy use of the chain rule. 
+3. Backpropagation step: Change the parameters in the right direction, making the average loss (e.g., the MSE) of the current batch smaller. This involves calculating derivatives ("gradients") of the loss function with respect to all parameters. Backpropagation does so in a layer-per-layer fashion, making heavy use of the chain rule. 
 4. Repeat Steps 2-3 until each observation appeared in a batch. This is called an *epoch*.
 5. Repeat Step 4 for multiple epochs until the parameter estimates stabilize or validation performance stops improving.
 
@@ -644,7 +644,7 @@ light_importance(fl, v = x) %>%
 
 # Partial dependence
 light_profile(fl, v = "veh_value", breaks = seq(0, 5, by = 0.1)) %>% 
-  plot() %>% 
+  plot() +
   labs(title = "Partial dependence plot for veh_value", y = "price")
 
 light_profile(fl, v = "veh_body") %>% 
@@ -662,7 +662,7 @@ light_profile(fl, v = "agecat") %>%
 
 # Exercises
 
-1. Fit diamond prices by gamma deviance loss with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it (for simplicity) on the validation dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
+1. Fit diamond prices by minimizing Gamma deviance with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it (for simplicity) on the validation dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
 
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
