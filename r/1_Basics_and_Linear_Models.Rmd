@@ -758,9 +758,9 @@ It maps probabilities to the real line. The inverse logit ("sigmoidal transforma
 
 ## Parameter estimation and deviance
 
-Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective criterion called *deviance*, which is the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes also makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the normal linear regression model, this equals the usual R-squared.
+Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective criterion called (total) *deviance*, which is the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes also makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the normal linear regression model, this equals the usual R-squared.
 
-Remark: The unit deviance of the logistic regression is equivalent to *cross-entropy* or *log loss*. 
+Remark: The unit deviance of the logistic regression equals twice the *cross-entropy* (= "log loss"). 
 
 **Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g., if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
 

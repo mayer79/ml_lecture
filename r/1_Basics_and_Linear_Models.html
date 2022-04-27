@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2022-04-26" />
+<meta name="date" content="2022-04-27" />
 
 <title>Basics and Linear Models</title>
 
@@ -2854,7 +2854,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Basics and Linear Models</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2022-04-26</h4>
+<h4 class="date">2022-04-27</h4>
 
 </div>
 
@@ -4105,8 +4105,8 @@ on the original probability scale.</li>
 <div id="parameter-estimation-and-deviance" class="section level2" number="3.4">
 <h2><span class="header-section-number">3.4</span> Parameter estimation
 and deviance</h2>
-<p>Parameters of a GLM are estimated by Maximum-Likelihood theory. This
-amounts to minimizing a distribution specific objective criterion called
+<p>Parameters of a GLM are estimated by Maximum-Likelihood. This amounts
+to minimizing a distribution specific objective criterion called (total)
 <em>deviance</em>, which is the sum of the losses (see table above) of
 all rows, eventually weighted by case weights. For the normal linear
 model, deviance (divided by n) is equivalent to MSE. In fact, deviance
@@ -4114,8 +4114,8 @@ plays the same role for GLMs as the MSE for linear regression. It
 sometimes also makes sense to use relative deviance improvement compared
 to an empty model as a relative performance measure. For the normal
 linear regression model, this equals the usual R-squared.</p>
-<p>Remark: The unit deviance of the logistic regression is equivalent to
-<em>cross-entropy</em> or <em>log loss</em>.</p>
+<p>Remark: The unit deviance of the logistic regression equals twice the
+<em>cross-entropy</em> (= “log loss”).</p>
 <p><strong>Outlook:</strong> The loss functions used in the context of
 GLMs are used one-to-one as loss functions for other ML methods like
 gradient boosting or neural networks. There, the “appropriate” loss
