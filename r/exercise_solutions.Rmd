@@ -284,7 +284,7 @@ pred <- predict(fit, dataCar[ix$test, ])$predictions[, 2]
 mse(dataCar[ix$test, "clm"], pred)  # 0.06337011
 r_squared(dataCar[ix$test, "clm"], pred) # 0.002069925
 
-# Alternative to Brier score: relative log-loss resp. deviance improvement
+# Alternative to Brier score: relative log loss/deviance improvement
 r_squared_bernoulli(dataCar[ix$test, "clm"], pred) # 0.004246408
 ```
 
@@ -489,7 +489,7 @@ r_squared_bernoulli(dataCar$clm[ix$test], pred) # 0.00427
 # Relative performance gain is very low, but very slightly better than 
 # of the tuned random forest.
 
-# Variable importance regarding loss improvement
+# Variable importance regarding total loss improvement
 imp <- xgb.importance(model = fit)
 xgb.plot.importance(imp)
 
@@ -642,7 +642,7 @@ r_squared_bernoulli(dataCar$clm[ix$test], pred) # 0.00445
 # Relative performance gain is very low, but very slightly better than 
 # of the tuned XGB model (could be the other way round).
 
-# Variable importance regarding loss improvement
+# Variable importance regarding total loss improvement
 imp <- lgb.importance(model = fit)
 lgb.plot.importance(imp)
 
