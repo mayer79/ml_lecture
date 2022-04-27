@@ -30,11 +30,12 @@ A decision tree is a simple, easy to interpret modeling technique for both regre
 
 In our journey to estimate the model $f$ by $\hat f$, we have considered mainly linear functions $f$ so far. We now move to a different function class: decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called "Classification and Regression Trees" (CART). 
 
-(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen to optimize the given loss by asking the best "yes/no" question about the covariates, e.g., "is carat < 1?" or "is color better than F?".
+(Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen to optimize the given average loss by asking the best "yes/no" question about the covariates, e.g., "is carat < 1?" or "is color better than F?".
 
-Typical loss functions (= "objectives") are the MSE for regression problems and information (= cross-entropy = log loss = logistic deviance) or Gini impurity for classification. The latter can be viewed as a "variance" for categorical variables.
+For regression problems, the most frequently used loss function is the squared error.
+For classification, its "information" (= cross-entropy = log loss = half the unit logistic deviance) or the very similar Gini impurity.
 
-Predictions are calculated by sending an observation through the tree, starting with the question at the "trunk" and ending in a "leaf". The prediction is the value associated with the leaf. For MSE loss, the leaf values equal the average response of all observations in the leaf. In classification settings, it may be the most frequent class in the leaf or all class probabilities.
+Predictions are calculated by sending an observation through the tree, starting with the question at the "trunk" and ending in a "leaf". The prediction is the value associated with the leaf. For regression situations, such leaf value typically equals the average response of all observations in the leaf. In classification settings, it may be the most frequent class in the leaf or all class probabilities.
 
 The concept of a decision tree is best understood with an example.
 
@@ -70,7 +71,7 @@ predict(fit, dataCar[1, ])
 **Comments**
 
 - The first observation belongs to a person in age category 2 and has a $10'600 hatchback: the first question sends us to the right, the second to the left and the third to the right. This gives us a claim probability of 6.7%.
-- How was, e.g., the first question (`agecat >= 5`) chosen? The algorithm scans all covariates for all possible split positions and picks the one with best loss improvement. In this case, splitting on covariate `agecat` at the value 5 reduced the loss most.
+- How was, e.g., the first question (`agecat >= 5`) chosen? The algorithm scans all covariates for all possible split positions and picks the one with best average loss improvement. In this case, splitting on covariate `agecat` at the value 5 reduced the average loss most.
 
 **Properties of decision trees**
 
@@ -142,7 +143,7 @@ In contrast to a single decision tree or a linear model, a combination of many t
 
 ### Variable importance
 
-There are different approaches to measure the importance of a covariate. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariate $X$ was used in a split or how much loss improvement came from splitting on $X$.
+There are different approaches to measure the importance of a covariate. Since there is no general mathematical definition of "importance", the results of different approaches might be inconsistent across each other. For tree-based methods, a usual approach is to measure how many times a covariate $X$ was used in a split or how much total loss improvement came from splitting on $X$.
 
 Approaches that work for *any* supervised model (including neural nets) include **permutation importance** and **SHAP importance**.
 
@@ -209,11 +210,11 @@ Modern variants of such *gradient boosted trees* are [XGBoost](https://xgboost.r
 
 ![](../figs/comparison_boosting.PNG).
 
-Predictions are calculated similar to random forests, i.e., by combining predictions of all trees. As loss/objective function, one can choose among many possibilities. Often, using the same loss as a corresponding GLM is a good choice.
+Predictions are calculated similar to random forests, i.e., by combining predictions of all trees. As loss/objective function, one can choose among many possibilities. Often, using the same loss function as a corresponding GLM is a good choice.
 
 ## Example: XGBoost (untuned)
 
-As an initial example on gradient boosting and XGBoost, we fit a model for diamond prices with MSE loss. The number of rounds/trees is chosen by early stopping on the validation data, i.e., until validation RMSE stops improving for a couple or rounds. The learning rate (weight of each tree) is chosen by trial and error in order to end up with a reasonably small/large number of trees, see the next section for more details.
+As an initial example on gradient boosting and XGBoost, we fit a model for diamond prices with squared error as loss function. The number of rounds/trees is chosen by early stopping on the validation data, i.e., until validation (R)MSE stops improving for a couple or rounds. The learning rate (weight of each tree) is chosen by trial and error in order to end up with a reasonably small/large number of trees, see the next section for more details.
 
 ```{r}
 library(ggplot2)
@@ -274,21 +275,21 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
 
 - **Regularization parameters:** Depending on the implementation, additional parameters are
     - the tree depth (often 3-7) or the number of leaves (often 7-63), 
-    - the strength of the L1 and/or L2 penalties added to the loss function (often between 0 and 5), 
+    - the strength of the L1 and/or L2 penalties added to the objective function (often between 0 and 5), 
     - the row subsampling rate (often between 0.8 and 1), 
     - the column subsampling rate (often between 0.6 and 1), 
     - ...
   
-  Reasonable regularization parameters are chosen by trial and error or systematically by randomized or grid search CV. Usually, it takes a couple of iterations until the range of the parameter values have been set appropriately.
+    Reasonable regularization parameters are chosen by trial and error or systematically by randomized or grid search CV. Usually, it takes a couple of iterations until the range of the parameter values have been set appropriately.
 
 Note on tuning: Since learning rate, number of boosting rounds and regularization parameters are heavily interdependent, a "big" randomized grid search CV to choose learning rate, boosting rounds and regularization is often not ideal. Above suggestion (fix learning rate, select number of rounds by early stopping and do grid search only on regularization parameters) is more focussed, see also the example below.
 
-Note on **evaluation metrics**: While loss/objective functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, tune parameters and select models. Ideally, it is consistent with the loss function of the specific algorithm (for instance RMSE as metric and MSE as loss), but in some cases it might differ.
-For classification, besides studying (multi-)log loss, e.g., one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc.  [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts. The confusion matrix tabulates the combinations of actual classes and predicted classes. Note that such measures derived from the confusion matrix do not enjoy good statistical properties and focussing on them might lead to suboptimal models.
+Note on **evaluation metrics**: While loss functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, to tune parameters and to select models. Ideally, it is consistent with the loss function of the specific algorithm (for instance RMSE as metric and squared error as loss), but there might be exceptions.
+For classification, besides monitoring average (multi-)log loss, e.g., one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc.  [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts. The confusion matrix tabulates the combinations of actual classes and predicted classes. Note that such measures derived from the confusion matrix do not enjoy good statistical properties and focussing on them might lead to suboptimal models.
 
 ## Example: XGBoost (tuned)
 
-We will use XGBoost to fit diamond prices using MSE as loss function and evaluation metric, now using a sophisticated tuning strategy.
+We will use XGBoost to fit diamond prices using the squared error as loss function and RMSE as evaluation metric, now using a sophisticated tuning strategy.
 
 Overall, the modelling strategy is as follows:
 
@@ -454,7 +455,7 @@ light_profile(fl, v = "color") %>%
 ## Exercises
 
 1. Study the online documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e., just by refitting the final model. How does the partial dependence plot for `carat` look now?
-2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss both as objective and evaluation metric. Interpret its results.
+2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss as loss function and evaluation metric. Interpret its results.
 3. Optional. Study the documentation of [LightGBM](https://lightgbm.readthedocs.io/en/latest/). Use LightGBM to develop a competitor to the XGBoost claims model from Exercise 2. The XGBoost code needs to be slightly adapted. Compare grid search time.
 
 # Chapter Summary
