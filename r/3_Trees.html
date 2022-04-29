@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2022-04-27" />
+<meta name="date" content="2022-04-29" />
 
 <title>Trees</title>
 
@@ -2854,7 +2854,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Trees</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2022-04-27</h4>
+<h4 class="date">2022-04-29</h4>
 
 </div>
 
@@ -3320,19 +3320,6 @@ regularization is often not ideal. Above suggestion (fix learning rate,
 select number of rounds by early stopping and do grid search only on
 regularization parameters) is more focussed, see also the example
 below.</p>
-<p>Note on <strong>evaluation metrics</strong>: While loss functions are
-used by the algorithm to <em>fit</em> the model, an evaluation metric is
-a function used to monitor performance, to tune parameters and to select
-models. Ideally, it is consistent with the loss function of the specific
-algorithm (for instance RMSE as metric and squared error as loss), but
-there might be exceptions. For classification, besides monitoring
-average (multi-)log loss, e.g., one sometimes considers the
-<em>confusion matrix</em> and its derived measures like accuracy,
-precision, recall, F1-score etc. <a href="https://en.wikipedia.org/wiki/Confusion_matrix">Wikipedia</a>
-summarizes these concepts. The confusion matrix tabulates the
-combinations of actual classes and predicted classes. Note that such
-measures derived from the confusion matrix do not enjoy good statistical
-properties and focussing on them might lead to suboptimal models.</p>
 </div>
 <div id="example-xgboost-tuned" class="section level2" number="4.3">
 <h2><span class="header-section-number">4.3</span> Example: XGBoost
