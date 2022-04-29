@@ -261,7 +261,10 @@ or, equivalently, by the *mean-squared-error*
 $$
   \text{MSE} = \frac{1}{n}\sum_{i = 1}^n (y_i - \hat y_i)^2.
 $$
-To quantify the size of the typical prediction error on the same scale as $Y$, we can take the square-root of the MSE and study the *root-mean-squared error* (RMSE). Minimizing MSE also minimizes RMSE. The squared error, i.e., the function that quantifies the prediction error of a single observation, is an example of a *loss function*. Later, we will meed other loss functions.
+To quantify the size of the typical prediction error on the same scale as $Y$, we can take the square-root of the MSE and study the *root-mean-squared error* (RMSE). Minimizing MSE also minimizes RMSE. 
+
+Remark: The squared error, i.e., the function that quantifies the prediction error or *loss* of a single observation, is an example of a *loss function*. Later, we will meed other loss functions. 
+Generally speaking, supervised ML algorithms try to minimize as objective function the total (or average) loss over the training sample, eventually adding a regularization penalty against overfitting. Overfitting is the tendency of the model to learn the training dataset by heart, i.e., it performs much better on the training data than on unseen data. The losses can be weighted in order to deal with case weights.
 
 Besides an *absolute* performance measure like the RMSE, we gain additional insights by studying a relative performance measure like the **R-squared**. It measures the relative decrease in MSE compared to the MSE of the "empty" or "null" model consisting only of an intercept. Put differently, the R-squared measures the proportion of variability of $Y$ explained by the covariates.
 
@@ -698,7 +701,7 @@ Thus, a GLM has three components:
 
 1. A linear function of the covariates, exactly as in linear regression.
 2. The link function $g$. Its purpose is to map $E(Y)$ to the scale of the linear function. Or the other way round: The inverse link $g^{-1}$ maps the linear part to the scale of the response.
-3. A distribution of $Y$ conditional on the covariates. It implies the loss function to be minimized.
+3. A distribution of $Y$ conditional on the covariates. It implies the loss function to be minimized over the training sample.
 
 The following table lists some of the most used GLMs.
 
@@ -758,9 +761,9 @@ It maps probabilities to the real line. The inverse logit ("sigmoidal transforma
 
 ## Parameter estimation and deviance
 
-Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective criterion called (total) *deviance*, which is the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes also makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the normal linear regression model, this equals the usual R-squared.
+Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective criterion called (total) *deviance*, which is proportional to the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes makes sense to consider as a relative performance measure the relative deviance improvement compared to an empty model. For the normal linear regression model, this equals the usual R-squared.
 
-Remark: The unit deviance of the logistic regression equals twice the *cross-entropy* (= "log loss"). 
+Remark: The unit deviance of the logistic regression equals twice the binary *cross-entropy* (= "log loss"). 
 
 **Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g., if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
 

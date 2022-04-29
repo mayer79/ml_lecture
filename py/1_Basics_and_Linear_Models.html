@@ -14715,8 +14715,9 @@ or, equivalently, by the <em>mean-squared-error</em>
 $$
   \text{MSE} = \frac{1}{n}\sum_{i = 1}^n (y_i - \hat y_i)^2.
 $$
-To quantify the size of the typical prediction error on the same scale as $Y$, we can take the square-root of the MSE and study the <em>root-mean-squared error</em> (RMSE). Minimizing MSE also minimizes RMSE.
-The squared error, i.e., the function that quantifies the prediction error of a single observation, is an example of a <em>loss function</em>. Later, we will meed other loss functions.</p>
+To quantify the size of the typical prediction error on the same scale as $Y$, we can take the square-root of the MSE and study the <em>root-mean-squared error</em> (RMSE). Minimizing MSE also minimizes RMSE.</p>
+<p>Remark: The squared error, i.e., the function that quantifies the prediction error or <em>loss</em> of a single observation, is an example of a <em>loss function</em>. Later, we will meed other loss functions. 
+Generally speaking, supervised ML algorithms try to minimize as objective function the total (or average) loss over the training sample, eventually adding a regularization penalty against overfitting. Overfitting is the tendency of the model to learn the training dataset by heart, i.e., it performs much better on the training data than on unseen data. The losses can be weighted in order to deal with case weights.</p>
 <p>Besides an <em>absolute</em> performance measure like the RMSE, we gain additional insights by studying a relative performance measure like the <strong>R-squared</strong>. It measures the relative decrease in MSE compared to the MSE of the "empty" or "null" model consisting only of an intercept. Put differently, the R-squared measures the proportion of variability of $Y$ explained by the covariates.</p>
 <h4 id="Example:-simple-linear-regression-(continued)">Example: simple linear regression (continued)<a class="anchor-link" href="#Example:-simple-linear-regression-(continued)">&#182;</a></h4><p>Let us calculate these performance measures for the simple linear regression above.</p>
 
@@ -16078,7 +16079,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <ol>
 <li>A linear function of the covariates, exactly as in linear regression.</li>
 <li>The link function $g$. Its purpose is to map $E(Y)$ to the scale of the linear function. Or the other way round: The inverse link $g^{-1}$ maps the linear part to the scale of the response.</li>
-<li>A distribution of $Y$ conditional on the covariates. It implies the loss function to be minimized.</li>
+<li>A distribution of $Y$ conditional on the covariates. It implies the loss function to be minimized over the training sample.</li>
 </ol>
 <p>The following table lists some of the most used GLMs.</p>
 <table>
@@ -16173,8 +16174,8 @@ $$
 It maps probabilities to the real line. The inverse logit ("sigmoidal transformation" or "logistic function") reverts this: It maps real values to the range from 0 to 1. Odds, i.e., the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The <em>probability</em> to get a "6" is 1/6 whereas the <em>odds</em> to get a "6" is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds, thus a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called <em>odds ratios</em>. There is no easy way to interpret the coefficients on the original probability scale.</li>
 </ul>
 <p><img src="../figs/log_odds.png" alt=""></p>
-<h2 id="Parameter-estimation-and-deviance">Parameter estimation and deviance<a class="anchor-link" href="#Parameter-estimation-and-deviance">&#182;</a></h2><p>Parameters of a GLM are estimated by Maximum-Likelihood theory. This amounts to minimizing a distribution specific objective criterion called <em>deviance</em>, which is the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes also makes sense to use relative deviance improvement compared to an empty model as a relative performance measure. For the normal linear regression model, this equals the usual R-squared.</p>
-<p>Remark: The unit deviance of the logistic regression equals twice the <em>cross-entropy</em> (= "log loss").</p>
+<h2 id="Parameter-estimation-and-deviance">Parameter estimation and deviance<a class="anchor-link" href="#Parameter-estimation-and-deviance">&#182;</a></h2><p>Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective criterion called (total) <em>deviance</em>, which is proportional to the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes makes sense to consider as a relative performance measure the relative deviance improvement compared to an empty model. For the normal linear regression model, this equals the usual R-squared.</p>
+<p>Remark: The unit deviance of the logistic regression equals twice the binary <em>cross-entropy</em> (= "log loss").</p>
 <p><strong>Outlook:</strong> The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g., if the response is binary, one typically selects binary cross-entropy as the optimization criterion.</p>
 <h2 id="Example:-Poisson-count-regression">Example: Poisson count regression<a class="anchor-link" href="#Example:-Poisson-count-regression">&#182;</a></h2><p>We now model claim counts for the <code>insuranceData</code> by a Poisson GLM with its natural link function, the log. It makes sure that we can interpret covariate effects on a relative scale and that predictions are positive.</p>
 
