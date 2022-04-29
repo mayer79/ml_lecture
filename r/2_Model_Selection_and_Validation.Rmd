@@ -26,6 +26,9 @@ In the previous chapter, we have met performance measures like the RMSE or the d
 
 In this chapter, we will meet ways to estimate the performance of a model in a fair way and use it to select the best model among alternatives. They are all based on data splitting techniques, where the models are evaluated on fresh data not used for model calculation. Before introducing these techniques, we will meet a competitor of the linear model.
 
+Remark on performance measures: While loss functions are used by the algorithm to *fit* the model, a performance measure or an *evaluation metric* is a function used to monitor performance and to select models. Ideally, it is consistent with the loss function of the specific algorithm (for instance RMSE as metric and squared error as loss), but sometimes one makes an exception.
+For classification, besides monitoring average (multi-)log loss, e.g., one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc. [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts. The confusion matrix tabulates the combinations of actual classes and predicted classes. Note that measures derived from the confusion matrix do not enjoy good statistical properties and focussing on them might lead to suboptimal models. They should thus not be used for making decisions but rather as additional, easy to understand information.
+
 # Nearest-Neighbour
 
 A very simple and intuitive alternative to the linear model is the k-nearest-neighbour approach, originally introduced by Evelyn Fix and J. L. Hodges in an unpublished technical report in 1951. It can be applied for both regression and classification and works without fitting anything. The prediction for an observation is obtained by 
@@ -75,7 +78,7 @@ With simple validation, the original data set is partitioned into *training* dat
 
 We can use the validation performance to compare *algorithms* (regression versus k-nearest-neighbour etc.) and also to choose their *hyperparameters* like the "k" of k-nearest-neighbour.
 
-Furthermore, the performance difference between training and validation data indicates the amount of overfitting.
+Furthermore, the performance difference between training and validation data gives an impression of the amount of overfitting.
 
 ## Example: simple validation
 

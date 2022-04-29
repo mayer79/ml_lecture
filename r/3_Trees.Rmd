@@ -284,9 +284,6 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
 
 Note on tuning: Since learning rate, number of boosting rounds and regularization parameters are heavily interdependent, a "big" randomized grid search CV to choose learning rate, boosting rounds and regularization is often not ideal. Above suggestion (fix learning rate, select number of rounds by early stopping and do grid search only on regularization parameters) is more focussed, see also the example below.
 
-Note on **evaluation metrics**: While loss functions are used by the algorithm to *fit* the model, an evaluation metric is a function used to monitor performance, to tune parameters and to select models. Ideally, it is consistent with the loss function of the specific algorithm (for instance RMSE as metric and squared error as loss), but there might be exceptions.
-For classification, besides monitoring average (multi-)log loss, e.g., one sometimes considers the *confusion matrix* and its derived measures like accuracy, precision, recall, F1-score etc.  [Wikipedia](https://en.wikipedia.org/wiki/Confusion_matrix) summarizes these concepts. The confusion matrix tabulates the combinations of actual classes and predicted classes. Note that such measures derived from the confusion matrix do not enjoy good statistical properties and focussing on them might lead to suboptimal models.
-
 ## Example: XGBoost (tuned)
 
 We will use XGBoost to fit diamond prices using the squared error as loss function and RMSE as evaluation metric, now using a sophisticated tuning strategy.
