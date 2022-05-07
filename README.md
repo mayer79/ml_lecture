@@ -139,17 +139,17 @@ simple_model %>%
 
 ## Further Reading
 
-- James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). *An Introduction to Statistical Learning - with Applications in R*. New York, USA: Springer New York Inc.
+- James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). *An Introduction to Statistical Learning - with Applications in R*. New York: Springer.
 
-- Hastie, T., Tibshirani, R., Friedman, J. (2001). *The Elements of Statistical Learning*. New York, USA: Springer New York Inc.
+- Hastie, T., Tibshirani, R., Friedman, J. (2001). *The Elements of Statistical Learning: Data Mining, Inference, and Prediction*. New York: Springer.
 
 - Wickham, H., Grolemund, G. (2017). *R for Data Science: Import, Tidy, Transform, Visualize, and Model Data*. O'Reilly Media. 
 
-- VanderPlas, J. (2016). *Python data science handbook : essential tools for working with data*. Sebastopol, CA: O'Reilly Media, Inc.
+- VanderPlas, J. (2016). *Python data science handbook : essential tools for working with data*. O'Reilly Media.
 
-- Chollet, F. (2017). *Deep Learning with Python*. Manning.
+- Chollet, F. (2017). *Deep Learning with Python*. Manning Publications Co.
 
-- Chollet, F., Allaire, J. J. (2018). *Deep Learning with R*. Manning.
+- Chollet, F., Allaire, J. J. (2018). *Deep Learning with R*. Manning Publications Co.
 
 
 
