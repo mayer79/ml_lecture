@@ -136,6 +136,7 @@ simple_model %>%
 - Trees: supervised clustering; SHAP; interaction constraints
 - Neural Nets: transfer learning; PyTorch; image data; autoencoders
 - General: distribution of predictions; quantile regression; when is overfitting (un-)problematic?
+- XAI: How to use insights from complex ML model to improve GLM?
 
 ## Further Reading
 
