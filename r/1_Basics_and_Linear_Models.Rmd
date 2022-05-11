@@ -706,7 +706,7 @@ Thus, a GLM has three components:
 The following table lists some of the most used GLMs.
 
 | Regression | Distribution| Range of $Y$          | Natural link| Typical link  | Loss function
-|------------|-------------|-----------------------|-------------|---------------|----------------
+|:----------:|:-----------:|:---------------------:|:-----------:|:-------------:|:-----------------------------
 | Linear     | Normal      | $(-\infty, \infty)$   | Identity    | Identity      | Squared error: $(y - \hat y)^2$
 | Logistic   | Binary      | $\{0, 1\}$            | logit       | logit         | Binary cross-entropy: $-(y\log(\hat y) + (1-y) \log(1-\hat y))$
 | Poisson    | Poisson     | $[0, \infty)$         | log         | log           | Unit Poisson deviance:  $2(y \log(y / \hat y) - (y - \hat y))$

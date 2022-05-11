@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2022-04-29" />
+<meta name="date" content="2022-05-11" />
 
 <title>Basics and Linear Models</title>
 
@@ -2854,7 +2854,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Basics and Linear Models</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2022-04-29</h4>
+<h4 class="date">2022-05-11</h4>
 
 </div>
 
@@ -3941,70 +3941,72 @@ on the covariates. It implies the loss function to be minimized over the
 training sample.</li>
 </ol>
 <p>The following table lists some of the most used GLMs.</p>
-<table style="width:100%;">
+<table>
 <colgroup>
-<col width="13%" />
+<col width="11%" />
+<col width="12%" />
+<col width="21%" />
+<col width="12%" />
 <col width="14%" />
-<col width="25%" />
-<col width="14%" />
-<col width="16%" />
-<col width="17%" />
+<col width="28%" />
 </colgroup>
 <thead>
 <tr class="header">
-<th>Regression</th>
-<th>Distribution</th>
-<th>Range of <span class="math inline">\(Y\)</span></th>
-<th>Natural link</th>
-<th>Typical link</th>
-<th>Loss function</th>
+<th align="center">Regression</th>
+<th align="center">Distribution</th>
+<th align="center">Range of <span class="math inline">\(Y\)</span></th>
+<th align="center">Natural link</th>
+<th align="center">Typical link</th>
+<th align="left">Loss function</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Linear</td>
-<td>Normal</td>
-<td><span class="math inline">\((-\infty, \infty)\)</span></td>
-<td>Identity</td>
-<td>Identity</td>
-<td>Squared error: <span class="math inline">\((y - \hat
+<td align="center">Linear</td>
+<td align="center">Normal</td>
+<td align="center"><span class="math inline">\((-\infty,
+\infty)\)</span></td>
+<td align="center">Identity</td>
+<td align="center">Identity</td>
+<td align="left">Squared error: <span class="math inline">\((y - \hat
 y)^2\)</span></td>
 </tr>
 <tr class="even">
-<td>Logistic</td>
-<td>Binary</td>
-<td><span class="math inline">\(\{0, 1\}\)</span></td>
-<td>logit</td>
-<td>logit</td>
-<td>Binary cross-entropy: <span class="math inline">\(-(y\log(\hat y) +
-(1-y) \log(1-\hat y))\)</span></td>
+<td align="center">Logistic</td>
+<td align="center">Binary</td>
+<td align="center"><span class="math inline">\(\{0, 1\}\)</span></td>
+<td align="center">logit</td>
+<td align="center">logit</td>
+<td align="left">Binary cross-entropy: <span class="math inline">\(-(y\log(\hat y) + (1-y) \log(1-\hat
+y))\)</span></td>
 </tr>
 <tr class="odd">
-<td>Poisson</td>
-<td>Poisson</td>
-<td><span class="math inline">\([0, \infty)\)</span></td>
-<td>log</td>
-<td>log</td>
-<td>Unit Poisson deviance: <span class="math inline">\(2(y \log(y / \hat
-y) - (y - \hat y))\)</span></td>
+<td align="center">Poisson</td>
+<td align="center">Poisson</td>
+<td align="center"><span class="math inline">\([0, \infty)\)</span></td>
+<td align="center">log</td>
+<td align="center">log</td>
+<td align="left">Unit Poisson deviance: <span class="math inline">\(2(y
+\log(y / \hat y) - (y - \hat y))\)</span></td>
 </tr>
 <tr class="even">
-<td>Gamma</td>
-<td>Gamma</td>
-<td><span class="math inline">\((0, \infty)\)</span></td>
-<td>1/x</td>
-<td>log</td>
-<td>Unit Gamma deviance: <span class="math inline">\(2 ((y - \hat y) /
-\hat y - \log(y / \hat y))\)</span></td>
+<td align="center">Gamma</td>
+<td align="center">Gamma</td>
+<td align="center"><span class="math inline">\((0, \infty)\)</span></td>
+<td align="center">1/x</td>
+<td align="center">log</td>
+<td align="left">Unit Gamma deviance: <span class="math inline">\(2 ((y
+- \hat y) / \hat y - \log(y / \hat y))\)</span></td>
 </tr>
 <tr class="odd">
-<td>Multinomial</td>
-<td>Multinomial</td>
-<td><span class="math inline">\(\{C_1, \dots, C_m\}\)</span></td>
-<td>mlogit</td>
-<td>mlogit</td>
-<td>Categorical cross-entropy: <span class="math inline">\(-\sum_{j =
-1}^m 1(y = C_j)\log(\hat y_j)\)</span></td>
+<td align="center">Multinomial</td>
+<td align="center">Multinomial</td>
+<td align="center"><span class="math inline">\(\{C_1, \dots,
+C_m\}\)</span></td>
+<td align="center">mlogit</td>
+<td align="center">mlogit</td>
+<td align="left">Categorical cross-entropy: <span class="math inline">\(-\sum_{j = 1}^m 1(y = C_j)\log(\hat
+y_j)\)</span></td>
 </tr>
 </tbody>
 </table>
