@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2022-04-29" />
+<meta name="date" content="2022-05-16" />
 
 <title>Trees</title>
 
@@ -2854,7 +2854,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Trees</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2022-04-29</h4>
+<h4 class="date">2022-05-16</h4>
 
 </div>
 
@@ -3220,40 +3220,38 @@ next section for more details.</p>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># XGBoost does not understand strings -&gt; integer encoding</span></span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>prep_xgb <span class="ot">&lt;-</span> <span class="cf">function</span>(X, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;carat&quot;</span>, <span class="st">&quot;color&quot;</span>, <span class="st">&quot;cut&quot;</span>, <span class="st">&quot;clarity&quot;</span>)) {</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  to_int <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;color&quot;</span>, <span class="st">&quot;cut&quot;</span>, <span class="st">&quot;clarity&quot;</span>)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  X[, to_int] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(X[, to_int], as.integer)</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.matrix</span>(X[, x])</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Split into train and valid</span></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>ix <span class="ot">&lt;-</span> <span class="fu">partition</span>(diamonds<span class="sc">$</span>price, <span class="at">p =</span> <span class="fu">c</span>(<span class="at">train =</span> <span class="fl">0.8</span>, <span class="at">valid =</span> <span class="fl">0.2</span>), <span class="at">seed =</span> <span class="dv">9838</span>)</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> diamonds<span class="sc">$</span>price[ix<span class="sc">$</span>train]</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>X_train <span class="ot">&lt;-</span> <span class="fu">prep_xgb</span>(diamonds[ix<span class="sc">$</span>train, ])</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>y_valid <span class="ot">&lt;-</span> diamonds<span class="sc">$</span>price[ix<span class="sc">$</span>valid]</span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>X_valid <span class="ot">&lt;-</span> <span class="fu">prep_xgb</span>(diamonds[ix<span class="sc">$</span>valid, ])</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co"># XGBoost data interface</span></span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>dtrain <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(X_train, <span class="at">label =</span> y_train)</span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>dvalid <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(X_valid, <span class="at">label =</span> y_valid)</span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Minimal set of parameters</span></span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">learning_rate =</span> <span class="fl">0.02</span>,</span>
-<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">&quot;reg:squarederror&quot;</span>,</span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">eval_metric =</span> <span class="st">&quot;rmse&quot;</span></span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit model until validation RMSE stops improving over the last 20 rounds</span></span>
-<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(</span>
-<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> params, </span>
-<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dtrain, </span>
-<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">watchlist =</span> <span class="fu">list</span>(<span class="at">train =</span> dtrain, <span class="at">valid =</span> dvalid),</span>
-<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">print_every_n =</span> <span class="dv">50</span>,</span>
-<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">5000</span>, </span>
-<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">early_stopping_rounds =</span> <span class="dv">20</span></span>
-<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.matrix</span>(X[, x])</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Split into train and valid</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>ix <span class="ot">&lt;-</span> <span class="fu">partition</span>(diamonds<span class="sc">$</span>price, <span class="at">p =</span> <span class="fu">c</span>(<span class="at">train =</span> <span class="fl">0.8</span>, <span class="at">valid =</span> <span class="fl">0.2</span>), <span class="at">seed =</span> <span class="dv">9838</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> diamonds<span class="sc">$</span>price[ix<span class="sc">$</span>train]</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>X_train <span class="ot">&lt;-</span> <span class="fu">prep_xgb</span>(diamonds[ix<span class="sc">$</span>train, ])</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>y_valid <span class="ot">&lt;-</span> diamonds<span class="sc">$</span>price[ix<span class="sc">$</span>valid]</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>X_valid <span class="ot">&lt;-</span> <span class="fu">prep_xgb</span>(diamonds[ix<span class="sc">$</span>valid, ])</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co"># XGBoost data interface</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>dtrain <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(X_train, <span class="at">label =</span> y_train)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>dvalid <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(X_valid, <span class="at">label =</span> y_valid)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Minimal set of parameters</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">learning_rate =</span> <span class="fl">0.02</span>,</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">&quot;reg:squarederror&quot;</span>,</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">eval_metric =</span> <span class="st">&quot;rmse&quot;</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit model until validation RMSE stops improving over the last 20 rounds</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> params, </span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dtrain, </span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">watchlist =</span> <span class="fu">list</span>(<span class="at">train =</span> dtrain, <span class="at">valid =</span> dvalid),</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">print_every_n =</span> <span class="dv">50</span>,</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">5000</span>, </span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">early_stopping_rounds =</span> <span class="dv">20</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>## [1]  train-rmse:5487.095083  valid-rmse:5513.689017 
 ## Multiple eval metrics are present. Will use valid_rmse for early stopping.
 ## Will train until valid_rmse hasn&#39;t improved in 20 rounds.
@@ -3347,98 +3345,96 @@ criterion.</li>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># As XGBoost does not understand strings, we encode them by integers</span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>prep_xgb <span class="ot">&lt;-</span> <span class="cf">function</span>(X, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;carat&quot;</span>, <span class="st">&quot;color&quot;</span>, <span class="st">&quot;cut&quot;</span>, <span class="st">&quot;clarity&quot;</span>)) {</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  to_int <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;color&quot;</span>, <span class="st">&quot;cut&quot;</span>, <span class="st">&quot;clarity&quot;</span>)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  X[, to_int] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(X[, to_int], as.integer)</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.matrix</span>(X[, x])</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Split into train and test</span></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>ix <span class="ot">&lt;-</span> <span class="fu">partition</span>(diamonds<span class="sc">$</span>price, <span class="at">p =</span> <span class="fu">c</span>(<span class="at">train =</span> <span class="fl">0.8</span>, <span class="at">test =</span> <span class="fl">0.2</span>), <span class="at">seed =</span> <span class="dv">9838</span>)</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> diamonds<span class="sc">$</span>price[ix<span class="sc">$</span>train]</span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>X_train <span class="ot">&lt;-</span> <span class="fu">prep_xgb</span>(diamonds[ix<span class="sc">$</span>train, ])</span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="co"># XGBoost data interface</span></span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>dtrain <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(X_train, <span class="at">label =</span> y_train)</span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="co"># If grid search is to be run again, set tune &lt;- TRUE</span></span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>tune <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that if run as rmarkdown, the path to the grid is &quot;gridsearch&quot;,</span></span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="co"># otherwise it is &quot;r/gridsearch&quot;</span></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (tune) {</span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use default parameters to set learning rate with suitable number of rounds</span></span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">learning_rate =</span> <span class="fl">0.02</span>,</span>
-<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">objective =</span> <span class="st">&quot;reg:squarederror&quot;</span>,</span>
-<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">eval_metric =</span> <span class="st">&quot;rmse&quot;</span></span>
-<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cross-validation</span></span>
-<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>  cvm <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
-<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">params =</span> params,</span>
-<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> dtrain,</span>
-<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">nrounds =</span> <span class="dv">5000</span>,</span>
-<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">nfold =</span> <span class="dv">5</span>,</span>
-<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">early_stopping_rounds =</span> <span class="dv">20</span>, </span>
-<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">showsd =</span> <span class="cn">FALSE</span>, </span>
-<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">print_every_n =</span> <span class="dv">50</span></span>
-<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>  cvm   <span class="co"># -&gt; a lr of 0.02 provides about 380 trees, which is a convenient amount</span></span>
-<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Final grid search after some iterations</span></span>
-<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>  grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
-<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">iteration =</span> <span class="cn">NA</span>,</span>
-<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv_score =</span> <span class="cn">NA</span>,</span>
-<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">train_score =</span> <span class="cn">NA</span>,</span>
-<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">learning_rate =</span> <span class="fl">0.02</span>,</span>
-<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">objective =</span> <span class="st">&quot;reg:squarederror&quot;</span>,</span>
-<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">eval_metric =</span> <span class="st">&quot;rmse&quot;</span>,</span>
-<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_depth =</span> <span class="dv">6</span><span class="sc">:</span><span class="dv">7</span>, </span>
-<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_child_weight =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>),</span>
-<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">colsample_bytree =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="dv">1</span>), </span>
-<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">subsample =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="dv">1</span>), </span>
-<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">reg_lambda =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">2.5</span>, <span class="dv">5</span>, <span class="fl">7.5</span>),</span>
-<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">reg_alpha =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>),</span>
-<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>    <span class="co"># tree_method = &quot;hist&quot;,   # when data is large</span></span>
-<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_split_loss =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1e-04</span>)</span>
-<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a> <span class="co"># Grid search or randomized search if grid is too large</span></span>
-<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>  max_size <span class="ot">&lt;-</span> <span class="dv">20</span></span>
-<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>  grid_size <span class="ot">&lt;-</span> <span class="fu">nrow</span>(grid)</span>
-<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (grid_size <span class="sc">&gt;</span> max_size) {</span>
-<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>    grid <span class="ot">&lt;-</span> grid[<span class="fu">sample</span>(grid_size, max_size), ]</span>
-<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a>    grid_size <span class="ot">&lt;-</span> max_size</span>
-<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop over grid and fit XGBoost with five-fold CV and early stopping</span></span>
-<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>  pb <span class="ot">&lt;-</span> <span class="fu">txtProgressBar</span>(<span class="dv">0</span>, grid_size, <span class="at">style =</span> <span class="dv">3</span>)</span>
-<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(grid_size)) {</span>
-<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a>    cvm <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
-<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a>      <span class="at">params =</span> <span class="fu">as.list</span>(grid[i, <span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)]),</span>
-<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> dtrain,</span>
-<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>      <span class="at">nrounds =</span> <span class="dv">5000</span>,</span>
-<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>      <span class="at">nfold =</span> <span class="dv">5</span>,</span>
-<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a>      <span class="at">early_stopping_rounds =</span> <span class="dv">20</span>,</span>
-<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a>      <span class="at">verbose =</span> <span class="dv">0</span></span>
-<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store result</span></span>
-<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a>    grid[i, <span class="dv">1</span>] <span class="ot">&lt;-</span> cvm<span class="sc">$</span>best_iteration</span>
-<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a>    grid[i, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">&lt;-</span> cvm<span class="sc">$</span>evaluation_log[, <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">2</span>)][cvm<span class="sc">$</span>best_iteration]</span>
-<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setTxtProgressBar</span>(pb, i)</span>
-<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Save grid to survive hard crashs</span></span>
-<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a>    <span class="fu">saveRDS</span>(grid, <span class="at">file =</span> <span class="st">&quot;gridsearch/diamonds_xgb.rds&quot;</span>)</span>
-<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a><span class="co"># Load grid and select best iteration</span></span>
-<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;gridsearch/diamonds_xgb.rds&quot;</span>)</span>
-<span id="cb18-98"><a href="#cb18-98" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> grid[<span class="fu">order</span>(grid<span class="sc">$</span>cv_score), ]</span>
-<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(grid)</span></code></pre></div>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.matrix</span>(X[, x])</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Split into train and test</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>ix <span class="ot">&lt;-</span> <span class="fu">partition</span>(diamonds<span class="sc">$</span>price, <span class="at">p =</span> <span class="fu">c</span>(<span class="at">train =</span> <span class="fl">0.8</span>, <span class="at">test =</span> <span class="fl">0.2</span>), <span class="at">seed =</span> <span class="dv">9838</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> diamonds<span class="sc">$</span>price[ix<span class="sc">$</span>train]</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>X_train <span class="ot">&lt;-</span> <span class="fu">prep_xgb</span>(diamonds[ix<span class="sc">$</span>train, ])</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="co"># XGBoost data interface</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>dtrain <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(X_train, <span class="at">label =</span> y_train)</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="co"># If grid search is to be run again, set tune &lt;- TRUE</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>tune <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that if run as rmarkdown, the path to the grid is &quot;gridsearch&quot;,</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="co"># otherwise it is &quot;r/gridsearch&quot;</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (tune) {</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use default parameters to set learning rate with suitable number of rounds</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">learning_rate =</span> <span class="fl">0.02</span>,</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">objective =</span> <span class="st">&quot;reg:squarederror&quot;</span>,</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">eval_metric =</span> <span class="st">&quot;rmse&quot;</span></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cross-validation</span></span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>  cvm <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">params =</span> params,</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> dtrain,</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">nrounds =</span> <span class="dv">5000</span>,</span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">nfold =</span> <span class="dv">5</span>,</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">early_stopping_rounds =</span> <span class="dv">20</span>, </span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">showsd =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">print_every_n =</span> <span class="dv">50</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>  cvm   <span class="co"># -&gt; a lr of 0.02 provides about 380 trees, which is a convenient amount</span></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Final grid search after some iterations</span></span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>  grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">iteration =</span> <span class="cn">NA</span>,</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv_score =</span> <span class="cn">NA</span>,</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">train_score =</span> <span class="cn">NA</span>,</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">learning_rate =</span> <span class="fl">0.02</span>,</span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">objective =</span> <span class="st">&quot;reg:squarederror&quot;</span>,</span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">eval_metric =</span> <span class="st">&quot;rmse&quot;</span>,</span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_depth =</span> <span class="dv">6</span><span class="sc">:</span><span class="dv">7</span>, </span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_child_weight =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>),</span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">colsample_bytree =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="dv">1</span>), </span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">subsample =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="dv">1</span>), </span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">reg_lambda =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">2.5</span>, <span class="dv">5</span>, <span class="fl">7.5</span>),</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">reg_alpha =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># tree_method = &quot;hist&quot;,   # when data is large</span></span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_split_loss =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1e-04</span>)</span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a> <span class="co"># Grid search or randomized search if grid is too large</span></span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>  max_size <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>  grid_size <span class="ot">&lt;-</span> <span class="fu">nrow</span>(grid)</span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (grid_size <span class="sc">&gt;</span> max_size) {</span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>    grid <span class="ot">&lt;-</span> grid[<span class="fu">sample</span>(grid_size, max_size), ]</span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>    grid_size <span class="ot">&lt;-</span> max_size</span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop over grid and fit XGBoost with five-fold CV and early stopping</span></span>
+<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a>  pb <span class="ot">&lt;-</span> <span class="fu">txtProgressBar</span>(<span class="dv">0</span>, grid_size, <span class="at">style =</span> <span class="dv">3</span>)</span>
+<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(grid_size)) {</span>
+<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>    cvm <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
+<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">params =</span> <span class="fu">as.list</span>(grid[i, <span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)]),</span>
+<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> dtrain,</span>
+<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a>      <span class="at">nrounds =</span> <span class="dv">5000</span>,</span>
+<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>      <span class="at">nfold =</span> <span class="dv">5</span>,</span>
+<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>      <span class="at">early_stopping_rounds =</span> <span class="dv">20</span>,</span>
+<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>      <span class="at">verbose =</span> <span class="dv">0</span></span>
+<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store result</span></span>
+<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a>    grid[i, <span class="dv">1</span>] <span class="ot">&lt;-</span> cvm<span class="sc">$</span>best_iteration</span>
+<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a>    grid[i, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">&lt;-</span> cvm<span class="sc">$</span>evaluation_log[, <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">2</span>)][cvm<span class="sc">$</span>best_iteration]</span>
+<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setTxtProgressBar</span>(pb, i)</span>
+<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Save grid to survive hard crashs</span></span>
+<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a>    <span class="fu">saveRDS</span>(grid, <span class="at">file =</span> <span class="st">&quot;gridsearch/diamonds_xgb.rds&quot;</span>)</span>
+<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a><span class="co"># Load grid and select best iteration</span></span>
+<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;gridsearch/diamonds_xgb.rds&quot;</span>)</span>
+<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> grid[<span class="fu">order</span>(grid<span class="sc">$</span>cv_score), ]</span>
+<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(grid)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["iteration"],"name":[1],"type":["int"],"align":["right"]},{"label":["cv_score"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["train_score"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["learning_rate"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["objective"],"name":[5],"type":["fct"],"align":["left"]},{"label":["eval_metric"],"name":[6],"type":["fct"],"align":["left"]},{"label":["max_depth"],"name":[7],"type":["int"],"align":["right"]},{"label":["min_child_weight"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["colsample_bytree"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["subsample"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["reg_lambda"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["reg_alpha"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["min_split_loss"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"340","2":"541.2687","3":"496.5795","4":"0.02","5":"reg:squarederror","6":"rmse","7":"6","8":"1","9":"1","10":"0.8","11":"0.0","12":"4","13":"1e-04","_rn_":"197"},{"1":"383","2":"541.7954","3":"492.0825","4":"0.02","5":"reg:squarederror","6":"rmse","7":"7","8":"1","9":"1","10":"1.0","11":"5.0","12":"0","13":"1e-04","_rn_":"174"},{"1":"419","2":"542.6280","3":"503.5970","4":"0.02","5":"reg:squarederror","6":"rmse","7":"6","8":"1","9":"1","10":"0.8","11":"5.0","12":"4","13":"1e-04","_rn_":"229"},{"1":"472","2":"543.4322","3":"504.7040","4":"0.02","5":"reg:squarederror","6":"rmse","7":"6","8":"1","9":"1","10":"1.0","11":"7.5","12":"0","13":"0e+00","_rn_":"61"},{"1":"387","2":"543.6799","3":"502.7938","4":"0.02","5":"reg:squarederror","6":"rmse","7":"6","8":"10","9":"1","10":"1.0","11":"0.0","12":"4","13":"1e-04","_rn_":"207"},{"1":"358","2":"543.9320","3":"501.8103","4":"0.02","5":"reg:squarederror","6":"rmse","7":"7","8":"10","9":"1","10":"0.8","11":"5.0","12":"4","13":"1e-04","_rn_":"232"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}

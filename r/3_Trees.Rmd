@@ -223,8 +223,6 @@ library(splitTools)
 
 # XGBoost does not understand strings -> integer encoding
 prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
-  to_int <- c("color", "cut", "clarity")
-  X[, to_int] <- lapply(X[, to_int], as.integer)
   data.matrix(X[, x])
 }
 
@@ -302,8 +300,6 @@ library(splitTools)
 
 # As XGBoost does not understand strings, we encode them by integers
 prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
-  to_int <- c("color", "cut", "clarity")
-  X[, to_int] <- lapply(X[, to_int], as.integer)
   data.matrix(X[, x])
 }
 
