@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2022-05-16" />
+<meta name="date" content="2022-05-17" />
 
 <title>Trees</title>
 
@@ -2854,7 +2854,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Trees</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2022-05-16</h4>
+<h4 class="date">2022-05-17</h4>
 
 </div>
 
@@ -3220,7 +3220,7 @@ next section for more details.</p>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># XGBoost does not understand strings -&gt; integer encoding</span></span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>prep_xgb <span class="ot">&lt;-</span> <span class="cf">function</span>(X, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;carat&quot;</span>, <span class="st">&quot;color&quot;</span>, <span class="st">&quot;cut&quot;</span>, <span class="st">&quot;clarity&quot;</span>)) {</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.matrix</span>(X[, x])</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.matrix</span>(X[, x, <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
 <span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Split into train and valid</span></span>
@@ -3345,7 +3345,7 @@ criterion.</li>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># As XGBoost does not understand strings, we encode them by integers</span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>prep_xgb <span class="ot">&lt;-</span> <span class="cf">function</span>(X, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;carat&quot;</span>, <span class="st">&quot;color&quot;</span>, <span class="st">&quot;cut&quot;</span>, <span class="st">&quot;clarity&quot;</span>)) {</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.matrix</span>(X[, x])</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.matrix</span>(X[, x, <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Split into train and test</span></span>

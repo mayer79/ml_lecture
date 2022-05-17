@@ -319,9 +319,7 @@ library(splitTools)
 
 # As XGBoost does not understand strings, we encode them by integers
 prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
-  to_int <- c("color", "cut", "clarity")
-  X[, to_int] <- lapply(X[, to_int], as.integer)
-  data.matrix(X[, x])
+  data.matrix(X[, x, drop = FALSE])
 }
 
 # Split into train and test
@@ -379,9 +377,7 @@ data(dataCar)
 # As XGBoost does not understand strings, we encode them by integers
 prep_xgb <- function(X, x = c("veh_value", "veh_body", "veh_age", 
                               "gender", "area", "agecat")) {
-  to_int <- c("veh_body", "gender", "area")
-  X[, to_int] <- lapply(X[, to_int], as.integer)
-  data.matrix(X[, x])
+  data.matrix(X[, x, drop = FALSE])
 }
 
 # Split into train and test
@@ -485,7 +481,7 @@ pred <- predict(fit, prep_xgb(dataCar[ix$test, ]))
 deviance_bernoulli(dataCar$clm[ix$test], pred)
 
 # Relative performance
-r_squared_bernoulli(dataCar$clm[ix$test], pred) # 0.00427
+r_squared_bernoulli(dataCar$clm[ix$test], pred)
 # Relative performance gain is very low, but very slightly better than 
 # of the tuned random forest.
 
@@ -532,9 +528,7 @@ data(dataCar)
 # As LightGBM does not understand strings, we encode them by integers
 prep_lgb <- function(X, x = c("veh_value", "veh_body", "veh_age", 
                               "gender", "area", "agecat")) {
-  to_int <- c("veh_body", "gender", "area")
-  X[, to_int] <- lapply(X[, to_int], as.integer)
-  data.matrix(X[, x])
+  data.matrix(X[, x, drop = FALSE])
 }
 
 # Split into train and test

@@ -223,7 +223,7 @@ library(splitTools)
 
 # XGBoost does not understand strings -> integer encoding
 prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
-  data.matrix(X[, x])
+  data.matrix(X[, x, drop = FALSE])
 }
 
 # Split into train and valid
@@ -300,7 +300,7 @@ library(splitTools)
 
 # As XGBoost does not understand strings, we encode them by integers
 prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
-  data.matrix(X[, x])
+  data.matrix(X[, x, drop = FALSE])
 }
 
 # Split into train and test
