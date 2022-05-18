@@ -14312,7 +14312,7 @@ The observation:
 <p><strong>Motivation for this chapter:</strong> Insample, a 1-nearest-neighbour regression predicts without error, a consequence of massive overfitting. This hypothetical example indicates that insample performance is often not worth a penny. Models need to be evaluated on fresh, independent data not used for model calculation. This leads us to <em>simple validation</em>.</p>
 <h1 id="Simple-Validation">Simple Validation<a class="anchor-link" href="#Simple-Validation">&#182;</a></h1><p>With simple validation, the original data set is partitioned into <em>training</em> data used to calculate the models and a separate <em>validation</em> data set used to evaluate model performance and/or to select models. Typically, 10%-30% of rows are used for validation.</p>
 <p>We can use the validation performance to compare <em>algorithms</em> (regression versus k-nearest-neighbour etc.) and also to choose their <em>hyperparameters</em> like the "k" of k-nearest-neighbour.</p>
-<p>Furthermore, the performance difference between training and validation data gives an impression of the amount of overfitting.</p>
+<p>Furthermore, the performance difference between training and validation data gives an impression of the amount of overfitting (or rather of the <em>optimism</em>).</p>
 <h2 id="Example:-simple-validation">Example: simple validation<a class="anchor-link" href="#Example:-simple-validation">&#182;</a></h2><p>We now use a 80%/20% split on the diamonds data to calculate RMSE of 5-nearest-neighbour on both training and validation data. What k provides the best validation RMSE?</p>
 
 </div>

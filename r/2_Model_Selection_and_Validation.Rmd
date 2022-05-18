@@ -78,7 +78,7 @@ With simple validation, the original data set is partitioned into *training* dat
 
 We can use the validation performance to compare *algorithms* (regression versus k-nearest-neighbour etc.) and also to choose their *hyperparameters* like the "k" of k-nearest-neighbour.
 
-Furthermore, the performance difference between training and validation data gives an impression of the amount of overfitting.
+Furthermore, the performance difference between training and validation data gives an impression of the amount of overfitting (or rather of the *optimism*).
 
 ## Example: simple validation
 
