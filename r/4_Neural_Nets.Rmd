@@ -704,7 +704,18 @@ In this chapter, we have glimpsed into the world of neural networks. Step by ste
 During this lecture, we have met many ML algorithms and principles. To get used to them, the best approach is practicing. [Kaggle](kaggle.com) is a great place to do so and learn from the best. 
 
 A summary and comparison of the algorithms can be found on [github](https://github.com/mayer79/ML_Algorithm_Comparison). Here a screenshot as per Sept. 7, 2020: 
-![](../figs/comparison_ML.PNG).
+![](../figs/comparison_ML.PNG)
+
+**As a final task and motivation, try out *"Michael's analysis scheme X*"**. It can be applied very frequently and works as follows:
+
+1. Take a property $T(Y)$ of key interest, e.g., the churn rate, a claims frequency, or a loss ratio. Calculate its estimate on the full dataset.
+2. Do a descriptive analysis of $T(Y \mid X_j)$ for a couple of important covariates $X_1, \dots, X_p$ in order to study the association between $Y$ and each of the $X_j$ separately.
+3. Complement Step 2 by running a well-built ML model $T(Y \mid X_1, \dots, X_p) = f(X_1, \dots, X_p)$, using a clean validation strategy.
+    - Study model performance.
+    - Study variable importance and use it to sort the results of Step 2. Which of the associations are very strong/weak?
+    - For each $X_j$, study its partial dependence (or SHAP dependence) plot. They will accompany the bivariate view of Step 2 with a multivariate one, taking into account the effects from the other covariates.
+    
+What additional insights did you get from Step 3?
 
 # Chapter References
 
