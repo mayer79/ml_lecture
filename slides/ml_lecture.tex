@@ -46,6 +46,7 @@
 %\usepackage[most]{tcolorbox}
 %\usepackage{etoolbox}
 \usepackage{dsfont}
+\usepackage{tabularx}
 %\usepackage{xparse}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -350,348 +351,684 @@
 	\end{figure}
 \end{columns}
 \end{frame}
+%
+%\begin{frame}
+%\frametitle{Lecture Overview}
+%\begin{block}{Chapters}
+%	\begin{enumerate}
+%		\item Basics and Linear Models
+%		\item Model Selection and Validation
+%		\item Trees
+%		\item Neural Nets
+%	\end{enumerate}
+%\end{block}
+%
+%\begin{block}{Material}
+%	\url{https://github.com/mayer79/ml\_lecture}
+%\end{block}
+%\end{frame}
+%
+%%=====================================================================
+%\section{Basics and Linear Models}
+%%=====================================================================
+%
+%%=====================================================================
+%\subsection{Basics}
+%%=====================================================================
+%
+%\begin{frame}
+%\frametitle{Before Modeling}
+%\begin{columns}
+%	\column{0.5\textwidth}
+%	\begin{itemize}
+%		\item Organization of data?
+%		\item Data types?
+%		\item Descriptive analysis
+%	\end{itemize}
+%	\begin{figure}
+%		\includegraphics[width=0.6\textwidth]{pics/diamond.jpg}
+%	\end{figure}
+%	\column{0.5\textwidth}
+%	\begin{block}{Structure of diamonds data}
+%		\begin{figure}
+%			\includegraphics[width=0.95\textwidth]{pics/data_structure.png}
+%		\end{figure}
+%	\end{block}
+%
+%	\begin{example}
+%	\end{example}
+%\end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Statistical Models}
+%\begin{block}{Setting}
+%	\begin{itemize}
+%		\item Approximate \alert{response variable} $Y$ by function of \alert{covariates} $X_1,\dots,X_m$
+%		$$
+%			Y \approx f(X_1,\dots,X_m)
+%		$$
+%		\item Estimate unknown $f$ from data by $\hat f$.
+%		\item Use $\hat f$ for prediction and to investigate relationships.
+%		\item Postulate model equation
+%		$$
+%			\E(Y) = f(X_1, \dots, X_m)
+%		$$
+%		(we are often interested in means).
+%		\end{itemize}
+%	\end{block}
+%	
+%	\begin{block}{Remark}
+%	Other terms for response and covariates?
+%	\end{block}
+%\end{frame}
+%
+%%=====================================================================
+%\subsection{Linear Regression}
+%%=====================================================================
+%
+%\begin{frame}
+%\frametitle{Linear Regression}
+%\begin{itemize}
+%	\item Postulate 
+%	$$
+%		\E(Y) = f(X_1, \dots, X_m)=\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m
+%	$$
+%	\item Interpretation of coefficients $\beta_j$? Ceteris Paribus!
+%	\item Optimal $\hat \beta_j$? Minimize sum of squared errors/residuals
+%	$$
+%		\sum_{i = 1}^n (\underbrace{y_i - \hat y_i}_{\text{\alert{Residual}}})^2 
+%	$$
+%	\item $\hat y = f(\dots)$ are \alert{predictions}
+%\end{itemize}
+%
+%\begin{example}
+%	Simple linear regression 
+%	$$
+%		\E(Y)=\alpha = \beta X
+%	$$
+%\end{example}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Aspects of Model Quality}
+%\begin{columns}[onlytextwidth]
+%	\column{0.5\textwidth}
+%	\begin{block}{Predictive performance}
+%		\begin{itemize}
+%			\item Absolute performance
+%				\begin{itemize}
+%					\item $\text{\alert{MSE}} = \frac{1}{n}\sum_{i = 1}^n (y_i - \hat y_i)^2$
+%					\item Root-MSE (\alert{RMSE})
+%					\item Loss and objective functions	
+%				\end{itemize}
+%			\item Relative performance
+%				\begin{itemize}
+%					\item \alert{R-squared}
+%				\end{itemize}
+%		\end{itemize}
+%	\end{block}	
+%
+%	\column{0.5\textwidth}
+%	\begin{block}{Validity of assumptions}
+%		\begin{itemize}
+%			\item Model equation is correct
+%			\item {\em Normal} linear model
+%			 \begin{align*}
+%				 Y &= f(\dots) + \varepsilon \\
+%				 \varepsilon &\sim N(0, \sigma^2)
+%			 \end{align*}
+%		\end{itemize}
+%	\end{block}
+%\end{columns}
+%\begin{center}
+%	\begin{example}
+%	\end{example}
+%\end{center}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Typical Problems}
+%\begin{itemize}
+%	\item Missing values
+%	
+%	\vfill
+%	
+%	\item Outliers
+%	
+%	\vfill
+%	
+%	\item Overfitting
+%	
+%	\vfill 
+%	
+%	\item Collinearity
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Categorical Covariates}
+%\begin{columns}
+%	\column{0.3\textwidth}
+%	\begin{itemize}
+%		\item One-Hot-Encoding
+%		\item Dummy coding
+%		\item Integer encoding
+%		\item Interpretation?
+%	\end{itemize}
+%	\vspace{1cm}
+%	\begin{example}
+%	\end{example}
+%	\column{0.65\textwidth}
+%	\begin{block}{Example of One-Hot-Encoding}
+%		\begin{figure}
+%			\includegraphics[width=0.95\textwidth]{../figs/ohe.png}
+%		\end{figure}
+%	\end{block}
+%	\end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Linear Regression is Flexible}
+%\begin{enumerate}
+%	\item Non-linear terms
+%	\item Interactions
+%	\item Transformations like logarithms
+%\end{enumerate}
+%
+%\vfill
+%
+%\begin{block}{These elements are essential but tricky!}
+%\end{block}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Non-Linear Terms}
+%\begin{columns}
+%	\column{0.45\textwidth}
+%	\begin{block}{How to deal with non-linear associations to $Y$?}
+%		
+%		$\rightarrow$ use more parameters
+%	\begin{enumerate}
+%		\item Polynomial terms
+%		\begin{itemize}
+%			\item E.g., cubic regression
+%			$$
+%				\E(Y) = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3 x^3
+%			$$
+%			\item Don't extrapolate!
+%		\end{itemize}
+%		\item Regression splines
+%	\end{enumerate}
+%	\end{block}
+%	
+%	\column{0.45\textwidth}
+%	\begin{block}{Example: Diamonds}
+%		Use systematic predictions
+%		\begin{figure}
+%			\includegraphics[width=0.95\textwidth]{../figs/cubic.png}
+%		\end{figure}
+%	\end{block}
+%\end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Interactions}
+%\begin{columns}
+%	\column{0.5\textwidth}
+%	\begin{itemize}
+%		\item Additivity of effects not always realistic
+%		$$
+%			\E(Y) = \beta + \beta_1 X_1 + \dots + \beta_m X_m
+%		$$
+%		\item Adding interaction terms brings necessary flexibility $\rightarrow$ more parameters
+%		\item Interaction between features $X$ and $Z$
+%		\begin{itemize}
+%			\item For categorical $Z$, effects of $X$ are calculated by level of $Z$
+%			\item Like separate models per level of $Z$
+%		\end{itemize}
+%	\end{itemize}
+%	
+%	\column{0.45\textwidth}
+%	\begin{block}{Example: Diamonds}
+%		\begin{figure}
+%			\includegraphics[width=0.95\textwidth]{pics/interactions.png}
+%		\end{figure}
+%	\end{block}
+%\end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Transformations of Covariates}
+%\begin{block}{Examples}
+%	\begin{itemize}
+%		\item Dummy variables for categoricals
+%		\item Decorrelation
+%		\item Logarithms against outliers
+%	\end{itemize}
+%\end{block}
+%
+%\vfill
+%
+%Effects are interpreted for transformed covariates
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Logarithmic Covariates}
+%\begin{itemize}
+%	\item $\E(Y) = \alpha + \beta\log(X)$
+%	\item Properties of logarithm allow interpretation \alert{for original covariate}
+%	\item ``A 1\% increase in $X$ leads to an increase in $\E(Y)$ of about $\beta/100$''
+%	
+%	($\rightarrow$ lecture notes)
+%	
+%	\vfill
+%	
+%	\begin{example}
+%	\end{example}
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Logarithmic Responses}
+%What would happen for logarithmic response?
+%\begin{align*}
+%\E(\log(Y)) &= \alpha + \beta X \\
+%\implies \log(\E(Y)) &= \alpha + \beta X?
+%\end{align*}
+%The implication is wrong (why?) $\rightarrow$ biased predictions and motivation for GLMs
+%
+%\begin{itemize}
+%	\item ``A one-point increase in $X$ is associated with a relative increase in $\E(Y)$ of $100\%(e^\beta - 1)\approx 100\% \beta$''
+%	$\rightarrow$ lecture notes
+%	\item Relative effects / multiplicative model
+%\end{itemize}
+%
+%\begin{exampleblock}{Examples}
+%	\begin{itemize}
+%		\item Logarithmic response
+%		\item Response and covariate with log
+%	\end{itemize}
+%\end{exampleblock}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Example: Realistic Model for Diamond Prices}
+%\begin{columns}
+%	\column{0.55\textwidth}
+%	\begin{itemize}
+%		\item Response: log(price)
+%		\item Covariates: log(carat), color, cut and clarity
+%	\end{itemize}
+%	\column{0.35\textwidth}
+%	\begin{figure}
+%		\includegraphics[width=0.7\textwidth]{pics/dia2.png}
+%	\end{figure}
+%\end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Exercise on Linear Regression}
+%\begin{columns}
+%	\column{0.55\textwidth}
+%	\begin{itemize}
+%		\item Run last model without any logarithm
+%		\item Interpret the results
+%		\item Does model make sense from practical perspective?
+%	\end{itemize}
+%	\column{0.35\textwidth}
+%	\begin{figure}
+%		\includegraphics[width=0.7\textwidth]{pics/dia2.png}
+%	\end{figure}
+%\end{columns}
+%\end{frame}
+%
+%%=====================================================================
+%\subsection{Generalized Linear Models}
+%%=====================================================================
+%
+%\begin{frame}
+%\frametitle{Generalized Linear Model (GLM)}
+%\begin{block}{(One) extension of linear regression}
+%\end{block}
+%
+%\begin{block}{Model equation}
+%	Two equivalent formulations
+%	\begin{align*}
+%		g(E(Y)) &= \beta_0 + \beta_1 X_1 + \dots + \beta_m X_m \\
+%		E(Y) &= g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m)
+%	\end{align*}
+%\end{block}
+%
+%\begin{block}{Components}
+%	\begin{itemize}
+%		\item Linear function/predictor
+%		\item Link function $g$ to map $\E(Y)$ to linear scale
+%		\item Distribution of $Y$ conditional on covariates
+%	\end{itemize}
+%\end{block}
+%\end{frame}
+%
+%\begin{frame}
+%	\frametitle{Typical GLMs}
+%	\begin{columns}[onlytextwidth]
+%		\column{0.67\textwidth}
+%		\begin{footnotesize}
+%			\begin{figure}
+%				\includegraphics[width=1\textwidth]{pics/glm.png}
+%			\end{figure}
+%		\end{footnotesize}
+%		\column{0.33\textwidth}
+%		\begin{itemize}
+%			\item Predictions?
+%			\item Log-Link?
+%			\item For binary $Y$:
+%			
+%			$\E(Y) = P(Y = 1) = p$
+%			\item Tweedie-GLM
+%			\item MSE $\rightarrow$ Deviance
+%			\item Same losses for ML
+%		\end{itemize}
+%\end{columns}
+%	\begin{figure}
+%		\includegraphics[width=1\textwidth]{../figs/GLM_distributions.png}
+%	\end{figure}
+%\end{frame}
+%
+%\begin{frame}
+%\frametitle{Why GLM, not Linear Regression?}
+%\begin{block}{Linearity assumption not always realistic}
+%	\begin{enumerate}
+%		\item Binary $Y$: 
+%		
+%		Jump from 0.5 to 0.6 success probability less impressive than from 0.89 to 0.99
+%		\item Count $Y$: Jump from $\E(Y)$ of 2 to 3 less impressive than from 0.1 to 1.1.
+%		\item Right-skewed $Y$: 
+%		
+%		Jump from 1 Mio to 1.1 Mio deemed larger than from 2 Mio to 2.1 Mio.
+%	\end{enumerate}
+%Logarithmic $Y$ not possible in the first two cases
+%\end{block}
+%
+%\begin{block}{GLM solves problem by suitable link $g$}
+%\end{block}
+%
+%\begin{block}{Further advantages?}
+%\end{block}
+%\end{frame}
+%
+%\begin{frame}
+%	\frametitle{Interpretation of Effects guided by Link}
+%	\begin{itemize}
+%		\item Identity link: like linear regression
+%		\item Log link: like linear regression with log response
+%			\begin{itemize}
+%				\item $\rightarrow$ multiplicative model for response
+%			    \item Now in mathematically sound way
+%			\end{itemize}
+%		\item Logit link $\rightarrow$ additive model for $\text{logit}(p)$
+%			\begin{itemize}
+%				\item $\text{logit}(p) = \text{\alert{log}}(\text{odds}(p)) = \text{\alert{log}}\left(\frac{p}{1-p}\right)$
+%				\item Remember: $p = P(Y=1) = \E(Y)$				
+%				\item $\rightarrow$ multiplicative model for $\text{odds}(p)$
+%				\item Coefficients $e^\beta - 1 \approx \beta$ interpreted as odds ratios.
+%			\end{itemize}
+%	\end{itemize}
+%\end{frame}
+%
+%\begin{frame}
+%	\frametitle{Examples with Insurance Claim Data}
+%	\begin{enumerate}
+%		\item Poisson regression for claim counts
+%		\item Binary logistic regression for claim (yes/no)
+%	\end{enumerate}
+%\end{frame}
+%
+%\begin{frame}
+%	\frametitle{Exercise on GLM}
+%	\begin{columns}
+%		\column{0.55\textwidth}
+%		\begin{itemize}
+%			\item Fit Gamma regression with log-link to explain diamond prices by log(carat), color, cut and clarity. 
+%			\item Compare the coefficients with corresponding linear regression for log(price).
+%			\item Evaluate the relative prediction bias on USD scale.
+%		\end{itemize}
+%		\column{0.35\textwidth}
+%		\begin{figure}
+%			\includegraphics[width=0.7\textwidth]{pics/dia2.png}
+%		\end{figure}
+%	\end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%	\frametitle{Example: Realistic Model for Diamond Prices}
+%	\begin{itemize}
+%		\item 
+%		\item
+%	\end{itemize}
+%\end{frame}
+
+
+%=====================================================================
+\section{Model Selection and Validation}
+%=====================================================================
+
+%=====================================================================
+\section{Trees}
+%=====================================================================
+
+%=====================================================================
+\subsection{Decision Trees}
+%=====================================================================
+
+%=====================================================================
+\subsection{Random Forests}
+%=====================================================================
+
+%=====================================================================
+\subsection{Gradient Boosted Trees}
+%=====================================================================
+
+%=====================================================================
+\section{Neural Nets}
+%=====================================================================
 
 \begin{frame}
-\frametitle{Lecture Overview}
-\begin{block}{Chapters}
+	\frametitle{Neural Nets}
+	\begin{itemize}
+		\item Around since the 1950ies
+		\item Underwent different development steps, e.g., use of backpropagation, GPUs
+		\item ``Black Box''
+		\item TensorFlow/Keras, PyTorch
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{``Swiss Army Knife'' among ML Algorithms}
+\begin{columns}
+	\column{0.45\textwidth}
+	\begin{itemize}
+		\item Can fit linear models
+		\item Learn interactions and non-linear terms
+		\item Multiple responses possible
+		\item Flexible and mixed in- and output dimensions
+	\end{itemize}
+	
+	\column{0.45\textwidth}
+	\begin{itemize}
+		\item Sequential and spatial in- and output
+		\item Fit data larger than RAM
+		\item Learn ``online''
+		\item Non-linear dimension reduction
+		\item Flexible loss functions
+	\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Understanding Neural Nets in three Steps}
 	\begin{enumerate}
-		\item Basics and Linear Models
-		\item Model Selection and Validation
-		\item Trees
-		\item Neural Nets
+		\item Linear regression as neural net
+		\item Hidden layers
+		\item Activation functions
 	\end{enumerate}
-\end{block}
 
-\begin{block}{Material}
-	\url{https://github.com/mayer79/ml\_lecture}
-\end{block}
+	\vfill
+	
+	Using \alert{diamonds} data
 \end{frame}
 
-%=====================================================================
-\section{Basics and Linear Models}
-%=====================================================================
-
-%=====================================================================
-\subsection{Basics}
-%=====================================================================
-
 \begin{frame}
-\frametitle{Before Modeling}
-\begin{columns}
-	\column{0.5\textwidth}
-	\begin{itemize}
-		\item Organization of data?
-		\item Data types?
-		\item Descriptive analysis
-	\end{itemize}
-	\begin{figure}
-		\includegraphics[width=0.6\textwidth]{pics/diamond.jpg}
+	\frametitle{Step 1: Linear Regression as Neural Net}
+	\begin{columns}
+		\column{0.33\textwidth}
+		\begin{itemize}
+			\item $E(\text{price})=\alpha+\beta \cdot \text{carat}$
+			\item OLS 
+			
+			$\hat\alpha \approx -2256$, $\hat\beta \approx 7756$
+			\item Represented as neural network graph
+		\end{itemize}
+		\begin{example}
+		\end{example}
+		\column{0.67\textwidth}
+		\begin{figure}
+		\includegraphics[width=0.98\textwidth]{pics/simple_nn.png}
 	\end{figure}
-	\column{0.5\textwidth}
-	\begin{block}{Structure of diamonds data}
-		\begin{figure}
-			\includegraphics[width=0.95\textwidth]{pics/data_structure.png}
-		\end{figure}
-	\end{block}
-
-	\begin{example}
-	\end{example}
-\end{columns}
-\end{frame}
-
-\begin{frame}
-\frametitle{Statistical Models}
-\begin{block}{Setting}
-	\begin{itemize}
-		\item Approximate \alert{response variable} $Y$ by function of \alert{covariates} $X_1,\dots,X_m$
-		$$
-			Y \approx f(X_1,\dots,X_m)
-		$$
-		\item Estimate unknown $f$ from data by $\hat f$.
-		\item Use $\hat f$ for prediction and to investigate relationships.
-		\item Postulate model equation
-		$$
-			\E(Y) = f(X_1, \dots, X_m)
-		$$
-		(we are often interested in means).
-		\end{itemize}
-	\end{block}
-	
-	\begin{block}{Remark}
-	Other terms for response and covariates?
-	\end{block}
-\end{frame}
-
-%=====================================================================
-\subsection{Linear Regression}
-%=====================================================================
-
-\begin{frame}
-\frametitle{Linear Regression}
-\begin{itemize}
-	\item Postulate 
-	$$
-		\E(Y) = f(X_1, \dots, X_m)=\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m
-	$$
-	\item Interpretation of coefficients $\beta_j$? Ceteris Paribus!
-	\item Optimal $\hat \beta_j$? Minimize sum of squared errors/residuals
-	$$
-		\sum_{i = 1}^n (\underbrace{y_i - \hat y_i}_{\text{\alert{Residual}}})^2 
-	$$
-	\item $\hat y = f(\dots)$ are \alert{predictions}
-\end{itemize}
-
-\begin{example}
-	Simple linear regression 
-	$$
-		\E(Y)=\alpha = \beta X
-	$$
-\end{example}
-\end{frame}
-
-\begin{frame}
-\frametitle{Aspects of Model Quality}
-\begin{columns}[onlytextwidth]
-	\column{0.5\textwidth}
-	\begin{block}{Predictive performance}
-		\begin{itemize}
-			\item Absolute performance
-				\begin{itemize}
-					\item $\text{\alert{MSE}} = \frac{1}{n}\sum_{i = 1}^n (y_i - \hat y_i)^2$
-					\item Root-MSE (\alert{RMSE})
-					\item Loss and objective functions	
-				\end{itemize}
-			\item Relative performance
-				\begin{itemize}
-					\item \alert{R-squared}
-				\end{itemize}
-		\end{itemize}
-	\end{block}	
-
-	\column{0.5\textwidth}
-	\begin{block}{Validity of assumptions}
-		\begin{itemize}
-			\item Model equation is correct
-			\item {\em Normal} linear model
-			 \begin{align*}
-				 Y &= f(\dots) + \varepsilon \\
-				 \varepsilon &\sim N(0, \sigma^2)
-			 \end{align*}
-		\end{itemize}
-	\end{block}
-\end{columns}
-\begin{center}
-	\begin{example}
-	\end{example}
-\end{center}
-\end{frame}
-
-\begin{frame}
-\frametitle{Typical Problems}
-\begin{itemize}
-	\item Missing values
-	
-	\vfill
-	
-	\item Outliers
-	
-	\vfill
-	
-	\item Overfitting
-	
-	\vfill 
-	
-	\item Collinearity
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Categorical Covariates}
-\begin{columns}
-	\column{0.3\textwidth}
-	\begin{itemize}
-		\item One-Hot-Encoding
-		\item Dummy coding
-		\item Integer encoding
-		\item Interpretation?
-	\end{itemize}
-	\vspace{1cm}
-	\begin{example}
-	\end{example}
-	\column{0.65\textwidth}
-	\begin{block}{Example of One-Hot-Encoding}
-		\begin{figure}
-			\includegraphics[width=0.95\textwidth]{pics/dummy.png}
-		\end{figure}
-	\end{block}
 	\end{columns}
 \end{frame}
 
 \begin{frame}
-\frametitle{Linear Regression is Flexible}
-\begin{enumerate}
-	\item Non-linear terms
-	\item Interactions
-	\item Transformations like logarithms
-\end{enumerate}
-
-\vfill
-
-\begin{block}{These elements are essential but tricky!}
-\end{block}
-\end{frame}
-
-\begin{frame}
-\frametitle{Non-Linear Terms}
-\begin{columns}
-	\column{0.45\textwidth}
-	\begin{block}{How to deal with non-linear associations to $Y$?}
-		
-		$\rightarrow$ use more parameters
+\frametitle{The Optimization Algorithm}
+\begin{block}{``Mini-batch gradient descent with \alert{backpropagation}''}
 	\begin{enumerate}
-		\item Polynomial terms
-		\begin{itemize}
-			\item E.g., cubic regression
-			$$
-				\E(Y) = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3 x^3
-			$$
-			\item Don't extrapolate!
-		\end{itemize}
-		\item Regression splines
+		\item Init step: Randomly initiate parameters.
+		\item Forward step: Use parameters to calculate predictions of \alert{batch}.
+		\item Backprop step: Evaluate \alert{average loss} (e.g. MSE) of batch. Change parameters systematically to make it smaller.
+		\item Repeat Steps 2 and 3 until one \alert{epoch} is over.
+		\item Repeat Step 4 until some stopping criterion triggers.
 	\end{enumerate}
-	\end{block}
-	
-	\column{0.45\textwidth}
-	\begin{block}{Example: Diamonds}
-		Use systematic predictions
-		\begin{figure}
-			\includegraphics[width=0.95\textwidth]{pics/nonlinear.png}
-		\end{figure}
-	\end{block}
-\end{columns}
-\end{frame}
-
-\begin{frame}
-\frametitle{Interactions}
-\begin{columns}
-	\column{0.5\textwidth}
-	\begin{itemize}
-		\item Additivity of effects not always realistic
-		$$
-			\E(Y) = \beta + \beta_1 X_1 + \dots + \beta_m X_m
-		$$
-		\item Adding interaction terms brings necessary flexibility $\rightarrow$ more parameters
-		\item Interaction between features $X$ and $Z$
-		\begin{itemize}
-			\item For categorical $Z$, effects of $X$ are calculated by level of $Z$
-			\item Like separate models per level of $Z$
-		\end{itemize}
-	\end{itemize}
-	
-	\column{0.45\textwidth}
-	\begin{block}{Example: Diamonds}
-		\begin{figure}
-			\includegraphics[width=0.95\textwidth]{pics/interactions.png}
-		\end{figure}
-	\end{block}
-\end{columns}
-\end{frame}
-
-\begin{frame}
-\frametitle{Transformations of Covariates}
-\begin{block}{Examples}
-	\begin{itemize}
-		\item Dummy variables for categoricals
-		\item Decorrelation
-		\item Logarithms against outliers
-	\end{itemize}
 \end{block}
-
-\vfill
-
-Effects are interpreted for transformed covariates
+SGD? Gradients? Local Minima?
 \end{frame}
 
 \begin{frame}
-\frametitle{Logarithmic Covariates}
-\begin{itemize}
-	\item $\E(Y) = \alpha + \beta\log(X)$
-	\item Properties of logarithm allow interpretation \alert{for original covariate}
-	\item ``A 1\% increase in $X$ leads to an increase in $\E(Y)$ of about $\beta/100$''
-	
-	($\rightarrow$ lecture notes)
-	
-	\vfill
-	
+\frametitle{Step 2: Hidden Layers}
+\begin{columns}
+	\column{0.33\textwidth}
+	\begin{itemize}
+		\item Add \alert{hidden layers} for more parameters 
+		
+		(= flexibility)
+		\item Their nodes are latent/implicit variables
+		\item Representational learning
+		\item \small{\alert{Encoding}?}
+		\item \small{\alert{Deep} neural net?}
+	\end{itemize}
 	\begin{example}
 	\end{example}
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Logarithmic Responses}
-What would happen for logarithmic response?
-\begin{align*}
-\E(\log(Y)) &= \alpha + \beta X \\
-\implies \log(\E(Y)) &= \alpha + \beta X?
-\end{align*}
-The implication is wrong (why?) $\rightarrow$ biased predictions and motivation for GLMs
-
-\begin{itemize}
-	\item ``A one-point increase in $X$ is associated with a relative increase in $\E(Y)$ of $100\%(e^\beta - 1)\approx 100\% \beta$''
-	$\rightarrow$ lecture notes
-	\item Relative effects / multiplicative model
-\end{itemize}
-
-\begin{exampleblock}{Examples}
-	\begin{itemize}
-		\item Logarithmic response
-		\item Response and covariate with log
-	\end{itemize}
-\end{exampleblock}
-\end{frame}
-
-\begin{frame}
-\frametitle{Example: Realistic Model for Diamond Prices}
-\begin{columns}
-	\column{0.55\textwidth}
-	\begin{itemize}
-		\item Response: log(price)
-		\item Covariates: log(carat), color, cut and clarity
-	\end{itemize}
-	\column{0.35\textwidth}
+	\column{0.67\textwidth}
 	\begin{figure}
-		\includegraphics[width=0.7\textwidth]{pics/dia2.png}
+		\includegraphics[width=0.98\textwidth]{../figs/nn_1_hidden.png}
 	\end{figure}
 \end{columns}
 \end{frame}
 
 \begin{frame}
-\frametitle{Exercise on Linear Regression}
+\frametitle{Step 3: Activation Functions}
 \begin{columns}
-	\column{0.55\textwidth}
+	\column{0.33\textwidth}
+	Non-linear transformations $\sigma$ of node values necessary!
+		\begin{figure}
+		\includegraphics[width=0.98\textwidth]{pics/activation_functions.png}
+	\end{figure}
+	Two purposes
 	\begin{itemize}
-		\item Run last model without any logarithm
-		\item Interpret the results
-		\item Does model make sense from practical perspective?
+		\item Imply interactions and non-linear terms
+		\item Inverse link as in GLMs
 	\end{itemize}
-	\column{0.35\textwidth}
+	\begin{example}
+	\end{example}
+	\column{0.67\textwidth}
 	\begin{figure}
-		\includegraphics[width=0.7\textwidth]{pics/dia2.png}
+		\includegraphics[width=0.98\textwidth]{../figs/nn_activation.png}
 	\end{figure}
 \end{columns}
 \end{frame}
 
+\begin{frame}
+\frametitle{Practical Considerations}
+\begin{columns}
+	\column{0.45\textwidth}
+	\begin{itemize}
+		\item Validation and tuning of main parameters
+		\item Callbacks
+		\item Overfitting and regularization
+		\item Choosing the architecture
+		\item Types of layers
+		\item Input standardization
+	\end{itemize}
+
+	\column{0.45\textwidth}
+	\begin{itemize}
+		\item Missing values
+		\item Categorical input
+		\item Optimizer
+		\item Interpretation
+		\item Custom losses and evaluation metrics
+	\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Example: diamonds}
+\begin{figure}
+	\includegraphics[width=0.6\textheight]{../figs/nn_2_hidden.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Exercises on Neural Nets}
+	\begin{enumerate}
+		\item Fit diamond prices by minimizing Gamma deviance with log-link 
+		
+		(custom loss as in lecture notes; log-link means "exponential" output activation)
+		\begin{itemize}
+			\item Tune model by simple validation.
+			\item Evaluate final model (for simplicity) on validation data.
+			\item Interpret final model.
+		\end{itemize}
+		Hints: Use smaller learning rate and replace "relu" by "tanh". Furthermore, the response is to be transformed from int to float.
+		\item Study either the optional claims data example in the lecture notes or build your own neural net, predicting claim yes/no.
+	\end{enumerate}
+\end{frame}
+
 %=====================================================================
-\subsection{Generalized Linear Models}
+\section{Final Words}
 %=====================================================================
 
 \begin{frame}
-\frametitle{Example: Realistic Model for Diamond Prices}
-\begin{itemize}
-	\item 
-	\item
-\end{itemize}
+	\frametitle{Comparison of ML Algorithms}
+		\begin{figure}
+		\includegraphics[width=1\textwidth]{../figs/comparison_ML.png}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{``Michael’s Analysis Scheme X''}
+	\begin{enumerate}
+		\item Take any property $T(Y)$ of key interest (churn rate, claims frequency, loss ratio, etc.) and calculate its value on the full dataset.
+		\item Do a descriptive analysis of $T(Y \mid X_j)$ for a couple of covariates to study the bivariate association between $Y$ and each $Y_j$ separately.
+		\item Accompany Step 2 by ML model $T(Y\mid X_1, \dots, X_p)=f(X_1, \dots, X_p)$
+			\begin{itemize}
+				\item Check its performance.
+				\item Study variable importance and use it to sort the results of Step 2.
+				\item Study partial (or SHAP) dependence plots for each $X_j$ and compare them with the associations from Step 2.
+			\end{itemize}
+	\end{enumerate}
+
+	\begin{block}{What did you learn from Step 3?}
+	\end{block}
 \end{frame}
 
 %=====================================================================
