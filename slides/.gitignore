@@ -1,1 +1,12 @@
 Wolsey · SlidesCarnival.pptx
+*.aux
+*.bcf
+*.blg
+*.log
+*.nav
+*.out
+*.xml
+*.snm
+*.gz
+*.toc
+*.bbl
