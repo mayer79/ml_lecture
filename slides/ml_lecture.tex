@@ -256,8 +256,8 @@
 	\begin{itemize}
 		\item Pricing actuary at Swiss Mobiliar (since 2018)
 		\item PhD in statistics (2008)
-		\item $(M+C)^2$ Blog: lorentzen.ch
-		\item github.com/mayer79
+		\item $(M+C)^2$ Blog: \url{lorentzen.ch}
+		\item \url{github.com/mayer79}
 		\item Guest lecturer at ETH Zurich
 	\end{itemize}
 \end{frame}
@@ -383,7 +383,7 @@
 		$$
 			\sum_{i = 1}^n (\underbrace{y_i - \hat y_i}_{\text{\alert{Residual}}})^2 
 		$$
-		\item $\hat y = f(\dots)$ are \alert{predictions}
+		\item $\hat y = \hat f(\dots)$ are \alert{predictions}
 	\end{itemize}
 
 	\vfill
@@ -458,8 +458,7 @@
 		\begin{block}{\centering Example of One-Hot-Encoding}
 			\begin{small}
 				\begin{table}
-					\begin{tabular}{cccccccc}
-						\hline
+					\begin{tabular}{c|ccccccc}
 						   color& D& E& F &G&H &I &J \\
 				  		\hline
 						E  &   0  &   1  &   0  &   0  &   0  &   0  &   0 \\
@@ -498,7 +497,7 @@
 	\frametitle{Non-Linear Terms}
 	\begin{columns}
 		\column{0.5\textwidth}
-		\begin{block}{Deal with non-linear associations to $Y$?} $\rightarrow$ use more parameters
+		\begin{block}{Deal with non-linear associations to $Y$?} $\rightarrow$ invest more parameters
 		\begin{enumerate}
 			\item Polynomial terms
 			\begin{itemize}
@@ -513,7 +512,7 @@
 		\end{block}
 		
 		\column{0.5\textwidth}
-		\begin{block}{\centering Example: Diamonds}
+		\begin{block}{\centering Cubic terms for carat}
 			\includegraphics[width=1\textwidth]{pics/nonlinear.pdf}
 			\vspace{-9em}
 			\begin{scriptsize}
@@ -538,14 +537,13 @@
 \begin{frame}
 	\frametitle{Interactions}
 	\begin{columns}
-		\column{0.5\textwidth}
+		\column{0.55\textwidth}
 		\begin{itemize}
 			\item Additivity of effects not always realistic
 			$$
 				\E(Y) = \beta + \beta_1 X_1 + \dots + \beta_m X_m
 			$$
 			\item Adding interaction terms brings necessary flexibility 
-			
 			$\rightarrow$ more parameters
 			\item Interaction between features $X$ and $Z$
 			\begin{itemize}
@@ -554,8 +552,8 @@
 			\end{itemize}
 		\end{itemize}
 		
-		\column{0.5\textwidth}
-		\begin{block}{\centering Example: Diamonds}
+		\column{0.45\textwidth}
+		\begin{block}{\centering Carat and color}
 			\begin{figure}
 				\includegraphics[width=\textwidth]{pics/interaction.pdf}
 			\end{figure}
@@ -661,8 +659,8 @@
 	\begin{block}{Model equation}
 		Two equivalent formulations
 		\begin{align*}
-			g(E(Y)) &= \beta_0 + \beta_1 X_1 + \dots + \beta_m X_m \\
-			E(Y) &= g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m)
+			g(\E(Y)) &= \beta_0 + \beta_1 X_1 + \dots + \beta_m X_m \\
+			\E(Y) &= g^{-1}(\beta_0 + \beta_1 X_1 + \dots + \beta_m X_m)
 		\end{align*}
 	\end{block}
 	
@@ -1097,6 +1095,22 @@
 	\end{example}
 \end{frame}
 
+\begin{frame}
+	\frametitle{Exercises on Random Forests}
+	\begin{enumerate}
+		\item In our diamonds random forest, replace carat by log(carat). Do the results change?
+		
+		\vfill
+		
+		\item Fit a (probability) random forest on the claims data to predict claim probability by {\ttfamily veh\_value}, {\ttfamily veh\_body}, {\ttfamily veh\_age}, {\ttfamily gender}, {\ttfamily area}, and {\ttfamily agecat}.
+		\begin{itemize}
+			\item Choose tree depth by OOB performance or CV.
+			\item Evaluate the model on an independent test dataset.
+			\item Interpret the results.
+		\end{itemize}
+	\end{enumerate}
+\end{frame}
+
 %=====================================================================
 \subsection{Gradient Boosted Trees}
 %=====================================================================
@@ -1125,20 +1139,28 @@
 \begin{frame}
 	\frametitle{How does Gradient Boosting Work?}
 	\begin{columns}[onlytextwidth]
-		\column{0.5\textwidth}
+		\column{0.55\textwidth}
 		\begin{block}{Algorithm}
 			\begin{enumerate}
-				\item Fit simple model (often a small decision tree).
-				\item Add another simple model to correct errors of first model.
-				\item Repeat Step 2 until stopping criterion triggers.
+				\item Fit simple model 
+				
+				(often a small decision tree).
+				\item Add another simple model to 
+				
+				correct errors of first model.
+				\item Repeat Step 2 until stopping
+				
+				criterion triggers.
 			\end{enumerate}
 		\end{block}
-		\column{0.5\textwidth}
+		\column{0.45\textwidth}
 		\begin{alertblock}{Remarks}
 			\begin{itemize}
-				\item Completely different from random forest
+				\item Completely different from 
+				
+				random forest.
 				\item Predictions are found by combining predictions of all simple models (like random forest).
-				\item Flexible regarding loss function
+				\item Flexible regarding loss function.
 			\end{itemize}
 		\end{alertblock}
 	\end{columns}
@@ -1167,7 +1189,11 @@
 				\end{itemize}
 		\end{enumerate}
 		\column{0.3\textwidth}
-		\begin{alertblock}{Why not one big grid search on all parameters?}
+		\begin{alertblock}{Why not one big 
+				
+				grid search on 
+				
+				all parameters?}
 		\end{alertblock}
 	\end{columns}
 
@@ -1184,10 +1210,10 @@
 		
 		\vfill
 		
-		\item Develop a strong XGBoost model on the claims data to predict claim probability by \ttfamily{veh\_value}, \ttfamily{veh\_body}, \ttfamily{veh\_age}, \ttfamily{gender}, \ttfamily{area}, and \ttfamily{agecat}.
+		\item Develop a strong XGBoost model on the claims data to predict claim probability by {\ttfamily veh\_value}, {\ttfamily veh\_body}, {\ttfamily veh\_age}, {\ttfamily gender}, {\ttfamily area}, and {\ttfamily agecat}.
 		\begin{itemize}
-			\item Use \alert{\ttfamily{``binary:logistic''}} as objective.
-			\item Use \alert{\ttfamily{``logloss''}} as evaluation metric.
+			\item Use \alert{{\ttfamily ``binary:logistic''}} as objective.
+			\item Use \alert{{\ttfamily ``logloss''}} as evaluation metric.
 			\item Use a clean CV/test strategy.
 			\item Interpret the results.
 		\end{itemize}
@@ -1343,7 +1369,7 @@
 			\item Evaluate final model (for simplicity) on validation data.
 			\item Interpret final model.
 		\end{itemize}
-		Hints: Use smaller learning rate and replace "relu" by "tanh". Furthermore, the response is to be transformed from int to float.
+		Hints: Use smaller learning rate and replace ``relu'' by ``tanh''. Furthermore, the response is to be transformed from int to float.
 		
 		\vfill
 		
@@ -1366,8 +1392,8 @@
 	\frametitle{``Michael’s Analysis Scheme X''}
 	\begin{enumerate}
 		\item Take any property $T(Y)$ of key interest (churn rate, claims frequency, loss ratio, etc.) and calculate its value on the full dataset.
-		\item Do a descriptive analysis of $T(Y \mid X_j)$ for a couple of covariates to study the bivariate association between $Y$ and each $Y_j$ separately.
-		\item Accompany Step 2 by ML model $T(Y\mid X_1, \dots, X_p)=f(X_1, \dots, X_p)$
+		\item Do a descriptive analysis of $T(Y \mid X_j)$ for a couple of covariates to study the bivariate association between $Y$ and each $X_j$ separately.
+		\item Accompany Step 2 by ML model $T(Y\mid X_1, \dots, X_p) \approx f(X_1, \dots, X_p)$
 			\begin{itemize}
 				\item Check its performance.
 				\item Study variable importance and use it to sort the results of Step 2.
