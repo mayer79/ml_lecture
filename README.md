@@ -43,10 +43,12 @@ Each chapter will take us about two hours and is accompanied by exercises.
 
 You can preview the html outputs of the R lecture by clicking on these links:
 
-1. [Basics and Linear Models](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/1_Basics_and_Linear_Models.html)
-2. [Model Selection and Validation](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/2_Model_Selection_and_Validation.html)
-3. [Trees](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/3_Trees.html)
-4. [Neural Nets](https://htmlpreview.github.io/?https://github.com/mayer79/ml_lecture/blob/master/r/4_Neural_Nets.html)
+1. [Basics and Linear Models](https://mayer79.github.io/ml_lecture/1_Basics_and_Linear_Models.html)
+2. [Model Selection and Validation](https://mayer79.github.io/ml_lecture/2_Model_Selection_and_Validation.html)
+3. [Trees](https://mayer79.github.io/ml_lecture/3_Trees.html)
+4. [Neural Nets](https://mayer79.github.io/ml_lecture/4_Neural_Nets.html)
+
+[Exercise Solutions](https://mayer79.github.io/ml_lecture/exercise_solutions.html)
 
 The Python html files can be downloaded from the repository as well, but are not linked.
 
