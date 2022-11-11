@@ -2,13 +2,18 @@
 title: "Exercises with Solutions"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
-output: 
+output:
   html_document:
-    toc: true
-    toc_float: true
+    toc: yes
+    toc_float: yes
+    number_sections: yes
     df_print: paged
-    theme: united
-    highlight: zenburn
+    theme: paper
+    code_folding: show
+    math_method: katex
+editor_options: 
+  chunk_output_type: console
+knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 ---
 
 ```{r setup, include=FALSE}
@@ -54,9 +59,7 @@ dia <- diamonds %>%
   )
 
 fit <- glm(
-  price ~ log(carat) + color + cut + clarity, 
-  data = dia, 
-  family = Gamma(link = "log")
+  price ~ log(carat) + color + cut + clarity, data = dia, family = Gamma(link = "log")
 )
 summary(fit)
 
@@ -75,24 +78,20 @@ library(FNN)
 library(splitTools)
 library(MetricsWeighted)
 
-# Covariates
+y <- "price"  
 x <- c("carat", "color", "cut", "clarity")
 
-dia <- unique(diamonds[, c("price", x)])
+dia <- diamonds[, c(y, x)]
+dia <- unique(dia)  #  Only new code line
 
 # Split diamonds into 90% for training and 10% for testing
-ix <- partition(
-  dia$price, 
-  p = c(train = 0.9, test = 0.1), 
-  seed = 9838, 
-  type = "basic"
-)
+ix <- partition(dia[[y]], p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
 
 train <- dia[ix$train, ]
 test <- dia[ix$test, ]
 
-y_train <- train$price
-y_test <- test$price
+y_train <- train[[y]]
+y_test <- test[[y]]
 
 # Standardize training data
 X_train <- scale(data.matrix(train[, x]))
@@ -117,10 +116,7 @@ for (i in 1:nrow(paramGrid)) {
   
   for (fold in folds) {
     pred <- knn.reg(
-      X_train[fold, ], 
-      test = X_train[-fold, ], 
-      k = k, 
-      y = y_train[fold]
+      X_train[fold, ], test = X_train[-fold, ], k = k, y = y_train[fold]
     )$pred
     scores[length(scores) + 1] <- rmse(y_train[-fold], pred)
   }
@@ -134,10 +130,7 @@ paramGrid[order(paramGrid$RMSE)[1], ]
 rmse_reg <- c()
 
 for (fold in folds) {
-  fit <- lm(
-    price ~ log(carat) + color + cut + clarity, 
-    data = train[fold, ]
-  )
+  lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
   pred <- predict(fit, newdata = train[-fold, ])
   rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
 }
@@ -166,12 +159,7 @@ dia <- diamonds %>%
   )
 
 # Split diamonds into 90% for training and 10% for testing
-ix <- partition(
-  dia$price, 
-  p = c(train = 0.9, test = 0.1), 
-  seed = 9838, 
-  type = "basic"
-)
+ix <- partition(dia$price, p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
 
 train <- dia[ix$train, ]
 test <- dia[ix$test, ]
@@ -294,7 +282,7 @@ r_squared_bernoulli(dataCar[ix$test, "clm"], pred) # 0.004246408
 # Variable importance regarding Gini improvement
 imp <- sort(importance(fit))
 imp <- imp / sum(imp)
-barplot(imp, horiz = TRUE, col = "orange", cex.names = 0.8, las = 2)
+barplot(imp, horiz = TRUE, col = "chartreuse4", cex.names = 0.8, las = 2)
 
 # Partial dependence plot for the strongest predictor "veh_value"
 fl <- flashlight(
@@ -304,31 +292,35 @@ fl <- flashlight(
   predict_function = function(m, X) predict(m, X)$predictions[, 2]
 )
 
-light_profile(fl, v = "veh_value", breaks = seq(0, 5, by = 0.1)) %>% 
-  plot()
+for (v in all.vars(~veh_value + veh_body + veh_age + gender + area + agecat)) {
+  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+    plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
+    labs(title = paste("PDP for", v), y = "Prediction") 
+  print(p)
+}
 ```
 
 ## Exercises on Boosting
 
 ### Exercise 1
 
+Just copy paste parts of the code in the lecture notes.
+
 ```{r}
 library(tidyverse)
 library(xgboost)
 library(splitTools)
 
-# As XGBoost does not understand strings, we encode them by integers
-prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
-  data.matrix(X[, x, drop = FALSE])
-}
+y <- "price"
+x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and test
-ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
+ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
-y_train <- diamonds$price[ix$train]
-X_train <- prep_xgb(diamonds[ix$train, ])
+y_train <- diamonds[[y]][ix$train]
+X_train <- data.matrix(diamonds[ix$train, x])
 
-# XGBoost data handler
+# XGBoost data interface
 dtrain <- xgb.DMatrix(X_train, label = y_train)
 
 # Load grid and select best iteration. If interactive, use r/gridsearch/...
@@ -353,12 +345,12 @@ fl <- flashlight(
   model = fit,
   data = diamonds[ix$train, ], 
   label = "xgb", 
-  predict_function = function(m, X) predict(m, prep_xgb(X))
+  predict_function = function(m, X) predict(m, data.matrix(X[x]))
 )
 
 light_profile(fl, v = "carat", n_bins = 40) %>% 
-  plot() +
-  labs(title = "Partial dependence plot for carat", y = "price")
+  plot(color = "chartreuse4") +
+  labs(title = "PDP for carat", y = "Prediction") 
 ```
 
 **Comment:** The argument is called "monotone_constraints". For each covariate, a value 0 means no constraint, a value -1 means a negative constraints, and a value 1 means positive constraint. Applying the constraint now leads to a monotonically increasing partial dependence plot. This is extremely useful in practice. Besides monotonic constraints, also interaction constraints are possible.
@@ -367,6 +359,7 @@ light_profile(fl, v = "carat", n_bins = 40) %>%
 
 ```{r}
 # We simply adapt the template from the script
+
 library(tidyverse)
 library(xgboost)
 library(splitTools)
@@ -374,17 +367,13 @@ library(insuranceData)
 
 data(dataCar)
 
-# As XGBoost does not understand strings, we encode them by integers
-prep_xgb <- function(X, x = c("veh_value", "veh_body", "veh_age", 
-                              "gender", "area", "agecat")) {
-  data.matrix(X[, x, drop = FALSE])
-}
+x <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
 
 # Split into train and test
 ix <- partition(dataCar$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
 
 y_train <- dataCar$clm[ix$train]
-X_train <- prep_xgb(dataCar[ix$train, ])
+X_train <- data.matrix(dataCar[ix$train, x])
 
 # XGBoost data handler
 dtrain <- xgb.DMatrix(X_train, label = y_train)
@@ -477,7 +466,7 @@ library(MetricsWeighted)
 library(flashlight)
 
 # Performance on test data
-pred <- predict(fit, prep_xgb(dataCar[ix$test, ]))
+pred <- predict(fit, data.matrix(dataCar[ix$test, x]))
 deviance_bernoulli(dataCar$clm[ix$test], pred)
 
 # Relative performance
@@ -494,24 +483,15 @@ fl <- flashlight(
   model = fit, 
   data = dataCar[ix$train, ], 
   label = "xgb", 
-  predict_function = function(m, X) predict(m, prep_xgb(X))
+  predict_function = function(m, X) predict(m, data.matrix(X[x]))
 )
 
-light_profile(fl, v = "veh_value", breaks = seq(0, 5, by = 0.1)) %>% 
-  plot() +
-  ggtitle("Partial dependence plot for veh_value")
-
-light_profile(fl, v = "veh_body") %>% 
-  plot(rotate_x = TRUE) +
-  ggtitle("Partial dependence plot for veh_body")
-
-light_profile(fl, v = "area") %>% 
-  plot() +
-  ggtitle("Partial dependence plot for area")
-
-light_profile(fl, v = "agecat") %>% 
-  plot() +
-  ggtitle("Partial dependence plot for agecat")
+for (v in x) {
+  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+    plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
+    labs(title = paste("PDP for", v), y = "Prediction") 
+  print(p)
+}
 ```
 
 ### Exercise 3 (Optional)
@@ -674,40 +654,37 @@ library(tidyverse)
 library(splitTools)
 library(keras)
 
-# Path to conda env with TensorFlow
-# keras::use_condaenv(path_to_conda_env)
-
-loss_gamma <- function(y_true, y_pred) {
-  -k_log(y_true / y_pred) + y_true / y_pred
-}
-
-# Response and covariates
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and validation
-ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
+ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
 train <- diamonds[ix$train, ]
-valid <- diamonds[ix$valid, ]
+test <- diamonds[ix$test, ]
+
+X_train <- train[, x]
+X_test <- test[, x]
 
 # Integers are not auto-cast by all TF versions...
 y_train <- as.numeric(train[[y]])
-y_valid <- as.numeric(valid[[y]])
-
-X_train <- train[, x]
-X_valid <- valid[, x]
+y_test <- as.numeric(test[[y]])
 
 # Standardize X using X_train
+temp <- scale(data.matrix(X_train))
 sc <- list(
-  center = attr(scale(data.matrix(X_train)), "scaled:center"),
-  scale = attr(scale(data.matrix(X_train)), "scaled:scale")
+  center = attr(temp, "scaled:center"), 
+  scale = attr(temp, "scaled:scale")
 )
 
 # Function that maps data to scaled network input
-prep_nn <- function(X, x = c("carat", "color", "cut", "clarity"), scaling = sc) {
-  X <- data.matrix(X[, x, drop = FALSE])
+prep_nn <- function(X, sel = x, scaling = sc) {
+  X <- data.matrix(X[, sel, drop = FALSE])
   scale(X, center = scaling$center, scale = scaling$scale)
+}
+
+loss_gamma <- function(y_true, y_pred) {
+  -k_log(y_true / y_pred) + y_true / y_pred
 }
 
 # Trying to make things reproducible...
@@ -728,7 +705,7 @@ nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 0.001),
+  optimizer = optimizer_adam(learning_rate = 0.001),
   loss = loss_gamma
 )
 
@@ -742,11 +719,14 @@ cb <- list(
 history <- nn %>% fit(
   x = prep_nn(X_train),
   y = y_train,
-  epochs = 100,
+  epochs = 200,
   batch_size = 400, 
-  validation_data = list(prep_nn(X_valid), y_valid),
+  validation_split = 0.2,
   callbacks = cb
 )
+
+plot(history, metrics = "loss", smooth = FALSE) +
+  coord_cartesian(ylim = c(0, 5))
 
 # Interpret
 library(flashlight)
@@ -755,7 +735,7 @@ library(MetricsWeighted)
 fl <- flashlight(
   model = nn, 
   y = "price", 
-  data = diamonds[ix$valid, ], 
+  data = test, 
   label = "nn", 
   metrics = list(
     `Gamma deviance` = deviance_gamma, 
@@ -764,7 +744,7 @@ fl <- flashlight(
   predict_function = function(m, X) predict(m, prep_nn(X), batch_size = 1000)
 )
 
-# Performance on validation data
+# Performance on test data
 light_performance(fl) %>% 
   plot(fill = "orange")
 
@@ -773,23 +753,14 @@ light_importance(fl, v = x) %>%
   plot(fill = "orange")
 
 # Partial dependence plots
-light_profile(fl, v = "carat", n_bins = 40) %>% 
-  plot() +
-  labs(title = "Partial dependence plot for carat", y = "price")
-
-light_profile(fl, v = "clarity") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for clarity", y = "price")
-
-light_profile(fl, v = "cut") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for cut", y = "price")
-
-light_profile(fl, v = "color") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for color", y = "price")
+for (v in x) {
+  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+    plot(color = "chartreuse4") +
+    ggtitle(paste("PDP for", v)) 
+  print(p)
+}
 ```
 
 ## Exercise 2
 
-See lecture notes for a solution with embeddings
+See lecture notes for a solution with embeddings.

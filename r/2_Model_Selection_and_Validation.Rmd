@@ -8,8 +8,12 @@ output:
     toc_float: yes
     number_sections: yes
     df_print: paged
-    theme: united
-    highlight: zenburn
+    theme: paper
+    code_folding: show
+    math_method: katex
+editor_options: 
+  chunk_output_type: console
+knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 ---
 
 ```{r setup, include=FALSE}
@@ -94,8 +98,9 @@ library(MetricsWeighted)
 x <- c("carat", "color", "cut", "clarity")
 
 # Split diamonds into 80% for "training" and 20% for validation
-ix <- partition(diamonds$price, p = c(train = 0.8, valid = 0.2), 
-                seed = 9838, type = "basic")
+ix <- partition(
+  diamonds$price, p = c(train = 0.8, valid = 0.2), seed = 9838, type = "basic"
+)
 
 train <- diamonds[ix$train, ]
 valid <- diamonds[ix$valid, ]
@@ -222,8 +227,8 @@ for (i in 1:nrow(paramGrid)) {
 paramGrid
 
 ggplot(paramGrid, aes(x = k, y = RMSE)) +
-  geom_point() +
-  geom_line() +
+  geom_point(color = "chartreuse4") +
+  geom_line(color = "chartreuse4") +
   ggtitle("Performance by cross-validation")
 ```
 
@@ -266,21 +271,21 @@ library(FNN)
 library(splitTools)
 library(MetricsWeighted)
 
-# Covariates
+# y is now the response *name*
+y <- "price"  
 x <- c("carat", "color", "cut", "clarity")
 
-dia <- diamonds[, c("price", x)]
+dia <- diamonds[, c(y, x)]
 # dia <- unique(dia)  #  -> Exercise 2
 
 # Split diamonds into 90% for training and 10% for testing
-ix <- partition(dia$price, p = c(train = 0.9, test = 0.1),
-                seed = 9838, type = "basic")
+ix <- partition(dia[[y]], p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
 
 train <- dia[ix$train, ]
 test <- dia[ix$test, ]
 
-y_train <- train$price
-y_test <- test$price
+y_train <- train[[y]]
+y_test <- test[[y]]
 
 # Standardize training data
 X_train <- scale(data.matrix(train[, x]))
@@ -305,10 +310,7 @@ for (i in 1:nrow(paramGrid)) {
   
   for (fold in folds) {
     pred <- knn.reg(
-      X_train[fold, ], 
-      test = X_train[-fold, ], 
-      k = k, 
-      y = y_train[fold]
+      X_train[fold, ], test = X_train[-fold, ], k = k, y = y_train[fold]
     )$pred
     scores[length(scores) + 1] <- rmse(y_train[-fold], pred)
   }
@@ -322,10 +324,7 @@ paramGrid[order(paramGrid$RMSE)[1], ]
 rmse_reg <- c()
 
 for (fold in folds) {
-  fit <- lm(
-    price ~ log(carat) + color + cut + clarity, 
-    data = train[fold, ]
-  )
+  fit <- lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
   pred <- predict(fit, newdata = train[-fold, ])
   rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
 }

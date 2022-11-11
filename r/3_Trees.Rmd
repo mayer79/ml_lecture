@@ -2,14 +2,18 @@
 title: "Trees"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
-output: 
+output:
   html_document:
-    toc: true
-    toc_float: true
-    number_sections: true
+    toc: yes
+    toc_float: yes
+    number_sections: yes
     df_print: paged
-    theme: united
-    highlight: zenburn
+    theme: paper
+    code_folding: show
+    math_method: katex
+editor_options: 
+  chunk_output_type: console
+knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 ---
 
 ```{r setup, include=FALSE}
@@ -165,9 +169,9 @@ library(flashlight)
 # Variable importance regarding MSE improvement
 imp <- sort(importance(fit))
 imp <- imp / sum(imp)
-barplot(imp, horiz = TRUE, col = "orange")
+barplot(imp, horiz = TRUE, col = "chartreuse4")
 
-# Effects on the prediction, averaged over all interactions
+# Partial dependence plots
 fl <- flashlight(
   model = fit, 
   data = diamonds[ix$train, ], 
@@ -175,21 +179,12 @@ fl <- flashlight(
   predict_function = function(m, X) predict(m, X)$predictions
 )
 
-light_profile(fl, v = "carat", n_bins = 40) %>% 
-  plot() +
-  labs(title = "Partial dependence plot for carat", y = "price")
-
-light_profile(fl, v = "clarity") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for clarity", y = "price")
-
-light_profile(fl, v = "cut") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for cut", y = "price")
-
-light_profile(fl, v = "color") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for color", y = "price")
+for (v in c("carat", "color", "cut", "clarity")) {
+  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+    plot(color = "chartreuse4") +
+    ggtitle(paste("PDP for", v)) 
+  print(p)
+}
 ```
 
 **Comments**
@@ -221,19 +216,17 @@ library(ggplot2)
 library(xgboost)
 library(splitTools)
 
-# XGBoost does not understand strings -> integer encoding
-prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
-  data.matrix(X[, x, drop = FALSE])
-}
+y <- "price"
+x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and valid
-ix <- partition(diamonds$price, p = c(train = 0.8, valid = 0.2), seed = 9838)
+ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
 
-y_train <- diamonds$price[ix$train]
-X_train <- prep_xgb(diamonds[ix$train, ])
+y_train <- diamonds[[y]][ix$train]
+X_train <- data.matrix(diamonds[ix$train, x])
 
-y_valid <- diamonds$price[ix$valid]
-X_valid <- prep_xgb(diamonds[ix$valid, ])
+y_valid <- diamonds[[y]][ix$valid]
+X_valid <- data.matrix(diamonds[ix$valid, x])
 
 # XGBoost data interface
 dtrain <- xgb.DMatrix(X_train, label = y_train)
@@ -241,7 +234,7 @@ dvalid <- xgb.DMatrix(X_valid, label = y_valid)
 
 # Minimal set of parameters
 params <- list(
-  learning_rate = 0.02,
+  learning_rate = 0.02, 
   objective = "reg:squarederror",
   eval_metric = "rmse"
 )
@@ -298,16 +291,17 @@ library(tidyverse)
 library(xgboost)
 library(splitTools)
 
-# As XGBoost does not understand strings, we encode them by integers
-prep_xgb <- function(X, x = c("carat", "color", "cut", "clarity")) {
-  data.matrix(X[, x, drop = FALSE])
-}
+y <- "price"
+x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and test
-ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
+ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
-y_train <- diamonds$price[ix$train]
-X_train <- prep_xgb(diamonds[ix$train, ])
+y_train <- diamonds[[y]][ix$train]
+X_train <- data.matrix(diamonds[ix$train, x])
+
+y_test <- diamonds[[y]][ix$test]
+X_test <- data.matrix(diamonds[ix$test, x])
 
 # XGBoost data interface
 dtrain <- xgb.DMatrix(X_train, label = y_train)
@@ -410,9 +404,9 @@ library(MetricsWeighted)
 library(flashlight)
 
 # Performance on test data
-pred <- predict(fit, prep_xgb(diamonds[ix$test, ]))
-rmse(diamonds$price[ix$test], pred)
-r_squared(diamonds$price[ix$test], pred)
+pred <- predict(fit, X_test)
+rmse(y_test, pred)
+r_squared(y_test, pred, reference_mean = mean(y_train))
 
 # Variable importance regarding MSE improvement
 imp <- xgb.importance(model = fit)
@@ -423,24 +417,15 @@ fl <- flashlight(
   model = fit, 
   data = diamonds[ix$train, ], 
   label = "xgb", 
-  predict_function = function(m, X) predict(m, prep_xgb(X))
+  predict_function = function(m, X) predict(m, data.matrix(X[x]))
 )
 
-light_profile(fl, v = "carat", n_bins = 40) %>% 
-  plot() +
-  labs(title = "Partial dependence plot for carat", y = "price")
-
-light_profile(fl, v = "clarity") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for clarity", y = "price")
-
-light_profile(fl, v = "cut") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for cut", y = "price")
-
-light_profile(fl, v = "color") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for color", y = "price")
+for (v in x) {
+  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+    plot(color = "chartreuse4") +
+    ggtitle(paste("PDP for", v)) 
+  print(p)
+}
 ```
 
 **Comment**: The resulting model seems comparable to the random forest with slightly better performance.
@@ -448,7 +433,9 @@ light_profile(fl, v = "color") %>%
 ## Exercises
 
 1. Study the online documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e., just by refitting the final model. How does the partial dependence plot for `carat` look now?
+
 2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss as loss function and evaluation metric. Interpret its results.
+
 3. Optional. Study the documentation of [LightGBM](https://lightgbm.readthedocs.io/en/latest/). Use LightGBM to develop a competitor to the XGBoost claims model from Exercise 2. The XGBoost code needs to be slightly adapted. Compare grid search time.
 
 # Chapter Summary
