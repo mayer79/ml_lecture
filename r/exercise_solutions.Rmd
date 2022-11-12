@@ -238,7 +238,7 @@ pred <- predict(fit, dia[ix$test, ])$predictions
 rmse(dia$price[ix$test], pred)
 ```
 
-**Comment:* The results are essentially identical because log is a monotonic transformation. Differences might come from implementation tricks.
+**Comment:** The results are essentially identical because log is a monotonic transformation. Differences might come from implementation tricks.
 
 ### Exercise 2
 
@@ -367,13 +367,17 @@ library(insuranceData)
 
 data(dataCar)
 
+y <- "clm"
 x <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
 
 # Split into train and test
-ix <- partition(dataCar$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
+ix <- partition(dataCar[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
-y_train <- dataCar$clm[ix$train]
+y_train <- dataCar[[y]][ix$train]
 X_train <- data.matrix(dataCar[ix$train, x])
+
+y_test <- dataCar[[y]][ix$test]
+X_test <- data.matrix(dataCar[ix$test, x])
 
 # XGBoost data handler
 dtrain <- xgb.DMatrix(X_train, label = y_train)
@@ -466,11 +470,11 @@ library(MetricsWeighted)
 library(flashlight)
 
 # Performance on test data
-pred <- predict(fit, data.matrix(dataCar[ix$test, x]))
-deviance_bernoulli(dataCar$clm[ix$test], pred)
+pred <- predict(fit, X_test)
+deviance_bernoulli(y_test, pred)
 
 # Relative performance
-r_squared_bernoulli(dataCar$clm[ix$test], pred)
+r_squared_bernoulli(y_test, pred)
 # Relative performance gain is very low, but very slightly better than 
 # of the tuned random forest.
 
@@ -478,7 +482,7 @@ r_squared_bernoulli(dataCar$clm[ix$test], pred)
 imp <- xgb.importance(model = fit)
 xgb.plot.importance(imp)
 
-# Some partial dependence plots
+# Partial dependence plots
 fl <- flashlight(
   model = fit, 
   data = dataCar[ix$train, ], 
@@ -497,7 +501,8 @@ for (v in x) {
 ### Exercise 3 (Optional)
 
 ```{r}
-# We simply adapt the template from the script
+# We slightly adapt the XGBoost template
+
 library(tidyverse)
 library(lightgbm)
 library(splitTools)
@@ -505,21 +510,23 @@ library(insuranceData)
 
 data(dataCar)
 
-# As LightGBM does not understand strings, we encode them by integers
-prep_lgb <- function(X, x = c("veh_value", "veh_body", "veh_age", 
-                              "gender", "area", "agecat")) {
-  data.matrix(X[, x, drop = FALSE])
-}
+y <- "clm"
+x <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
 
 # Split into train and test
-ix <- partition(dataCar$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
+ix <- partition(dataCar[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
-y_train <- dataCar$clm[ix$train]
-X_train <- prep_lgb(dataCar[ix$train, ])
+y_train <- dataCar[[y]][ix$train]
+X_train <- data.matrix(dataCar[ix$train, x])
 
-# LGB data handler. We could even set categorical_feature = "veh_body" in order
+y_test <- dataCar[[y]][ix$test]
+X_test <- data.matrix(dataCar[ix$test, x])
+
+# We could even set categorical_feature = "veh_body" in order
 # to treat that feature unordered categorical
-dtrain <- lgb.Dataset(X_train, label = y_train)
+dtrain <- lgb.Dataset(
+  X_train, label = y_train, params = list(feature_pre_filter = FALSE)
+)
 
 # If grid search is to be run again, set tune <- TRUE
 tune <- FALSE
@@ -608,13 +615,12 @@ library(MetricsWeighted)
 library(flashlight)
 
 # Performance on test data
-pred <- predict(fit, prep_lgb(dataCar[ix$test, ]))
-deviance_bernoulli(dataCar$clm[ix$test], pred)
+pred <- predict(fit, X_test)
+deviance_bernoulli(y_test, pred)
 
 # Relative performance
-r_squared_bernoulli(dataCar$clm[ix$test], pred) # 0.00445
-# Relative performance gain is very low, but very slightly better than 
-# of the tuned XGB model (could be the other way round).
+r_squared_bernoulli(y_test, pred) # 0.00439
+# Relative performance gain is a bit lower than with XGB
 
 # Variable importance regarding total loss improvement
 imp <- lgb.importance(model = fit)
@@ -625,24 +631,15 @@ fl <- flashlight(
   model = fit, 
   data = dataCar[ix$train, ], 
   label = "lgb", 
-  predict_function = function(m, X) predict(m, prep_lgb(X))
+  predict_function = function(m, X) predict(m, data.matrix(X[, x]))
 )
 
-light_profile(fl, v = "veh_value", breaks = seq(0, 5, by = 0.1)) %>% 
-  plot() +
-  ggtitle("Partial dependence plot for veh_value")
-
-light_profile(fl, v = "veh_body") %>% 
-  plot(rotate_x = TRUE) +
-  ggtitle("Partial dependence plot for veh_body")
-
-light_profile(fl, v = "area") %>% 
-  plot() +
-  ggtitle("Partial dependence plot for area")
-
-light_profile(fl, v = "agecat") %>% 
-  plot() +
-  ggtitle("Partial dependence plot for agecat")
+for (v in x) {
+  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+    plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
+    labs(title = paste("PDP for", v), y = "Prediction") 
+  print(p)
+}
 ```
 
 # Chapter 4: Neural Nets
@@ -654,10 +651,13 @@ library(tidyverse)
 library(splitTools)
 library(keras)
 
+# Path to conda env with TensorFlow
+keras::use_condaenv("C:/Users/Michael/anaconda3/envs/ml_lecture")
+
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
-# Split into train and validation
+# Split into train and test
 ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
 train <- diamonds[ix$train, ]
@@ -741,12 +741,14 @@ fl <- flashlight(
     `Gamma deviance` = deviance_gamma, 
     `Relative deviance reduction` = r_squared_gamma
   ),
-  predict_function = function(m, X) predict(m, prep_nn(X), batch_size = 1000)
+  predict_function = function(m, X) 
+    predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
 )
 
 # Performance on test data
 light_performance(fl) %>% 
-  plot(fill = "orange")
+  plot(fill = "orange") + 
+  labs(x = element_blank(), y = element_blank())
 
 # Permutation importance
 light_importance(fl, v = x) %>% 

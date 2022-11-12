@@ -261,6 +261,8 @@ Depending on whether one does simple validation or cross-validation, the typical
 
 The only difference across the two workflows is whether to use simple validation or cross-validation for making decisions.
 
+Remark: For simplicity, Workflow A is sometimes done without refitting on the combination of training and validation data. In that case, the final model is fitted on the training data only.
+
 ## Example: test data
 
 We will now go through Workflow B for our diamond price model. We will (1) tune the "k" of our nearest-neighbour regression and (2) compete with a linear regression.

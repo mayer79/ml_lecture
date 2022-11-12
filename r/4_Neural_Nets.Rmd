@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 )
 
 # Path to conda env with TensorFlow
-# keras::use_condaenv("C:/Users/Michael/anaconda3/envs/ml_lecture")
+keras::use_condaenv("C:/Users/Michael/anaconda3/envs/ml_lecture")
 
 ```
 
@@ -348,7 +348,7 @@ Variable importance of covariates in neural networks can be assessed by permutat
 
 # Example: diamonds
 
-We will now fit a neural net with two hidden layers (30 and 15 nodes) and a total of 631 parameters to model diamond prices. Learning rate and batch size were chosen by simple validation. The number of epochs is being chosen by an early stopping callback.
+We will now fit a neural net with two hidden layers (30 and 15 nodes) and a total of 631 parameters to model diamond prices. Learning rate, activation functions, and batch size were manually chosen by simple validation. The number of epochs is automatically being chosen by an early stopping callback.
 
 ![](../figs/nn_2_hidden.PNG)
 
@@ -357,22 +357,20 @@ library(tidyverse)
 library(splitTools)
 library(keras)
 
-# Response and covariates
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
-# Split into train and validation
-ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
+# Split into train and test
+ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
 train <- diamonds[ix$train, ]
-valid <- diamonds[ix$valid, ]
-
-# Integers are not auto-cast by all TF versions...
-y_train <- as.numeric(train[[y]])  
-y_valid <- as.numeric(valid[[y]])
+test <- diamonds[ix$test, ]
 
 X_train <- train[, x]
-X_valid <- valid[, x]
+X_test <- test[, x]
+
+y_train <- train[[y]]
+y_test <- test[[y]]
 
 # Standardize X using X_train
 temp <- scale(data.matrix(X_train))
@@ -405,7 +403,7 @@ nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 
 nn %>% compile(
-  optimizer = optimizer_adam(learning_rate = 0.3),
+  optimizer = optimizer_adam(learning_rate = 0.1),
   loss = "mse",
   metrics = metric_root_mean_squared_error()
 )
@@ -434,26 +432,25 @@ library(MetricsWeighted)
 
 fl <- flashlight(
   model = nn, 
-  y = "price", 
-  data = valid, 
-  label = "nn", 
+  y = y, 
+  data = test, 
+  label = "Neural net", 
   metrics = list(rmse = rmse, `R squared` = r_squared),
   predict_function = function(m, X) 
     predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
 )
 
-# Performance on validation data
+# Performance on test data
 perf <- light_performance(fl)
 perf$data
-perf %>% 
-  plot(fill = "chartreuse4") +
+plot(perf, fill = "chartreuse4") +
   labs(x = element_blank(), y = element_blank())
 
 # Permutation importance
 light_importance(fl, v = x) %>% 
   plot(fill = "chartreuse4")
 
-# Partial dependence plots
+# PDPs
 for (v in x) {
   p <- light_profile(fl, v = v, n_bins = 40) %>% 
     plot(color = "chartreuse4") +
@@ -462,10 +459,7 @@ for (v in x) {
 }
 ```
 
-**Comments** 
-
-- The model performance seems comparable to the tree-based models from the last chapter. The specific performance might change from run to run due to randomness in the algorithm.
-- The effect of `carat` looks smoother as with random forests or boosted trees.
+**Comment:** Performance is lower than of the tree-based models. This might partly be a consequence of effects being smoother, but also because the model has not been refitted on the full training data for simplicity (20% of the training rows are used for validation).
 
 # Example: Embeddings (optional)
 
@@ -485,17 +479,17 @@ x_emb <- "veh_body"
 x_dense <- c("veh_value", "veh_age", "gender", "area", "agecat")
 x <- c(x_dense, x_emb)
 
-# Split into train and validation
-ix <- partition(dataCar[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
+# Split into train and test
+ix <- partition(dataCar[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
 train <- dataCar[ix$train, ]
-valid <- dataCar[ix$valid, ]
+test <- dataCar[ix$test, ]
 
 y_train <- train[[y]]
-y_valid <- valid[[y]]
+y_test <- test[[y]]
 
 X_train <- train[, x]
-X_valid <- valid[, x]
+X_test <- test[, x]
 
 # Standardize X using X_train
 temp <- scale(data.matrix(X_train[, x_dense]))
@@ -549,13 +543,13 @@ cb <- list(
   callback_early_stopping(patience = 20),
   callback_reduce_lr_on_plateau(patience = 5)
 )
-       
+
 # Fit model
 history <- nn %>% fit(
   x = prep_nn(X_train),
   y = y_train,
   epochs = 100,
-  batch_size = 400, 
+  batch_size = 400,
   validation_split = 0.2,
   callbacks = cb
 )
@@ -569,17 +563,17 @@ library(MetricsWeighted)
 fl <- flashlight(
   model = nn, 
   y = y, 
-  data = dataCar[ix$valid, ], 
-  label = "nn", 
+  data = test, 
+  label = "Neural net", 
   metrics = list(
     logLoss = logLoss, 
     `R squared` = r_squared_bernoulli
   ),
-  predict_function = function(m, X) 
-    predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
+  predict_function = 
+    function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
 )
 
-# Performance on validation data
+# Performance on test data
 light_performance(fl) %>% 
   plot(fill = "chartreuse4") + 
   labs(x = element_blank(), y = element_blank())
@@ -599,7 +593,7 @@ for (v in x) {
 
 # Exercises
 
-1. Fit diamond prices by minimizing Gamma deviance with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it (for simplicity) on the validation dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
+1. Fit diamond prices by minimizing Gamma deviance with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on a test dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
 
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
