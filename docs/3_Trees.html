@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2022-11-11" />
+<meta name="date" content="2022-11-12" />
 
 <title>Trees</title>
 
@@ -2911,25 +2911,25 @@ div.tocify {
 
 <h1 class="title toc-ignore">Trees</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2022-11-11</h4>
+<h4 class="date">2022-11-12</h4>
 
 </div>
 
 
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>A decision tree is a simple, easy to interpret modeling technique for
-both regression and classification problems. Decision trees usually do
-not perform very well compared to other methods. Their relevance lies in
+<p>A decision tree is a simple, easy-to-interpret modeling technique for
+both regression and classification problems. Compared to other methods,
+decision trees usually do not perform very well. Their relevance lies in
 the fact that they are the building blocks of two of the most successful
-ML algorithms as per today: random forests and gradient boosted trees.
-In this chapter, we will introduce these tree-based methods.</p>
+ML algorithms: random forests and gradient boosted trees. In this
+chapter, we will introduce these tree-based methods.</p>
 </div>
 <div id="decision-trees" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Decision Trees</h1>
 <div id="how-they-work" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> How they work</h2>
-<p>In our journey to estimate the model <span class="math inline">f</span> by <span class="math inline">\hat f</span>,
+<p>On our journey to estimate the model <span class="math inline">f</span> by <span class="math inline">\hat f</span>,
 we have considered mainly linear functions <span class="math inline">f</span> so far. We now move to a different function
 class: decision trees. They have been introduced in 1984 by Leo Breiman,
 Jerome Friedman and others [1] and are sometimes called “Classification
@@ -3046,14 +3046,14 @@ called <em>random forest</em>, see [2]. A random forest consists of many
 decision trees. To ensure that the trees differ, two sources or
 randomness are injected:</p>
 <ol style="list-style-type: decimal">
-<li>Each split scans only a random selection “mtry” of the <span class="math inline">m</span> covariates to find the best split, usually
-about <span class="math inline">\sqrt{m}</span> or <span class="math inline">m/3</span>. “mtry” is the main tuning parameter of a
-random forest.</li>
 <li>Each tree is calculated on a bootstrap sample of the data, i.e., on
 <span class="math inline">n</span> observations selected with
 replacement from the original <span class="math inline">n</span> rows.
 This technique is called “bagging”, from “<strong>b</strong>ootstrap
 <strong>agg</strong>regat<strong>ing</strong>”.</li>
+<li>Each split scans only a random selection “mtry” of the <span class="math inline">m</span> covariates to find the best split, usually
+about <span class="math inline">\sqrt{m}</span> or <span class="math inline">m/3</span>. “mtry” is the main tuning parameter of a
+random forest.</li>
 </ol>
 <p>Predictions are found by pooling the predictions of all trees, e.g.,
 by averaging or majority voting.</p>
@@ -3252,9 +3252,8 @@ comparison</a> for differences with a screenshot as per Sept. 25,
 combining predictions of all trees. As loss/objective function, one can
 choose among many possibilities. Often, using the same loss function as
 a corresponding GLM is a good choice.</p>
-<div id="example-xgboost-untuned" class="section level2" number="4.1">
-<h2><span class="header-section-number">4.1</span> Example: XGBoost
-(untuned)</h2>
+<div id="example-xgboost" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Example: XGBoost</h2>
 <p>As an initial example on gradient boosting and XGBoost, we fit a
 model for diamond prices with squared error as loss function. The number
 of rounds/trees is chosen by early stopping on the validation data,
@@ -3318,7 +3317,7 @@ validation performance.</li>
 <li>Compared to simple validation, cross-validation would provide an
 even better way to find the optimal number of boosting
 rounds/trees.</li>
-<li>In the next example, we will show how to interpret such model.</li>
+<li>In the next example, we will also interpret such a model.</li>
 </ul>
 </div>
 <div id="parameters-of-gradient-boosted-trees" class="section level2" number="4.2">
@@ -3357,20 +3356,6 @@ systematically by randomized or grid search CV. Usually, it takes a
 couple of iterations until the range of the parameter values have been
 set appropriately.</p></li>
 </ul>
-<p>Note on tuning: Since learning rate, number of boosting rounds and
-regularization parameters are heavily interdependent, a “big” randomized
-grid search CV to choose learning rate, boosting rounds and
-regularization is often not ideal. Above suggestion (fix learning rate,
-select number of rounds by early stopping and do grid search only on
-regularization parameters) is more focussed, see also the example
-below.</p>
-</div>
-<div id="example-xgboost-tuned" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> Example: XGBoost
-(tuned)</h2>
-<p>We will use XGBoost to fit diamond prices using the squared error as
-loss function and RMSE as evaluation metric, now using a sophisticated
-tuning strategy.</p>
 <p>Overall, the modelling strategy is as follows:</p>
 <ol style="list-style-type: decimal">
 <li>Using default regularization parameters, set the learning rate to
@@ -3384,6 +3369,20 @@ situation, it can also mean “good CV performance and not too heavy
 overfit compared to insample performance” or some other reasonable
 criterion.</li>
 </ol>
+<p>Note: Since learning rate, number of boosting rounds and
+regularization parameters are heavily interdependent, a “big” randomized
+grid search CV to choose learning rate, boosting rounds and
+regularization is often not ideal. Above suggestion (fix learning rate,
+select number of rounds by early stopping and do grid search only on
+regularization parameters) is more focussed, see also the example
+below.</p>
+</div>
+<div id="example-xgboost-fully-tuned" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Example: XGBoost
+(fully tuned)</h2>
+<p>We will use XGBoost to fit diamond prices using the squared error as
+loss function and RMSE as evaluation metric, now using the tuning
+strategy outlined above.</p>
 <pre class="r"><code># This code is pretty long, but may serve as a general template
 library(tidyverse)
 library(xgboost)

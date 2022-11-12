@@ -15711,9 +15711,9 @@ It is important to look at the test data just once at the very end of the modeli
 <li>Evaluate and tune different models by k-fold cross-validation on the training data. Choose the best model, retrain it on the full training data.</li>
 <li>Assess performance of the final model on the test data.</li>
 </ol>
-<p>The only difference across the two workflows is whether to use simple validation or cross-validation for making decisions.</p>
-<h2 id="Example:-test-data">Example: test data<a class="anchor-link" href="#Example:-test-data">&#182;</a></h2><p>We will now go through Workflow B for our diamond price model. We will (1) tune the &quot;k&quot; of our nearest-neighbour regression and (2) compete with a linear regression.</p>
+<p>The only difference between the two workflows is whether simple validation or cross-validation is used for decision making.</p>
 <p>Remark: For simplicity, Workflow A is sometimes done without refitting on the combination of training and validation data. In that case, the final model is fitted on the training data only.</p>
+<h2 id="Example:-test-data">Example: test data<a class="anchor-link" href="#Example:-test-data">&#182;</a></h2><p>We will now go through Workflow B for our diamond price model. We will (1) tune the &quot;k&quot; of our nearest-neighbour regression and (2) compete with a linear regression. The model with best CV performance will be evaluated on the test data.</p>
 
 </div>
 </div>
@@ -15919,9 +15919,9 @@ Best model seems 4-NN!
 <li>4-nearest-neighbour regression performs much better than linear regression.</li>
 <li>Its performance on the independent test data is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential &quot;leakage&quot; from training to test data?</li>
 </ul>
-<h1 id="Random-Splitting?">Random Splitting?<a class="anchor-link" href="#Random-Splitting?">&#182;</a></h1><p>The data is often <em>randomly split</em> into partitions or folds. As long as rows are <em>independent</em>, this leads to honest estimates of model performance as it ensures independent data partitions.</p>
-<p>When rows are not independent, e.g., with time series data or grouped data, such strategy is flawed and leads to too optimistic results. <strong>This is one of the most frequent reasons to end up with a bad model. It is essential to avoid it.</strong></p>
-<h2 id="Time-series-data">Time-series data<a class="anchor-link" href="#Time-series-data">&#182;</a></h2><p>When data represents a time series, splitting is best done in a way that does not destroy the temporal order. For simple validation, e.g., the first 80% of rows could be used for training and the remaining 20% for validation.</p>
+<h1 id="Random-Splitting?">Random Splitting?<a class="anchor-link" href="#Random-Splitting?">&#182;</a></h1><p>The data is often split <em>randomly</em> into partitions or folds. As long as the rows are <em>independent</em>, this leads to honest estimates of model performance.</p>
+<p>However, if the rows are not independent, e.g. for time series data or grouped data, such a strategy is flawed and leads to overly optimistic results. <strong>This is one of the most common reasons for a poor model.</strong></p>
+<h2 id="Time-series-data">Time-series data<a class="anchor-link" href="#Time-series-data">&#182;</a></h2><p>When data represents a time series, splitting is best done in a way that does not destroy the temporal order. For simple validation, e.g., the first 80% of rows could be used for training and the remaining 20% for validation. The specific strategy depends on how the model will be applied.</p>
 <h2 id="Grouped-data">Grouped data<a class="anchor-link" href="#Grouped-data">&#182;</a></h2><p>Often, data is grouped or clustered by some (hopefully known) ID variable, e.g.,</p>
 <ul>
 <li>multiple rows belong to the same patient/customer or</li>

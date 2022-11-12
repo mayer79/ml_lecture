@@ -201,16 +201,16 @@ The missing magic component is the so called [*activation* function](https://en.
 
 Applying *non-linear* activation functions after hidden layers have the purpose to introduce non-linear and interaction effects. Typical such functions are
 
-- the hyperbolic tangent ("S"-shaped function that maps real values to $[-1, 1]$),
-- the sigmoidal function ("S"-shaped function that maps real values to $[0, 1]$),
-- the **re**ctangular **l**inear **u**nit "ReLU" $f(x) = \text{max}(0, x)$ that sets negative values to 0.
+- the hyperbolic tangent $\sigma(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}$ ("S"-shaped function that maps real values to $[-1, 1]$),
+- the standard logistic function ("sigmoid") $\sigma(x) = 1 / (1 + e^{-x})$ ("S"-shaped function that maps real values to $[0, 1]$, shifted and scaled hyperbolic tangent),
+- the **re**ctangular **l**inear **u**nit "ReLU" $\sigma(x) = \text{max}(0, x)$ that sets negative values to 0.
 
 Activation functions applied to the *output* layer have a different purpose, namely the same as the inverse of the link function of a corresponding GLM. It maps predictions to the scale of the response: 
 
-- linear regression -> linear activation
-- binary logistic regression -> sigmoid activation (to predict probability of "1")
-- multinomial logistic regression -> softmax activation (to predict one probability per class)
-- log-linear regression -> exponential activation
+- identity/"linear" activation $\rightarrow$ usual regression
+- logistic activation $\rightarrow$ binary logistic regression (one probability)
+- softmax activation $\rightarrow$ multinomial logistic regression (one probability per class)
+- exponential activation $\rightarrow$ log-linear regression as with Poisson or Gamma regression
 
 Let us add a hyperbolic tangent activation function ($\sigma$) after the hidden layer of our simple example.
 
@@ -277,7 +277,7 @@ one often uses simple validation because cross-validation takes too much time.
 
 ## Missing values
 
-A neural net does not accept missing values in the input. They need to be filled, e.g., by a typcial value or a value below the minimum.
+A neural net does not accept missing values in the input. They need to be filled, e.g., by a typical value or a value below the minimum.
 
 ## Input standardization
 
@@ -291,7 +291,7 @@ Note that the scaling transformation is calculated on the training data and then
 
 ## Categorical input
 
-There are three ways to represent categorical input variables in a neural network. 
+There are three common ways to represent categorical input variables in a neural network. 
 
 1. Binary and ordinal categoricals are best represented by integers and then treated as numeric.
 2. Unordered categoricals are either one-hot-encoded (i.e., each category is represented by a binary variable) or 
@@ -461,7 +461,7 @@ for (v in x) {
 
 **Comment:** Performance is lower than of the tree-based models. This might partly be a consequence of effects being smoother, but also because the model has not been refitted on the full training data for simplicity (20% of the training rows are used for validation).
 
-# Example: Embeddings (optional)
+# Example: Embeddings
 
 Representing categorical input variables through embedding layers is extremely useful in practice. We will end this chapter with an example on how to do it with the claims data. This example also shows how flexible neural network structures are.
 

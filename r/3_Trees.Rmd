@@ -26,13 +26,13 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-A decision tree is a simple, easy to interpret modeling technique for both regression and classification problems. Decision trees usually do not perform very well compared to other methods. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms as per today: random forests and gradient boosted trees. In this chapter, we will introduce these tree-based methods.
+A decision tree is a simple, easy-to-interpret modeling technique for both regression and classification problems. Compared to other methods, decision trees usually do not perform very well. Their relevance lies in the fact that they are the building blocks of two of the most successful ML algorithms: random forests and gradient boosted trees. In this chapter, we will introduce these tree-based methods.
 
 # Decision Trees
 
 ## How they work
 
-In our journey to estimate the model $f$ by $\hat f$, we have considered mainly linear functions $f$ so far. We now move to a different function class: decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called "Classification and Regression Trees" (CART). 
+On our journey to estimate the model $f$ by $\hat f$, we have considered mainly linear functions $f$ so far. We now move to a different function class: decision trees. They have been introduced in 1984 by Leo Breiman, Jerome Friedman and others [1] and are sometimes called "Classification and Regression Trees" (CART). 
 
 (Binary) decision trees are calculated recursively by partitioning the data in two pieces. Partitions are chosen to optimize the given average loss by asking the best "yes/no" question about the covariates, e.g., "is carat < 1?" or "is color better than F?".
 
@@ -94,8 +94,8 @@ These properties typically translate 1:1 to combinations of trees like random fo
 
 In 2001, Leo Breiman introduced a very powerful tree-based algorithm called *random forest*, see [2]. A random forest consists of many decision trees. To ensure that the trees differ, two sources or randomness are injected:
 
-1. Each split scans only a random selection "mtry" of the $m$ covariates to find the best split, usually about $\sqrt{m}$ or $m/3$. "mtry" is the main tuning parameter of a random forest.
-2. Each tree is calculated on a bootstrap sample of the data, i.e., on $n$ observations selected with replacement from the original $n$ rows. This technique is called "bagging", from "**b**ootstrap **agg**regat**ing**". 
+1. Each tree is calculated on a bootstrap sample of the data, i.e., on $n$ observations selected with replacement from the original $n$ rows. This technique is called "bagging", from "**b**ootstrap **agg**regat**ing**". 
+2. Each split scans only a random selection "mtry" of the $m$ covariates to find the best split, usually about $\sqrt{m}$ or $m/3$. "mtry" is the main tuning parameter of a random forest.
 
 Predictions are found by pooling the predictions of all trees, e.g., by averaging or majority voting.
 
@@ -201,13 +201,13 @@ for (v in c("carat", "color", "cut", "clarity")) {
 
 The idea of *boosting* was introduced by Schapire in 1990 [3] and roughly works as follows: A simple model is fit to the data. Then, another simple model is added, trying to correct the errors from the first model. This process is repeated until some stopping criterion triggers. As simple models or *base learners*, usually **small decision trees** are used, an idea pushed by Jerome Friedman in his famous 2001 article on the very general framework of gradient boosting machines [4]. 
 
-Modern variants of such *gradient boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Sept. 25, 2020:
+Modern variants of such *gradient boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Oct. 20, 2022:
 
 ![](../figs/comparison_boosting.PNG).
 
 Predictions are calculated similar to random forests, i.e., by combining predictions of all trees. As loss/objective function, one can choose among many possibilities. Often, using the same loss function as a corresponding GLM is a good choice.
 
-## Example: XGBoost (untuned)
+## Example: XGBoost
 
 As an initial example on gradient boosting and XGBoost, we fit a model for diamond prices with squared error as loss function. The number of rounds/trees is chosen by early stopping on the validation data, i.e., until validation (R)MSE stops improving for a couple or rounds. The learning rate (weight of each tree) is chosen by trial and error in order to end up with a reasonably small/large number of trees, see the next section for more details.
 
@@ -254,7 +254,7 @@ fit <- xgb.train(
 
 - More trees would mean better training performance, but worse validation performance.
 - Compared to simple validation, cross-validation would provide an even better way to find the optimal number of boosting rounds/trees.
-- In the next example, we will show how to interpret such model.
+- In the next example, we will also interpret such a model.
 
 ## Parameters of gradient boosted trees
 
@@ -273,17 +273,17 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
   
     Reasonable regularization parameters are chosen by trial and error or systematically by randomized or grid search CV. Usually, it takes a couple of iterations until the range of the parameter values have been set appropriately.
 
-Note on tuning: Since learning rate, number of boosting rounds and regularization parameters are heavily interdependent, a "big" randomized grid search CV to choose learning rate, boosting rounds and regularization is often not ideal. Above suggestion (fix learning rate, select number of rounds by early stopping and do grid search only on regularization parameters) is more focussed, see also the example below.
-
-## Example: XGBoost (tuned)
-
-We will use XGBoost to fit diamond prices using the squared error as loss function and RMSE as evaluation metric, now using a sophisticated tuning strategy.
-
 Overall, the modelling strategy is as follows:
 
 1. Using default regularization parameters, set the learning rate to get reasonable number of trees with CV-based early stopping.
 2. Use randomized search CV with early stopping to tune regularization parameters such as tree depth. Iterate if needed.
 3. Use the best parameter combination (incl. number of trees) to fit the model on the training data. "Best" typically means in terms of CV performance. As mentioned in the last chapter and depending on the situation, it can also mean "good CV performance and not too heavy overfit compared to insample performance" or some other reasonable criterion.
+
+Note: Since learning rate, number of boosting rounds and regularization parameters are heavily interdependent, a "big" randomized grid search CV to choose learning rate, boosting rounds and regularization is often not ideal. Above suggestion (fix learning rate, select number of rounds by early stopping and do grid search only on regularization parameters) is more focussed, see also the example below.
+
+## Example: XGBoost (fully tuned)
+
+We will use XGBoost to fit diamond prices using the squared error as loss function and RMSE as evaluation metric, now using the tuning strategy outlined above.
 
 ```{r}
 # This code is pretty long, but may serve as a general template
@@ -395,9 +395,9 @@ fit <- xgb.train(
 
 Now, the model is ready to be inspected by evaluating 
 
-- its test performance, 
-- by looking at gain importance and 
-- a couple of partial dependence plots.
+- test performance, 
+- split gain importance and 
+- partial dependence plots.
 
 ```{r}
 library(MetricsWeighted)

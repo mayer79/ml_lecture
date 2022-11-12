@@ -445,7 +445,6 @@
 		\begin{itemize}
 			\item One-Hot-Encoding
 			\item Dummy coding
-			\item Integer encoding
 			\item Interpretation?
 		\end{itemize}
 	
@@ -716,9 +715,13 @@
 		\end{enumerate}
 	\alert{Logarithmic $Y$ not possible in the first two cases}
 	\end{block}
+
+	\vfill
 	
 	\begin{block}{GLM solves problem by suitable link $g$}
 	\end{block}
+	
+	\vfill
 	
 	\begin{block}{Further advantages?}
 	\end{block}
@@ -726,21 +729,31 @@
 
 \begin{frame}
 	\frametitle{Interpretation of Effects guided by Link}
-	\begin{itemize}
-		\item Identity link: like linear regression
-		\item Log link: like linear regression with log response
+	\begin{columns}[onlytextwidth]
+		\column{0.5\textwidth}
+		\begin{block}{Identity link}
+			Like linear regression
+		\end{block}
+		
+		\begin{block}{Log link}
+			Like linear regression with log response
 			\begin{itemize}
-				\item $\rightarrow$ multiplicative model for response
-			    \item Now in mathematically sound way
+				\item Multiplicative model for response
+				\item Now in mathematically sound way
 			\end{itemize}
-		\item Logit link $\rightarrow$ additive model for $\text{logit}(p)$
+		\end{block}
+		
+		\column{0.5\textwidth}
+		\begin{block}{Logit link}
 			\begin{itemize}
+				\item Additive model for $\text{logit}(p)$
 				\item $\text{logit}(p) = \text{\alert{log}}(\text{odds}(p)) = \text{\alert{log}}\left(\frac{p}{1-p}\right)$
 				\item Remember: $p = P(Y=1) = \E(Y)$				
-				\item $\rightarrow$ multiplicative model for $\text{odds}(p)$
-				\item Coefficients \alert{$e^\beta - 1 \approx 100\%\beta$} interpreted as odds ratios.
+				\item Multiplicative model for $\text{odds}(p)$
+				\item Coefficients \alert{$e^\beta - 1 \approx 100\%\beta$} interpreted as odds ratios
 			\end{itemize}
-	\end{itemize}
+		\end{block}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
@@ -836,10 +849,7 @@
 \begin{frame}
 	\frametitle{Cross-Validation (CV)}
 	
-	\begin{itemize}
-		\item Simple validation is neither economic nor robust, except for large data
-		\item Better: $k$-fold cross-validation
-	\end{itemize}
+	Simple validation is neither economic nor robust, except for large data
 	
 	\vfill
 	
@@ -847,9 +857,9 @@
 		\column{0.65\textwidth}
 		\begin{block}{Algorithm}
 			\begin{enumerate}
-				\item Split the data into $k$ pieces $D = \{D_1, \dots, D_k\}$ called ``folds''. Typical values for $k$ are five or ten.
+				\item Split the data into $k$ pieces $D = \{D_1, \dots, D_k\}$ called ``folds''. Typical $k$?
 				\item Set aside one of the pieces ($D_j$) for validation.
-				\item Fit the model on all other pieces, i.e., on $D \setminus D_j$.
+				\item Fit model on all other pieces, i.e., on $D \setminus D_j$.
 				\item Calculate performance on the validation data $D_j$.
 				\item Repeat Steps 2--4 until each piece was used for validation once.
 				\item The average of the $k$ model performances yields the \alert{CV performance} of the model.
@@ -1038,7 +1048,7 @@
 	\begin{columns}[onlytextwidth]
 		\column{0.5\textwidth}
 		\begin{itemize}
-			\item Group of many decision trees
+			\item Combine many decision trees
 			\item Perform very well
 			\item Black Box
 			\item Around since 2001 (Breiman)
@@ -1060,8 +1070,8 @@
 	
 	\begin{block}{Idea: Introduce two sources of randomness}
 		\begin{enumerate}
-			\item Each split considers random selection of features only.
 			\item Each tree is trained on bootstrap sample.
+			\item Each split considers random selection of features only.
 		\end{enumerate}
 	\end{block}
 
@@ -1120,7 +1130,7 @@
 	\begin{columns}[onlytextwidth]
 		\column{0.5\textwidth}
 		\begin{itemize}
-			\item Group of many decision trees
+			\item Combine many decision trees
 			\item Perform very well
 			\item Black Box
 			\item Around since 2001 (Friedman)
@@ -1322,13 +1332,16 @@
 
 \begin{frame}
 	\frametitle{Step 3: Activation Functions}
-	\begin{columns}
-		\column{0.33\textwidth}
-		Non-linear transformations $\sigma$ of node values necessary!
+	Non-linear transformations $\sigma$ of node values necessary!
+	\begin{columns}[onlytextwidth]
+		\column{0.35\textwidth}
+		\begin{itemize}
+			\item tanh: $\sigma(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}$
+			\item ReLU: $\sigma(x) = \text{max}(0, x)$
+		\end{itemize}
 		\begin{figure}
 			\includegraphics[width=0.8\textwidth]{pics/activation_functions.png}
 		\end{figure}
-	
 		\begin{block}{Two purposes}
 			\begin{itemize}
 				\item Imply interactions and non-linear terms
@@ -1337,7 +1350,7 @@
 		\end{block}
 		\begin{example}
 		\end{example}
-		\column{0.67\textwidth}
+		\column{0.65\textwidth}
 		\begin{figure}
 			\includegraphics[width=0.98\textwidth]{../figs/nn_activation.png}
 		\end{figure}
