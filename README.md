@@ -96,7 +96,7 @@ Note: we use default [black](https://github.com/psf/black) as autoformatter.
     - `insuranceData`
     - `lightgbm` (optional)
 
-`keras` requires a Python installation with Tensorflow >=2.0. If you do not have Python installed and are not behind a company firewall, you can simply run the following two lines to get a minimal Python bundle with TensorFlow.
+`keras` requires a Python installation with Tensorflow >=2.9. If you do not have Python installed and are not behind a company firewall, you can simply run the following two lines to get a minimal Python bundle with TensorFlow.
 
 ```
 library(keras)

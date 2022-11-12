@@ -8,8 +8,12 @@ output:
     toc_float: yes
     number_sections: yes
     df_print: paged
-    theme: united
-    highlight: zenburn
+    theme: paper
+    code_folding: show
+    math_method: katex
+editor_options: 
+  chunk_output_type: console
+knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 ---
 
 ```{r setup, include=FALSE}
@@ -106,44 +110,44 @@ nrow(diamonds)  # 53940
 summary(diamonds[, c("price", "carat", "color", "cut", "clarity")])
 
 ggplot(diamonds, aes(x = price)) +
-  geom_histogram(fill = "orange") +
+  geom_histogram(fill = "chartreuse4") +
   ggtitle("Distribution of 'price'")
 
 ggplot(diamonds, aes(x = carat)) +
-  geom_histogram(fill = "orange") +
+  geom_histogram(fill = "chartreuse4") +
   ggtitle("Distribution of 'carat'")
 
 ggplot(diamonds, aes(x = color)) +
-  geom_bar(fill = "orange") +
+  geom_bar(fill = "chartreuse4") +
   ggtitle("Distribution of 'color'")
 
 ggplot(diamonds, aes(x = cut)) +
-  geom_bar(fill = "orange") +
+  geom_bar(fill = "chartreuse4") +
   ggtitle("Distribution of 'cut'")
 
 ggplot(diamonds, aes(x = clarity)) +
-  geom_bar(fill = "orange") +
+  geom_bar(fill = "chartreuse4") +
   ggtitle("Distribution of 'clarity'")
 
 # Selected bivariate descriptions
 ggplot(diamonds, aes(y = price, x = carat)) +
-  geom_point(alpha = 0.2, shape = ".", color = "orange") +
+  geom_point(alpha = 0.2, shape = ".", color = "chartreuse4") +
   ggtitle("Price against carat")
 
 ggplot(diamonds, aes(y = log(price), x = log(carat))) +
-  geom_point(alpha = 0.2, shape = ".", color = "orange") +
+  geom_point(alpha = 0.2, shape = ".", color = "chartreuse4") +
   ggtitle("Price against carat (log-log-scale)")
 
 ggplot(diamonds, aes(y = price, x = color)) +
-  geom_boxplot(fill = "orange", varwidth = TRUE) +
+  geom_boxplot(fill = "chartreuse4", varwidth = TRUE) +
   ggtitle("Price against color")
 
 ggplot(diamonds, aes(y = price, x = cut)) +
-  geom_boxplot(fill = "orange", varwidth = TRUE) +
+  geom_boxplot(fill = "chartreuse4", varwidth = TRUE) +
   ggtitle("Price against cut")
 
 ggplot(diamonds, aes(y = price, x = clarity)) +
-  geom_boxplot(fill = "orange", varwidth = TRUE) +
+  geom_boxplot(fill = "chartreuse4", varwidth = TRUE) +
   ggtitle("Price against clarity")
 
 ```
@@ -229,7 +233,7 @@ slope <- coef(fit)[[2]]
 ggplot(diamonds, aes(x = carat, y = price)) + 
   geom_point(alpha = 0.2, shape = ".") +
   coord_cartesian(xlim = c(0, 3), ylim = c(-3000, 20000)) +
-  geom_abline(slope = slope, intercept = intercept, color = "orange", size = 1)
+  geom_abline(slope = slope, intercept = intercept, color = "chartreuse4", size = 1)
 
 # Predictions for diamonds with 1.3 carat?
 predict(fit, data.frame(carat = 1.3))
@@ -402,7 +406,7 @@ fit <- lm(price ~ poly(carat, 3), data = diamonds)
 data.frame(carat = seq(0.3, 4.5, by = 0.1)) %>% 
   mutate(price = predict(fit, .)) %>% 
 ggplot(aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
   geom_line() +
   geom_point()
 ```
@@ -499,14 +503,14 @@ to_plot <- data.frame(carat = seq(0.3, 4.5, by = 0.1)) %>%
 
 # log-scale
 ggplot(to_plot, aes(x = log(carat), y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
   geom_line() +
   geom_point() +
   ggtitle("log-scale")
 
 # original scale
 ggplot(to_plot, aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
   geom_line() +
   geom_point() +
   ggtitle("Original scale")
@@ -566,7 +570,7 @@ to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>%
   
 # log-scale
 ggplot(to_plot, aes(x = carat, y = log(price))) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
   geom_line() +
   geom_point() +
   coord_cartesian(x = c(0, 3)) +
@@ -574,7 +578,7 @@ ggplot(to_plot, aes(x = carat, y = log(price))) +
 
 # original scale
 ggplot(to_plot, aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
   geom_line() +
   geom_point() +
   coord_cartesian(x = c(0, 3)) +
@@ -605,7 +609,7 @@ to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>%
 
 # log-log-scale
 ggplot(to_plot, aes(x = log(carat), y = log(price))) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
   geom_line() +
   geom_point() +
   coord_cartesian(x = log(c(0.3, 3))) +
@@ -613,7 +617,7 @@ ggplot(to_plot, aes(x = log(carat), y = log(price))) +
 
 # Back-transformed
 ggplot(to_plot, aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "orange") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
   geom_line() +
   geom_point() +
   coord_cartesian(x = c(0.3, 3)) +
@@ -781,7 +785,7 @@ summary(dataCar)
 
 # Distribution of the claim count
 ggplot(dataCar, aes(x = numclaims)) +
-  geom_bar(fill = "orange") +
+  geom_bar(fill = "chartreuse4") +
   ggtitle("Distribution of 'numclaims'")
 
 fit <- glm(
@@ -814,7 +818,7 @@ data(dataCar)
 
 # Distribution of the claim count
 ggplot(dataCar, aes(x = factor(clm))) +
-  geom_bar(fill = "orange") +
+  geom_bar(fill = "chartreuse4") +
   ggtitle("Distribution of 'clm'")
 
 fit <- glm(

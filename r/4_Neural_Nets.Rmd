@@ -2,14 +2,18 @@
 title: "Neural Nets"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
-output: 
+output:
   html_document:
-    toc: true
-    toc_float: true
-    number_sections: true
+    toc: yes
+    toc_float: yes
+    number_sections: yes
     df_print: paged
-    theme: united
-    highlight: zenburn
+    theme: paper
+    code_folding: show
+    math_method: katex
+editor_options: 
+  chunk_output_type: console
+knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +24,7 @@ knitr::opts_chunk$set(
 )
 
 # Path to conda env with TensorFlow
-# keras::use_condaenv(path_to_conda_env)
+keras::use_condaenv("C:/Users/Michael/anaconda3/envs/ml_lecture")
 
 ```
 
@@ -84,17 +88,6 @@ To gain confidence in neural nets, we first show that parameters estimated by a 
 library(tidyverse)
 library(keras)
 
-# Path to conda env with TensorFlow
-# use_condaenv(path_to_conda_env)
-
-# RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric(
-  name = "rmse", 
-  metric_fn = function(y_true, y_pred) {
-    sqrt(k_mean(k_square(y_true - y_pred)))
-  }
-)
-
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
@@ -107,9 +100,9 @@ nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
 
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 1),
+  optimizer = optimizer_adam(learning_rate = 1),
   loss = "mse",
-  metrics = metric_rmse
+  metrics = metric_root_mean_squared_error()
 )
 
 # Fit model - naive without validation
@@ -120,16 +113,16 @@ history <- nn %>% fit(
   batch_size = 100
 )
 
-plot(history, metrics = "rmse")
+plot(history, metrics = "root_mean_squared_error")
 
 unlist(get_weights(nn))
 
 # Plot effect of carat on average price
 data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
-  mutate(price = predict(nn, carat)) %>% 
+  mutate(price = predict(nn, carat, verbose = 0)) %>% 
 ggplot(aes(x = carat, y = price)) +
-  geom_line() +
-  geom_point()
+  geom_line(color = "chartreuse4") +
+  geom_point(color = "chartreuse4")
 ```
 
 **Comment:** The solution of the simple neural network is indeed quite similar to the OLS solution. 
@@ -166,17 +159,6 @@ The following code is identical to the last one up to one extra line of code spe
 library(tidyverse)
 library(keras)
 
-# Path to conda env with TensorFlow
-# use_condaenv(path_to_conda_env)
-
-# RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric(
-  name = "rmse", 
-  metric_fn = function(y_true, y_pred) {
-    sqrt(k_mean(k_square(y_true - y_pred)))
-  }
-)
-
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
@@ -190,9 +172,9 @@ nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
 
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 1),
+  optimizer = optimizer_adam(learning_rate = 1),
   loss = "mse",
-  metrics = metric_rmse
+  metrics = metric_root_mean_squared_error()
 )
 
 # Fit model - naive without validation
@@ -205,10 +187,10 @@ nn %>% fit(
 
 # Plot effect of carat on average price
 data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
-  mutate(price = predict(nn, carat)) %>% 
+  mutate(price = predict(nn, carat, verbose = 0)) %>% 
 ggplot(aes(x = carat, y = price)) +
-  geom_line() +
-  geom_point()
+  geom_line(color = "chartreuse4") +
+  geom_point(color = "chartreuse4")
 ```
 
 **Comment:** Oops, it seems as if the extra hidden layer had no effect. The reason is that a linear function of a linear function is still a linear function. Adding the hidden layer did not really change the capabilities of the model. It just added a lot of unnecessary parameters.
@@ -242,17 +224,6 @@ Again, the code is very similar to the last one, with the exception of using a h
 library(tidyverse)
 library(keras)
 
-# Path to conda env with TensorFlow
-# use_condaenv(path_to_conda_env)
-
-# RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric(
-  name = "rmse", 
-  metric_fn = function(y_true, y_pred) {
-    sqrt(k_mean(k_square(y_true - y_pred)))
-  }
-)
-
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
@@ -265,9 +236,9 @@ output <- input %>%
 nn <- keras_model(inputs = input, outputs = output)
 
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 0.2),
+  optimizer = optimizer_adam(learning_rate = 0.2),
   loss = "mse",
-  metrics = metric_rmse
+  metrics = metric_root_mean_squared_error()
 )
 
 # Fit model - naive without validation
@@ -280,10 +251,10 @@ nn %>% fit(
 
 # Plot effect of carat on average price
 data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
-  mutate(price = predict(nn, carat)) %>% 
+  mutate(price = predict(nn, carat, verbose = 0)) %>% 
 ggplot(aes(x = carat, y = price)) +
-  geom_line() +
-  geom_point()
+  geom_line(color = "chartreuse4") +
+  geom_point(color = "chartreuse4")
 ```
 
 **Comment:** Adding the non-linear activation after the hidden layer has changed the model. The effect of carat is now representing the association between carat and price by a non-linear function.
@@ -377,7 +348,7 @@ Variable importance of covariates in neural networks can be assessed by permutat
 
 # Example: diamonds
 
-We will now fit a neural net with two hidden layers (30 and 15 nodes) and a total of 631 parameters to model diamond prices. Learning rate and batch size were chosen by simple validation. The number of epochs is being chosen by an early stopping callback.
+We will now fit a neural net with two hidden layers (30 and 15 nodes) and a total of 631 parameters to model diamond prices. Learning rate, activation functions, and batch size were manually chosen by simple validation. The number of epochs is automatically being chosen by an early stopping callback.
 
 ![](../figs/nn_2_hidden.PNG)
 
@@ -386,43 +357,31 @@ library(tidyverse)
 library(splitTools)
 library(keras)
 
-# Path to conda env with TensorFlow
-# use_condaenv(path_to_conda_env)
-
-# RMSE metric needs to be defined "by hand"
-metric_rmse <- custom_metric(
-  name = "rmse", 
-  metric_fn = function(y_true, y_pred) {
-    sqrt(k_mean(k_square(y_true - y_pred)))
-  }
-)
-
-# Response and covariates
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
-# Split into train and validation
-ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
+# Split into train and test
+ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
 train <- diamonds[ix$train, ]
-valid <- diamonds[ix$valid, ]
-
-# Integers are not auto-cast by all TF versions...
-y_train <- as.numeric(train[[y]])  
-y_valid <- as.numeric(valid[[y]])
+test <- diamonds[ix$test, ]
 
 X_train <- train[, x]
-X_valid <- valid[, x]
+X_test <- test[, x]
+
+y_train <- train[[y]]
+y_test <- test[[y]]
 
 # Standardize X using X_train
+temp <- scale(data.matrix(X_train))
 sc <- list(
-  center = attr(scale(data.matrix(X_train)), "scaled:center"),
-  scale = attr(scale(data.matrix(X_train)), "scaled:scale")
+  center = attr(temp, "scaled:center"), 
+  scale = attr(temp, "scaled:scale")
 )
 
 # Function that maps data to scaled network input
-prep_nn <- function(X, x = c("carat", "color", "cut", "clarity"), scaling = sc) {
-  X <- data.matrix(X[, x, drop = FALSE])
+prep_nn <- function(X, sel = x, scaling = sc) {
+  X <- data.matrix(X[, sel, drop = FALSE])
   scale(X, center = scaling$center, scale = scaling$scale)
 }
 
@@ -444,9 +403,9 @@ nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 0.3),
+  optimizer = optimizer_adam(learning_rate = 0.1),
   loss = "mse",
-  metrics = metric_rmse
+  metrics = metric_root_mean_squared_error()
 )
 
 # Callbacks
@@ -461,16 +420,11 @@ history <- nn %>% fit(
   y = y_train,
   epochs = 100,
   batch_size = 400, 
-  validation_data = list(prep_nn(X_valid), y_valid),
+  validation_split = 0.2,
   callbacks = cb
 )
 
-history$metrics[c("rmse", "val_rmse")] %>% 
-  data.frame() %>% 
-  mutate(epoch = row_number()) %>% 
-  pivot_longer(cols = c("rmse", "val_rmse")) %>% 
-ggplot(aes(x = epoch, y = value, group = name, color = name)) +
-  geom_line(size = 1.4)
+plot(history, metrics = "root_mean_squared_error", smooth = FALSE)
 
 # Interpret
 library(flashlight)
@@ -478,43 +432,34 @@ library(MetricsWeighted)
 
 fl <- flashlight(
   model = nn, 
-  y = "price", 
-  data = diamonds[ix$valid, ], 
-  label = "nn", 
+  y = y, 
+  data = test, 
+  label = "Neural net", 
   metrics = list(rmse = rmse, `R squared` = r_squared),
-  predict_function = function(m, X) predict(m, prep_nn(X), batch_size = 1000)
+  predict_function = function(m, X) 
+    predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
 )
 
-# Performance on validation data
-light_performance(fl) %>% 
-  plot(fill = "orange")
+# Performance on test data
+perf <- light_performance(fl)
+perf$data
+plot(perf, fill = "chartreuse4") +
+  labs(x = element_blank(), y = element_blank())
 
 # Permutation importance
 light_importance(fl, v = x) %>% 
-  plot(fill = "orange")
+  plot(fill = "chartreuse4")
 
-# Partial dependence plots
-light_profile(fl, v = "carat", n_bins = 40) %>% 
-  plot() +
-  labs(title = "Partial dependence plot for carat", y = "price")
-
-light_profile(fl, v = "clarity") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for clarity", y = "price")
-
-light_profile(fl, v = "cut") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for cut", y = "price")
-
-light_profile(fl, v = "color") %>%
-  plot() +
-  labs(title = "Partial dependence plot for color", y = "price")
+# PDPs
+for (v in x) {
+  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+    plot(color = "chartreuse4") +
+    ggtitle(paste("PDP for", v)) 
+  print(p)
+}
 ```
 
-**Comments** 
-
-- The model performance seems comparable to the tree-based models from the last chapter. The specific performance might change from run to run due to randomness in the algorithm.
-- The effect of `carat` looks smoother as with random forests or boosted trees.
+**Comment:** Performance is lower than of the tree-based models. This might partly be a consequence of effects being smoother, but also because the model has not been refitted on the full training data for simplicity (20% of the training rows are used for validation).
 
 # Example: Embeddings (optional)
 
@@ -528,31 +473,29 @@ library(insuranceData)
 
 data(dataCar)
 
-# Path to conda env with TensorFlow
-# use_condaenv(path_to_conda_env)
-
 # Response and covariates
 y <- "clm"
 x_emb <- "veh_body"
 x_dense <- c("veh_value", "veh_age", "gender", "area", "agecat")
 x <- c(x_dense, x_emb)
 
-# Split into train and validation
-ix <- partition(dataCar[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
+# Split into train and test
+ix <- partition(dataCar[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
 
 train <- dataCar[ix$train, ]
-valid <- dataCar[ix$valid, ]
+test <- dataCar[ix$test, ]
 
 y_train <- train[[y]]
-y_valid <- valid[[y]]
+y_test <- test[[y]]
 
 X_train <- train[, x]
-X_valid <- valid[, x]
+X_test <- test[, x]
 
 # Standardize X using X_train
+temp <- scale(data.matrix(X_train[, x_dense]))
 sc <- list(
-  center = attr(scale(data.matrix(X_train[, x_dense])), "scaled:center"),
-  scale = attr(scale(data.matrix(X_train[, x_dense])), "scaled:scale")
+  center = attr(temp, "scaled:center"),
+  scale = attr(temp, "scaled:scale")
 )
 
 # Function that maps data.frame to scaled network input (a list with a dense 
@@ -591,7 +534,7 @@ nn <- keras_model(inputs = inputs, outputs = outputs)
 summary(nn)
 
 nn %>% compile(
-  optimizer = optimizer_adam(lr = 0.0001),
+  optimizer = optimizer_adam(learning_rate = 0.0001),
   loss = "binary_crossentropy"
 )
 
@@ -600,23 +543,18 @@ cb <- list(
   callback_early_stopping(patience = 20),
   callback_reduce_lr_on_plateau(patience = 5)
 )
-       
+
 # Fit model
 history <- nn %>% fit(
   x = prep_nn(X_train),
   y = y_train,
   epochs = 100,
-  batch_size = 400, 
-  validation_data = list(prep_nn(X_valid), y_valid),
+  batch_size = 400,
+  validation_split = 0.2,
   callbacks = cb
 )
 
-history$metrics[c("loss", "val_loss")] %>% 
-  data.frame() %>% 
-  mutate(epoch = row_number()) %>% 
-  pivot_longer(cols = c("loss", "val_loss")) %>% 
-ggplot(aes(x = epoch, y = value, group = name, color = name)) +
-  geom_line(size = 1.4)
+plot(history, metrics = c("loss", "val_loss"), smooth = FALSE)
 
 # Interpret
 library(flashlight)
@@ -625,44 +563,37 @@ library(MetricsWeighted)
 fl <- flashlight(
   model = nn, 
   y = y, 
-  data = dataCar[ix$valid, ], 
-  label = "nn", 
+  data = test, 
+  label = "Neural net", 
   metrics = list(
     logLoss = logLoss, 
     `R squared` = r_squared_bernoulli
   ),
-  predict_function = function(m, X) predict(m, prep_nn(X), batch_size = 1000)
+  predict_function = 
+    function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
 )
 
-# Performance on validation data
+# Performance on test data
 light_performance(fl) %>% 
-  plot(fill = "orange")
+  plot(fill = "chartreuse4") + 
+  labs(x = element_blank(), y = element_blank())
 
 # Permutation importance
 light_importance(fl, v = x) %>% 
-  plot(fill = "orange")
+  plot(fill = "chartreuse4")
 
 # Partial dependence
-light_profile(fl, v = "veh_value", breaks = seq(0, 5, by = 0.1)) %>% 
-  plot() +
-  labs(title = "Partial dependence plot for veh_value", y = "price")
-
-light_profile(fl, v = "veh_body") %>% 
-  plot(rotate_x = TRUE) +
-  labs(title = "Partial dependence plot for veh_body", y = "price")
-
-light_profile(fl, v = "area") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for area", y = "price")
-
-light_profile(fl, v = "agecat") %>% 
-  plot() +
-  labs(title = "Partial dependence plot for agecat", y = "price")
+for (v in x) {
+  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+    plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
+    labs(title = paste("PDP for", v), y = "Prediction") 
+  print(p)
+}
 ```
 
 # Exercises
 
-1. Fit diamond prices by minimizing Gamma deviance with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it (for simplicity) on the validation dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
+1. Fit diamond prices by minimizing Gamma deviance with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on a test dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
 
 ```{r}
 loss_gamma <- function(y_true, y_pred) {
