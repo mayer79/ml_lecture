@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Mayer" />
 
-<meta name="date" content="2022-11-11" />
+<meta name="date" content="2022-11-13" />
 
 <title>Basics and Linear Models</title>
 
@@ -2911,7 +2911,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Basics and Linear Models</h1>
 <h4 class="author">Michael Mayer</h4>
-<h4 class="date">2022-11-11</h4>
+<h4 class="date">2022-11-13</h4>
 
 </div>
 
@@ -3856,7 +3856,8 @@ obvious model biases visible.</li>
 <li><strong>Effect on log-scales</strong>: An increase in log(carat) of
 1 is associated with a log(price) increase of 1.67.</li>
 <li><strong>Effect on original scales</strong>: An increase in carat of
-1% is associated with a price increase of about 1.67%.</li>
+1% is associated with a price increase of about 1.67%. Such a log-log
+effect is called <em>elasticity</em>.</li>
 <li><strong>R-squared:</strong> About 93% of the variability in
 log(price) can be explained by log(carat). The model performs much
 better than the ones in the previous examples.</li>
@@ -3994,18 +3995,17 @@ to map <span class="math inline">E(Y)</span> to the scale of the linear
 function. Or the other way round: The inverse link <span class="math inline">g^{-1}</span> maps the linear part to the scale of
 the response.</li>
 <li>A distribution of <span class="math inline">Y</span> conditional on
-the covariates. It implies the loss function to be minimized over the
-training sample.</li>
+the covariates. It implies the distribution-specific loss function <span class="math inline">L</span>, called <em>unit deviance</em>, whose sum
+should be minimized over the model data.</li>
 </ol>
-<p>The following table lists some of the most used GLMs.</p>
+<p>The following table lists some of the most commonly used GLMs.</p>
 <table>
 <colgroup>
-<col width="11%" />
-<col width="12%" />
-<col width="21%" />
-<col width="12%" />
-<col width="14%" />
-<col width="28%" />
+<col width="10%" />
+<col width="10%" />
+<col width="19%" />
+<col width="20%" />
+<col width="39%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -4013,8 +4013,7 @@ training sample.</li>
 <th align="center">Distribution</th>
 <th align="center">Range of <span class="math inline">Y</span></th>
 <th align="center">Natural link</th>
-<th align="center">Typical link</th>
-<th align="left">Loss function</th>
+<th align="left">Unit deviance</th>
 </tr>
 </thead>
 <tbody>
@@ -4024,35 +4023,32 @@ training sample.</li>
 <td align="center"><span class="math inline">(-\infty,
 \infty)</span></td>
 <td align="center">Identity</td>
-<td align="center">Identity</td>
-<td align="left">Squared error: <span class="math inline">(y - \hat
-y)^2</span></td>
+<td align="left"><span class="math inline">(y - \hat y)^2</span></td>
 </tr>
 <tr class="even">
 <td align="center">Logistic</td>
 <td align="center">Binary</td>
 <td align="center"><span class="math inline">\{0, 1\}</span></td>
 <td align="center">logit</td>
-<td align="center">logit</td>
-<td align="left">Binary cross-entropy: <span class="math inline">-(y\log(\hat y) + (1-y) \log(1-\hat y))</span></td>
+<td align="left"><span class="math inline">-2(y\log(\hat y) + (1-y)
+\log(1-\hat y))</span></td>
 </tr>
 <tr class="odd">
 <td align="center">Poisson</td>
 <td align="center">Poisson</td>
 <td align="center"><span class="math inline">[0, \infty)</span></td>
 <td align="center">log</td>
-<td align="center">log</td>
-<td align="left">Unit Poisson deviance: <span class="math inline">2(y
-\log(y / \hat y) - (y - \hat y))</span></td>
+<td align="left"><span class="math inline">2(y \log(y / \hat y) - (y -
+\hat y))</span></td>
 </tr>
 <tr class="even">
 <td align="center">Gamma</td>
 <td align="center">Gamma</td>
 <td align="center"><span class="math inline">(0, \infty)</span></td>
-<td align="center">1/x</td>
-<td align="center">log</td>
-<td align="left">Unit Gamma deviance: <span class="math inline">2 ((y -
-\hat y) / \hat y - \log(y / \hat y))</span></td>
+<td align="center"><span class="math inline">1/x</span> (typical:
+log)</td>
+<td align="left"><span class="math inline">2((y - \hat y) / \hat y -
+\log(y / \hat y))</span></td>
 </tr>
 <tr class="odd">
 <td align="center">Multinomial</td>
@@ -4060,8 +4056,8 @@ y)^2</span></td>
 <td align="center"><span class="math inline">\{C_1, \dots,
 C_m\}</span></td>
 <td align="center">mlogit</td>
-<td align="center">mlogit</td>
-<td align="left">Categorical cross-entropy: <span class="math inline">-\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)</span></td>
+<td align="left"><span class="math inline">-2\sum_{j = 1}^m 1(y =
+C_j)\log(\hat y_j)</span></td>
 </tr>
 </tbody>
 </table>
@@ -4086,9 +4082,12 @@ the expected response is the same as modeling the probability <span class="math 
 two categories. While binary logistic regression predicts one single
 probability <span class="math inline">\text{Prob}(Y=1)</span>, the
 multinomial model predicts a probability <span class="math inline">\hat
-y_j</span> for each of the m categories.</li>
+y_j</span> for each of the <span class="math inline">m</span>
+categories.</li>
 <li>The normal, Poisson and Gamma GLMs are special cases of the
 <em>Tweedie GLM</em>.</li>
+<li>Half of the multinomial/binary unit deviance is the same as the
+cross-entropy, also called log loss.</li>
 </ul>
 </div>
 <div id="why-do-we-need-glms" class="section level2" number="3.2">
@@ -4169,23 +4168,21 @@ original probability scale.</li>
 <h2><span class="header-section-number">3.4</span> Parameter estimation
 and deviance</h2>
 <p>Parameters of a GLM are estimated by Maximum-Likelihood. This amounts
-to minimizing a distribution specific objective criterion called (total)
-<em>deviance</em>, which is proportional to the sum of the losses (see
-table above) of all rows, eventually weighted by case weights. For the
-normal linear model, deviance (divided by n) is equivalent to MSE. In
-fact, deviance plays the same role for GLMs as the MSE for linear
-regression. It sometimes makes sense to consider as a relative
-performance measure the relative deviance improvement compared to an
-empty model. For the normal linear regression model, this equals the
-usual R-squared.</p>
-<p>Remark: The unit deviance of the logistic regression equals twice the
-binary <em>cross-entropy</em> (= “log loss”).</p>
+to minimizing the (total) <em>deviance</em>, which equals the sum of the
+unit deviances over the model data (eventually weighted by case
+weights). For the normal linear model, the total deviance is equal to
+<span class="math inline">n</span> times the MSE. In fact, the total
+deviance plays the same role for GLMs as the MSE does for linear
+regression. Consequently, it is sometimes useful to consider as a
+relative performance measure the relative deviance improvement compared
+to an intercept-only model. For the normal linear regression model, this
+<em>Pseudo-R-squared</em> corresponds to the usual R-squared.</p>
 <p><strong>Outlook:</strong> The loss functions used in the context of
-GLMs are used one-to-one as loss functions for other ML methods like
+GLMs are used one-to-one as loss functions for other ML methods such as
 gradient boosting or neural networks. There, the “appropriate” loss
-function is chosen from the context. E.g., if the response is binary,
-one typically selects binary cross-entropy as the optimization
-criterion.</p>
+function is chosen from the context. For example, if the response is
+binary, one usually chooses the binary cross-entropy as the objective
+function.</p>
 </div>
 <div id="example-poisson-count-regression" class="section level2" number="3.5">
 <h2><span class="header-section-number">3.5</span> Example: Poisson
@@ -4286,7 +4283,7 @@ mean(dataCar$numclaims) / mean(predict(fit, type = &quot;response&quot;)) - 1</c
 <li>An increase of 1 in <code>veh_value</code> increases the log of the
 expected count by 0.046. On the original count scale, this is an
 increase of approximately 4.6%. The exact effect is <span class="math inline">e^{0.046388}-1 = 0.047 = 4.7\%</span>.</li>
-<li>Males produce, on average, about 1.6% less claims.</li>
+<li>On average, male drivers produce about 1.6% less claims.</li>
 <li>The deviance 26629 is only 0.5% smaller than the one of the null
 model 26768. The predictive performance of this model is thus very low:
 having a claim is a highly random event that cannot be predicted on

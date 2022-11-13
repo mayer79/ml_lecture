@@ -637,7 +637,7 @@ During this lecture, we have met many ML algorithms and principles. To get used 
 A summary and comparison of the algorithms can be found on [github](https://github.com/mayer79/ML_Algorithm_Comparison). Here a screenshot as per Sept. 7, 2020: 
 ![](../figs/comparison_ML.PNG)
 
-**As a final task and motivation, try out *"Michael's analysis scheme X*"**. It can be applied very frequently and works as follows:
+As a final task and motivation, try out my *Analysis scheme X*. It can be applied very frequently and works as follows:
 
 1. Take a property $T(Y)$ of key interest, e.g., the churn rate, a claims frequency, or a loss ratio. Calculate its estimate on the full dataset.
 2. Do a descriptive analysis of $T(Y \mid X_j)$ for a couple of important covariates $X_1, \dots, X_p$ in order to study the association between $Y$ and each of the $X_j$ separately.

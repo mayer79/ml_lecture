@@ -399,32 +399,26 @@
 		\column{0.5\textwidth}
 		\begin{block}{Predictive performance}
 			\begin{itemize}
-				\item Absolute performance
-					\begin{itemize}
-						\item $\text{\alert{MSE}} = \frac{1}{n}\sum_{i = 1}^n (y_i - \hat y_i)^2$
-						\item Root-MSE (\alert{RMSE})
-						\item Loss and objective functions	
-					\end{itemize}
-				\item Relative performance
-					\begin{itemize}
-						\item \alert{R-squared}
-					\end{itemize}
+				\item $\text{\alert{MSE}} = \frac{1}{n}\sum_{i = 1}^n (y_i - \hat y_i)^2$
+				\item Root-MSE (\alert{RMSE})
+				\item Relative performance: $R^2 = 1 - \text{MSE}/\text{MSE}_0$
+				\item $\text{MSE}_0 \rightarrow$ intercept-only model
 			\end{itemize}
 		\end{block}	
-	
+		
 		\column{0.5\textwidth}
 		\begin{block}{Validity of assumptions}
 			\begin{itemize}
 				\item Model equation is correct
 				\item \alert{Normal} linear model
-				 \begin{align*}
-					 Y &= f(\dots) + \varepsilon \\
-					 \varepsilon &\sim N(0, \sigma^2)
-				 \end{align*}
+				$$
+				Y = f(\dots) + \varepsilon \text{ with }
+				\varepsilon \sim N(0, \sigma^2)
+				$$
 			\end{itemize}
 		\end{block}
 	\end{columns}
-
+	
 	\vfill
 	
 	\begin{exampleblock}{\centering Example}
@@ -546,6 +540,7 @@
 			$\rightarrow$ more parameters
 			\item Interaction between features $X$ and $Z$
 			\begin{itemize}
+				\item Multiplication (for categoricals?)
 				\item For categorical $Z$, effects of $X$ are calculated by level of $Z$
 				\item Like separate models per level of $Z$
 			\end{itemize}
@@ -578,11 +573,15 @@
 \begin{frame}
 	\frametitle{Logarithmic Covariates}
 	\begin{itemize}
-		\item $\E(Y) = \alpha + \beta\log(X)$
+		\item $\E(Y \mid X = x) = \alpha + \beta\log(x)$
 		\item Properties of logarithm allow interpretation \alert{for original covariate}
-		\item ``A 1\% increase in $X$ leads to an increase in $\E(Y)$ of about $\beta/100$''
-		
-		($\rightarrow$ lecture notes)
+		\item A 1\% increase in $X$ is associated with an increase in $\E(Y)$ of about $\beta/100$
+		\item Why?
+		\begin{align*}
+			\E(Y\mid 1.01x) - \E(Y\mid x) &= \alpha + \beta \log (1.01x) - \alpha - \beta \log(x) \\
+			&= \beta \log\left(\frac{1.01x}{x}\right) \\
+			&= \beta \log(1.01) \approx \beta/100
+		\end{align*}
 		
 		\vfill
 		
@@ -593,24 +592,30 @@
 
 \begin{frame}
 	\frametitle{Logarithmic Responses}
-	What would happen for logarithmic response?
-	\begin{align*}
-		\E(\log(Y)) &= \alpha + \beta X \\
-		\implies \log(\E(Y)) &= \alpha + \beta X?
-	\end{align*}
-	The implication is wrong (why?) $\rightarrow$ biased predictions and motivation for GLMs
+	We see: log-transforming $X$ allows to talk about relative effects in $X$
 	
-	\begin{itemize}
-		\item ``A one-point increase in $X$ is associated with a relative increase in $\E(Y)$ of $100\%(e^\beta - 1)\approx 100\% \beta$''
-		$\rightarrow$ lecture notes
-		\item Relative effects / multiplicative model
-	\end{itemize}
+	\vfill
+	
+	\begin{block}{Idea: log-transformed $Y$ allows to talk about relative effects on $Y$}
+		Assume for a moment that
+		$$
+		\E(\log(Y) \mid x) = \alpha + \beta x \implies \log(\E(Y \mid x)) = \alpha + \beta x
+		$$
+		\vspace*{-1.2em}
+		\begin{itemize}
+			\item Multiplicative model $\E(Y\mid x) = e^{\alpha + \beta x}$
+			\item Relative interpretation: ``A one-point increase in $X$ is associated with a relative increase in $\E(Y)$ of $100\%(e^\beta - 1)\approx 100\% \beta$''
+			\item If also $\log(X)$?
+		\end{itemize}
+	\end{block}
+	
+	\vfill
+	
+	But assumption is wrong $\rightarrow$ biased predictions for $Y$ $\rightarrow$ GLMs
+	
+	\vfill
 	
 	\begin{exampleblock}{Examples}
-		\begin{itemize}
-			\item Logarithmic response
-			\item Response and covariate with log
-		\end{itemize}
 	\end{exampleblock}
 \end{frame}
 
@@ -667,7 +672,7 @@
 		\begin{itemize}
 			\item Linear function/predictor
 			\item Link function $g$ to map $\E(Y)$ to linear scale
-			\item Distribution of $Y$ conditional on covariates
+			\item Distribution of $Y$ conditional on covariates $\rightarrow$ loss function (unit deviance)
 		\end{itemize}
 	\end{block}
 \end{frame}
@@ -676,11 +681,12 @@
 	\frametitle{Typical GLMs}
 	\begin{columns}[onlytextwidth]
 		\column{0.75\textwidth}
-		\begin{footnotesize}
-			\begin{figure}
-				\includegraphics[width=1\textwidth]{pics/glm.png}
-			\end{figure}
-		\end{footnotesize}
+		\begin{figure}
+			\includegraphics[width=1\textwidth]{pics/glm.png}
+		\end{figure}
+		\begin{figure}
+			\includegraphics[width=1\textwidth]{pics/GLM_distributions.pdf}
+		\end{figure}
 		\column{0.25\textwidth}
 		\begin{footnotesize}
 			\begin{itemize}
@@ -689,16 +695,11 @@
 				\item Log-Link?
 				\item For binary $Y$:
 				$\E(Y) = P(Y = 1) = p$
-				\item Tweedie-GLM
 				\item MSE $\rightarrow$ Deviance
-				\item Same losses for ML
+				\item Losses in ML?
 			\end{itemize}
 		\end{footnotesize}
 	\end{columns}
-
-	\begin{figure}
-		\includegraphics[width=0.8\textwidth]{pics/GLM_distributions.pdf}
-	\end{figure}
 \end{frame}
 
 \begin{frame}
@@ -1402,7 +1403,7 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{``Michael’s Analysis Scheme X''}
+	\frametitle{Analysis Scheme X}
 	\begin{enumerate}
 		\item Take any property $T(Y)$ of key interest (churn rate, claims frequency, loss ratio, etc.) and calculate its value on the full dataset.
 		\item Do a descriptive analysis of $T(Y \mid X_j)$ for a couple of covariates to study the bivariate association between $Y$ and each $X_j$ separately.
