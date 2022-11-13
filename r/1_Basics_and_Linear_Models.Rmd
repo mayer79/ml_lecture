@@ -631,7 +631,7 @@ mean(diamonds$price) / mean(exp(fitted(fit))) - 1
 
 - **General impression:** The model looks quite realistic, both on log-log and back-transformed scale. There are no obvious model biases visible.
 - **Effect on log-scales**: An increase in log(carat) of 1 is associated with a log(price) increase of 1.67.
-- **Effect on original scales**: An increase in carat of 1% is associated with a price increase of about 1.67%.
+- **Effect on original scales**: An increase in carat of 1% is associated with a price increase of about 1.67%. Such a log-log effect is called *elasticity*.
 - **R-squared:** About 93% of the variability in log(price) can be explained by log(carat). The model performs much better than the ones in the previous examples.
 - **RMSE:** Typical prediction errors are in the range of 26%.
 - **Bias:** While unbiased on the log scale, the predictions of this model are about 3% too small after exponentiation. This can be fixed by applying a corresponding bias correction factor.
@@ -705,17 +705,17 @@ Thus, a GLM has three components:
 
 1. A linear function of the covariates, exactly as in linear regression.
 2. The link function $g$. Its purpose is to map $E(Y)$ to the scale of the linear function. Or the other way round: The inverse link $g^{-1}$ maps the linear part to the scale of the response.
-3. A distribution of $Y$ conditional on the covariates. It implies the loss function to be minimized over the training sample.
+3. A distribution of $Y$ conditional on the covariates. It implies the distribution-specific loss function $L$, called *unit deviance*, whose sum should be minimized over the model data.
 
-The following table lists some of the most used GLMs.
+The following table lists some of the most commonly used GLMs.
 
-| Regression | Distribution| Range of $Y$          | Natural link| Typical link  | Loss function
-|:----------:|:-----------:|:---------------------:|:-----------:|:-------------:|:-----------------------------
-| Linear     | Normal      | $(-\infty, \infty)$   | Identity    | Identity      | Squared error: $(y - \hat y)^2$
-| Logistic   | Binary      | $\{0, 1\}$            | logit       | logit         | Binary cross-entropy: $-(y\log(\hat y) + (1-y) \log(1-\hat y))$
-| Poisson    | Poisson     | $[0, \infty)$         | log         | log           | Unit Poisson deviance:  $2(y \log(y / \hat y) - (y - \hat y))$
-| Gamma      | Gamma       | $(0, \infty)$         | 1/x         | log           | Unit Gamma deviance: $2 ((y - \hat y) / \hat y - \log(y / \hat y))$
-| Multinomial| Multinomial | $\{C_1, \dots, C_m\}$ | mlogit      | mlogit        | Categorical cross-entropy: $-\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$
+| Regression | Distribution| Range of $Y$          | Natural link            |  Unit deviance
+|:----------:|:-----------:|:---------------------:|:-----------------------:|:----------------------------------------------
+| Linear     | Normal      | $(-\infty, \infty)$   | Identity                | $(y - \hat y)^2$
+| Logistic   | Binary      | $\{0, 1\}$            | logit                   | $-2(y\log(\hat y) + (1-y) \log(1-\hat y))$
+| Poisson    | Poisson     | $[0, \infty)$         | log                     | $2(y \log(y / \hat y) - (y - \hat y))$
+| Gamma      | Gamma       | $(0, \infty)$         | $1/x$ (typical: log)    | $2((y - \hat y) / \hat y - \log(y / \hat y))$
+| Multinomial| Multinomial | $\{C_1, \dots, C_m\}$ | mlogit                  | $-2\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$
 
 ![](../figs/GLM_distributions.PNG)
 
@@ -725,8 +725,9 @@ The following table lists some of the most used GLMs.
 - Any transformation can be used as link $g$. However, only the *natural/canonical* link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(Y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link because of the next property.
 - **Using a log link produces a multiplicative model for $E(Y)$.**
 - The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)} = p$, i.e., modeling the expected response is the same as modeling the probability $p$ of having a 1.
-- The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the m categories.
+- The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the $m$ categories.
 - The normal, Poisson and Gamma GLMs are special cases of the *Tweedie GLM*.
+- Half of the multinomial/binary unit deviance is the same as the cross-entropy, also called log loss.
 
 ## Why do we need GLMs?
 
@@ -765,11 +766,9 @@ It maps probabilities to the real line. The inverse logit ("sigmoidal transforma
 
 ## Parameter estimation and deviance
 
-Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective criterion called (total) *deviance*, which is proportional to the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes makes sense to consider as a relative performance measure the relative deviance improvement compared to an empty model. For the normal linear regression model, this equals the usual R-squared.
+Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing the (total) *deviance*, which equals the sum of the unit deviances over the model data (eventually weighted by case weights). For the normal linear model, the total deviance is equal to $n$ times the MSE. In fact, the total deviance plays the same role for GLMs as the MSE does for linear regression. Consequently, it is sometimes useful to consider as a relative performance measure the relative deviance improvement compared to an intercept-only model. For the normal linear regression model, this *Pseudo-R-squared* corresponds to the usual R-squared.
 
-Remark: The unit deviance of the logistic regression equals twice the binary *cross-entropy* (= "log loss"). 
-
-**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. E.g., if the response is binary, one typically selects binary cross-entropy as the optimization criterion.
+**Outlook:** The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods such as gradient boosting or neural networks. There, the "appropriate" loss function is chosen from the context. For example, if the response is binary, one usually chooses the binary cross-entropy as the objective function.
 
 ## Example: Poisson count regression
 
@@ -802,7 +801,7 @@ mean(dataCar$numclaims) / mean(predict(fit, type = "response")) - 1
 **Comments**
 
 - An increase of 1 in `veh_value` increases the log of the expected count by 0.046. On the original count scale, this is an increase of approximately 4.6%. The exact effect is $e^{0.046388}-1 = 0.047 = 4.7\%$.
-- Males produce, on average, about 1.6% less claims. 
+- On average, male drivers produce about 1.6% less claims. 
 - The deviance 26629 is only 0.5% smaller than the one of the null model 26768. The predictive performance of this model is thus very low: having a claim is a highly random event that cannot be predicted on individual scale.
 - The predictions are unbiased on the frequency scale, a consequence of the fact that the log-link is the natural link for the Poisson model.
 

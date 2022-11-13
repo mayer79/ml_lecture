@@ -16475,7 +16475,7 @@ class="
 <ul>
 <li><strong>General impression:</strong> The model looks quite realistic, both on log-log and back-transformed scale. There are no obvious model biases visible.</li>
 <li><strong>Effect on log-scales</strong>: An increase in log(carat) of 1 is associated with a log(price) increase of 1.67.</li>
-<li><strong>Effect on original scales</strong>: An increase in carat of 1% is associated with a price increase of about 1.67%.</li>
+<li><strong>Effect on original scales</strong>: An increase in carat of 1% is associated with a price increase of about 1.67%. Such a log-log effect is called <em>elasticity</em>.</li>
 <li><strong>R-squared:</strong> About 93% of the variability in log(price) can be explained by log(carat). The model performs much better than the ones in the previous examples.</li>
 <li><strong>RMSE:</strong> Typical prediction errors are in the range of 26%.</li>
 <li><strong>Bias:</strong> While unbiased on the log scale, the predictions of this model are about 3% too small after exponentiation. This can be fixed by applying a corresponding bias correction factor.</li>
@@ -16859,9 +16859,9 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <ol>
 <li>A linear function of the covariates, exactly as in linear regression.</li>
 <li>The link function $g$. Its purpose is to map $E(Y)$ to the scale of the linear function. Or the other way round: The inverse link $g^{-1}$ maps the linear part to the scale of the response.</li>
-<li>A distribution of $Y$ conditional on the covariates. It implies the loss function to be minimized over the training sample.</li>
+<li>A distribution of $Y$ conditional on the covariates. It implies the distribution-specific loss function $L$, called <em>unit deviance</em>, whose sum should be minimized over the model data.</li>
 </ol>
-<p>The following table lists some of the most used GLMs.</p>
+<p>The following table lists some of the most commonly used GLMs.</p>
 <table>
 <thead>
 <tr>
@@ -16869,8 +16869,7 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
   <th style="text-align:center">Distribution</th>
   <th style="text-align:center">Range of $Y$</th>
   <th style="text-align:center">Natural link</th>
-  <th style="text-align:center">Typical link</th>
-  <th style="text-align:center">Loss function</th>
+  <th style="text-align:left">Unit deviance</th>
 </tr>
 </thead>
 <tbody>
@@ -16879,40 +16878,35 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
   <td style="text-align:center">Normal</td>
   <td style="text-align:center">$(-\infty, \infty)$</td>
   <td style="text-align:center">Identity</td>
-  <td style="text-align:center">Identity</td>
-  <td style="text-align:center">Squared error: $(y - \hat y)^2$</td>
+  <td style="text-align:left">$(y - \hat y)^2$</td>
 </tr>
 <tr>
   <td style="text-align:center">Logistic</td>
   <td style="text-align:center">Binary</td>
   <td style="text-align:center">$\{0, 1\}$</td>
   <td style="text-align:center">logit</td>
-  <td style="text-align:center">logit</td>
-  <td style="text-align:center">Binary cross-entropy: $-(y\log(\hat y) + (1-y) \log(1-\hat y))$</td>
+  <td style="text-align:left">$-2(y\log(\hat y) + (1-y) \log(1-\hat y))$</td>
 </tr>
 <tr>
   <td style="text-align:center">Poisson</td>
   <td style="text-align:center">Poisson</td>
   <td style="text-align:center">$[0, \infty)$</td>
   <td style="text-align:center">log</td>
-  <td style="text-align:center">log</td>
-  <td style="text-align:center">Unit Poisson deviance:  $2(y \log(y / \hat y) - (y - \hat y))$</td>
+  <td style="text-align:left">$2(y \log(y / \hat y) - (y - \hat y))$</td>
 </tr>
 <tr>
   <td style="text-align:center">Gamma</td>
   <td style="text-align:center">Gamma</td>
   <td style="text-align:center">$(0, \infty)$</td>
-  <td style="text-align:center">1/x</td>
-  <td style="text-align:center">log</td>
-  <td style="text-align:center">Unit Gamma deviance: $2 ((y - \hat y) / \hat y - \log(y / \hat y))$</td>
+  <td style="text-align:center">$1/x$ (typical: log)</td>
+  <td style="text-align:left">$2((y - \hat y) / \hat y - \log(y / \hat y))$</td>
 </tr>
 <tr>
   <td style="text-align:center">Multinomial</td>
   <td style="text-align:center">Multinomial</td>
   <td style="text-align:center">$\{C_1, \dots, C_m\}$</td>
   <td style="text-align:center">mlogit</td>
-  <td style="text-align:center">mlogit</td>
-  <td style="text-align:center">Categorical cross-entropy: $-\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$</td>
+  <td style="text-align:left">$-2\sum_{j = 1}^m 1(y = C_j)\log(\hat y_j)$</td>
 </tr>
 </tbody>
 </table>
@@ -16923,8 +16917,9 @@ where $Y$ conditional on the covariates belongs to the so-called exponential dis
 <li>Any transformation can be used as link $g$. However, only the <em>natural/canonical</em> link has the relevant property of providing unbiased predictions on the scale of $Y$ in the sense $E(\hat y) = E(Y)$. Thus, one usually works with the natural link. Notable exception is the Gamma GLM, which is mostly applied with the log link because of the next property.</li>
 <li><strong>Using a log link produces a multiplicative model for $E(Y)$.</strong></li>
 <li>The binary case makes use of the relation $E(Y) = \text{Prob(Y = 1)} = p$, i.e., modeling the expected response is the same as modeling the probability $p$ of having a 1.</li>
-<li>The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the m categories.</li>
+<li>The multinomial regression generalizes the binary case to more than two categories. While binary logistic regression predicts one single probability $\text{Prob}(Y=1)$, the multinomial model predicts a probability $\hat y_j$ for each of the $m$ categories.</li>
 <li>The normal, Poisson and Gamma GLMs are special cases of the <em>Tweedie GLM</em>.</li>
+<li>Half of the multinomial/binary unit deviance is the same as the cross-entropy, also called log loss.</li>
 </ul>
 <h2 id="Why-do-we-need-GLMs?">Why do we need GLMs?<a class="anchor-link" href="#Why-do-we-need-GLMs?">&#182;</a></h2><p>The normal linear model allows us to model $E(Y)$ by an additive linear function. In principle, this would also work for</p>
 <ul>
@@ -16954,9 +16949,8 @@ $$
   \text{logit}(p) = \log (\text{odds}(p)) = \log\left(\frac{p}{1-p}\right).
 $$<p>It maps probabilities to the real line. The inverse logit (&quot;sigmoidal transformation&quot; or &quot;logistic function&quot;) reverts this: It maps real values to the range from 0 to 1. Odds, i.e., the ratio of $p$ to $1-p$, is a concept borrowed from gambling: The <em>probability</em> to get a &quot;6&quot; is 1/6 whereas the <em>odds</em> to get a &quot;6&quot; is 1:5 = 0.2. By definition, logistic regression is an additive model for the log-odds, thus a multiplicative model for the odds of getting a 1. Correspondingly, the coefficients $e^\beta - 1 \approx \beta$ are called <em>odds ratios</em>. There is no easy way to interpret the coefficients on the original probability scale.</p>
 <p><img src="../figs/log_odds.png" alt="" /></p>
-<h2 id="Parameter-estimation-and-deviance">Parameter estimation and deviance<a class="anchor-link" href="#Parameter-estimation-and-deviance">&#182;</a></h2><p>Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing a distribution specific objective criterion called (total) <em>deviance</em>, which is proportional to the sum of the losses (see table above) of all rows, eventually weighted by case weights. For the normal linear model, deviance (divided by n) is equivalent to MSE. In fact, deviance plays the same role for GLMs as the MSE for linear regression. It sometimes makes sense to consider as a relative performance measure the relative deviance improvement compared to an empty model. For the normal linear regression model, this equals the usual R-squared.</p>
-<p>Remark: The unit deviance of the logistic regression equals twice the binary <em>cross-entropy</em> (= &quot;log loss&quot;).</p>
-<p><strong>Outlook:</strong> The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods like gradient boosting or neural networks. There, the &quot;appropriate&quot; loss function is chosen from the context. E.g., if the response is binary, one typically selects binary cross-entropy as the optimization criterion.</p>
+<h2 id="Parameter-estimation-and-deviance">Parameter estimation and deviance<a class="anchor-link" href="#Parameter-estimation-and-deviance">&#182;</a></h2><p>Parameters of a GLM are estimated by Maximum-Likelihood. This amounts to minimizing the (total) <em>deviance</em>, which equals the sum of the unit deviances over the model data (eventually weighted by case weights). For the normal linear model, the total deviance is equal to $n$ times the MSE. In fact, the total deviance plays the same role for GLMs as the MSE does for linear regression. Consequently, it is sometimes useful to consider as a relative performance measure the relative deviance improvement compared to an intercept-only model. For the normal linear regression model, this <em>Pseudo-R-squared</em> corresponds to the usual R-squared.</p>
+<p><strong>Outlook:</strong> The loss functions used in the context of GLMs are used one-to-one as loss functions for other ML methods such as gradient boosting or neural networks. There, the &quot;appropriate&quot; loss function is chosen from the context. For example, if the response is binary, one usually chooses the binary cross-entropy as the objective function.</p>
 <h2 id="Example:-Poisson-count-regression">Example: Poisson count regression<a class="anchor-link" href="#Example:-Poisson-count-regression">&#182;</a></h2><p>We now model claim counts for the <code>insuranceData</code> by a Poisson GLM with its natural link function, the log. It makes sure that we can interpret covariate effects on a relative scale and that predictions are positive.</p>
 
 </div>
@@ -17678,7 +17672,7 @@ Intercept: -1.373
 <p><strong>Comments</strong></p>
 <ul>
 <li>An increase of 1 in <code>veh_value</code> increases the log of the expected count by 0.046. On the original count scale, this is an increase of approximately 4.6%. The exact effect is $e^{0.046388}-1 = 0.047 = 4.7\%$.</li>
-<li>Males produce, on average, about 1.6% less claims.</li>
+<li>On average, male drivers produce about 1.6% less claims.</li>
 <li>The deviance 26629 is only 0.5% smaller than the one of the null model 26768. The predictive performance of this model is thus very low: having a claim is a highly random event that cannot be predicted on individual scale.</li>
 <li>The predictions are unbiased on the frequency scale, a consequence of the fact that the log-link is the natural link for the Poisson model.</li>
 </ul>
