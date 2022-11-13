@@ -348,7 +348,7 @@ rmse(y_test, pred)
 
 The data is often split *randomly* into partitions or folds. As long as the rows are *independent*, this leads to honest estimates of model performance.
 
-However, if the rows are not independent, e.g. for time series data or grouped data, such a strategy is flawed and leads to overly optimistic results. **This is one of the most common reasons for a poor model.**
+However, if the rows are not independent, e.g. for time series data or grouped data, such a strategy is flawed and usually leads to overly optimistic results. **This is a common mistake in modeling.**
 
 ## Time-series data
 

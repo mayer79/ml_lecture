@@ -15920,7 +15920,7 @@ Best model seems 4-NN!
 <li>Its performance on the independent test data is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential &quot;leakage&quot; from training to test data?</li>
 </ul>
 <h1 id="Random-Splitting?">Random Splitting?<a class="anchor-link" href="#Random-Splitting?">&#182;</a></h1><p>The data is often split <em>randomly</em> into partitions or folds. As long as the rows are <em>independent</em>, this leads to honest estimates of model performance.</p>
-<p>However, if the rows are not independent, e.g. for time series data or grouped data, such a strategy is flawed and leads to overly optimistic results. <strong>This is one of the most common reasons for a poor model.</strong></p>
+<p>However, if the rows are not independent, e.g. for time series data or grouped data, such a strategy is flawed and usually leads to overly optimistic results. <strong>This is a common mistake in modeling.</strong></p>
 <h2 id="Time-series-data">Time-series data<a class="anchor-link" href="#Time-series-data">&#182;</a></h2><p>When data represents a time series, splitting is best done in a way that does not destroy the temporal order. For simple validation, e.g., the first 80% of rows could be used for training and the remaining 20% for validation. The specific strategy depends on how the model will be applied.</p>
 <h2 id="Grouped-data">Grouped data<a class="anchor-link" href="#Grouped-data">&#182;</a></h2><p>Often, data is grouped or clustered by some (hopefully known) ID variable, e.g.,</p>
 <ul>
