@@ -31,13 +31,9 @@ knitr::opts_chunk$set(
 ```{r}
 library(tidyverse)
 
-dia <- diamonds %>% 
-  mutate_at(
-    c("color", "cut", "clarity"), 
-    function(z) factor(z, ordered = FALSE)
-  )
+diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
 
-fit <- lm(price ~ carat + color + cut + clarity, data = dia)
+fit <- lm(price ~ carat + color + cut + clarity, data = diamonds)
 summary(fit)
 ```
 
@@ -52,21 +48,19 @@ summary(fit)
 ```{r}
 library(tidyverse)
 
-dia <- diamonds %>% 
-  mutate_at(
-    c("color", "cut", "clarity"), 
-    function(z) factor(z, ordered = FALSE)
-  )
+diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
 
 fit <- glm(
-  price ~ log(carat) + color + cut + clarity, data = dia, family = Gamma(link = "log")
+  price ~ log(carat) + color + cut + clarity, 
+  data = diamonds, 
+  family = Gamma(link = "log")
 )
 summary(fit)
 
-mean(dia$price) / mean(predict(fit, type = "response")) - 1
+mean(predict(fit, type = "response")) / mean(diamonds$price) - 1
 ```
 
-**Comment:** The coefficients are very similar to the linear regression with log(price) as response. This makes sense as we interpret the coefficients in the same way! The bias is only 0.3%, i.e., much smaller than the 3% of the OLS with log(price) as response. Still, because the log is not the natural link of the Gamma regression, the bias is not exactly 0.
+**Comment:** The coefficients are very similar to the linear regression with log(price) as response. This makes sense as we interpret the coefficients in the same way! The bias is small, but not exactly 0 (because log is not the natural link of the Gamma GLM).
 
 # Chapter 2: Model Selection and Validation
 

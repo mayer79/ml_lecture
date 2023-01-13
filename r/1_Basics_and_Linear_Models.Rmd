@@ -357,7 +357,10 @@ Let us now extend the simple linear regression for diamond prices by adding dumm
 ```{r}
 library(ggplot2)
 
-fit <- lm(price ~ carat + factor(color, ordered = FALSE), data = diamonds)
+# Turn ordered into unordered factor
+diamonds <- transform(diamonds, color = factor(color, ordered = FALSE))
+
+fit <- lm(price ~ carat + color, data = diamonds)
 summary(fit)
 ```
 
@@ -433,14 +436,11 @@ Let us now fit a linear regression for diamond prices with covariates `carat` an
 ```{r}
 library(tidyverse)
 
-no_interaction <- lm(
-  price ~ carat + factor(color, ordered = FALSE), 
-  data = diamonds
-)
-with_interaction <- lm(
-  price ~ carat * factor(color, ordered = FALSE), 
-  data = diamonds
-)
+# Turn all ordered factors into unordered
+diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
+
+no_interaction <- lm(price ~ carat + color, data = diamonds)
+with_interaction <- lm(price ~ carat * color, data = diamonds)
 
 # Plot effect of carat grouped by color
 to_plot <- expand.grid(
@@ -643,13 +643,9 @@ To end the section on linear regression, we extend the log-log-example above by 
 ```{r}
 library(tidyverse)
 
-dia <- diamonds %>% 
-  mutate_at(
-    c("color", "cut", "clarity"), 
-    function(z) factor(z, ordered = FALSE)
-  )
+diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
 
-fit <- lm(log(price) ~ log(carat) + color + cut + clarity, data = dia)
+fit <- lm(log(price) ~ log(carat) + color + cut + clarity, data = diamonds)
 summary(fit)
 ```
 
@@ -667,12 +663,7 @@ As alternative to the multiple linear regression on diamond prices with logarith
 ```{r}
 library(tidyverse)
 
-# Turn ordered factors into unordered ones
-dia <- diamonds %>% 
-  mutate_at(
-    c("color", "cut", "clarity"), 
-    function(z) factor(z, ordered = FALSE)
-  )
+diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
 ```
 
 # Generalized Linear Model
@@ -795,7 +786,7 @@ fit <- glm(
 summary(fit)
 
 # Bias on frequency scale?
-mean(dataCar$numclaims) / mean(predict(fit, type = "response")) - 1
+mean(predict(fit, type = "response")) / mean(dataCar$numclaims) - 1
 ```
 
 **Comments**
@@ -842,11 +833,7 @@ Fit a Gamma regression with log-link to explain diamond prices by `log(carat)`, 
 library(tidyverse)
 
 # Turn ordered factors into unordered ones
-dia <- diamonds %>% 
-  mutate_at(
-    c("color", "cut", "clarity"), 
-    function(z) factor(z, ordered = FALSE)
-  )
+diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
 ```
 
 # Chapter Summary
