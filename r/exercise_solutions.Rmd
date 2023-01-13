@@ -67,22 +67,28 @@ mean(predict(fit, type = "response")) / mean(diamonds$price) - 1
 ## Exercise 1
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(FNN)
-library(splitTools)
-library(MetricsWeighted)
+library(withr)
+
+RMSE <- function(y, pred) {
+  sqrt(mean((y - pred)^2))
+}
 
 y <- "price"  
 x <- c("carat", "color", "cut", "clarity")
 
 dia <- diamonds[, c(y, x)]
-dia <- unique(dia)  #  Only new code line
+dia <- unique(dia)  #  -> only new row
 
-# Split diamonds into 90% for training and 10% for testing
-ix <- partition(dia[[y]], p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
+# Split diamonds into 80% for training and 20% for testing
+with_seed(
+  9838,
+  ix <- sample(nrow(dia), 0.8 * nrow(dia))
+)
 
-train <- dia[ix$train, ]
-test <- dia[ix$test, ]
+train <- dia[ix, ]
+test <- dia[-ix, ]
 
 y_train <- train[[y]]
 y_test <- test[[y]]
@@ -99,102 +105,110 @@ X_test <- scale(
 
 # Split training data into folds
 nfolds <- 5
-folds <- create_folds(y_train, k = nfolds, seed = 9838, type = "basic")
+with_seed(
+  9838,
+  fold_ix <- sample(1:nfolds, nrow(train), replace = TRUE)
+)
 
-# Cross-validation performance of k-nearest-neighbour for k = 1-20
+# Cross-validation performance of k-nearest-neighbor for k = 1-20
 paramGrid <- data.frame(RMSE = NA, k = 1:20)
 
 for (i in 1:nrow(paramGrid)) {
   k <- paramGrid[i, "k"]
-  scores <- c()
+  scores <- numeric(nfolds)
   
-  for (fold in folds) {
-    pred <- knn.reg(
-      X_train[fold, ], test = X_train[-fold, ], k = k, y = y_train[fold]
-    )$pred
-    scores[length(scores) + 1] <- rmse(y_train[-fold], pred)
+  for (fold in 1:nfolds) {
+    X_train_cv <- X_train[fold_ix != fold, ]
+    y_train_cv <- y_train[fold_ix != fold]
+    
+    X_valid_cv <- X_train[fold_ix == fold, ]
+    y_valid_cv <- y_train[fold_ix == fold]
+    
+    pred <- knn.reg(X_train_cv, test = X_valid_cv, k = k, y = y_train_cv)$pred
+    scores[fold] <- RMSE(y_valid_cv, pred)
   }
   paramGrid[i, "RMSE"] <- mean(scores)
 }
 
-# Best k along with its CV performance
-paramGrid[order(paramGrid$RMSE)[1], ]
+# Best CV performance
+head(paramGrid[order(paramGrid$RMSE), ], 2)
 
 # Cross-validation performance of linear regression
-rmse_reg <- c()
+rmse_reg <- numeric(nfolds)
 
-for (fold in folds) {
-  lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
-  pred <- predict(fit, newdata = train[-fold, ])
-  rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
+for (fold in 1:nfolds) {
+  fit <- lm(reformulate(x, y), data = train[fold_ix != fold, ])
+  pred <- predict(fit, newdata = train[fold_ix == fold, ])
+  rmse_reg[fold] <- RMSE(y_train[fold_ix == fold], pred)
 }
 (rmse_reg <- mean(rmse_reg))
 
-# The overall best model is 5-nearest-neighbour
-pred <- knn.reg(X_train, test = X_test, k = 5, y = y_train)$pred
+# The overall best model is 6-nearest-neighbor
+pred <- knn.reg(X_train, test = X_test, k = 6, y = y_train)$pred
 
 # Test performance for the best model
-rmse(y_test, pred)
+RMSE(y_test, pred)
 ```
 
-**Comments:** The test performance of the best model (5-NN) seems clearly worse than the one without deduplication (~700 USD RMSE vs ~600). CV performance well corresponds to test performance. Overall, this is probably the more realistic performance than the one obtained from the original data set. Still, as certain rows could be identical by chance, our deduplication approach might be slightly too conservative. The true performance will probably be somewhere between the two approaches.
+**Comments:** The test performance of the best model (6-NN) seems clearly worse than the one without deduplication (~700 USD RMSE vs ~600). CV performance well corresponds to test performance. Overall, this is probably the more realistic performance than the one obtained from the original data set. Still, as certain rows could be identical by chance, our deduplication approach might be slightly too conservative. The true performance will probably be somewhere between the two approaches.
 
 ## Exercise 2
 
 ```{r}
-library(tidyverse)
-library(splitTools)
+library(ggplot2)
+library(withr)
 library(MetricsWeighted)
 
-dia <- diamonds %>% 
-  mutate_at(
-    c("color", "cut", "clarity"), 
-    function(z) factor(z, ordered = FALSE)
-  )
-
 # Split diamonds into 90% for training and 10% for testing
-ix <- partition(dia$price, p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
+with_seed(
+  seed = 343,   
+  ix <- sample(nrow(diamonds), 0.9 * nrow(diamonds))
+)
 
-train <- dia[ix$train, ]
-test <- dia[ix$test, ]
+train <- diamonds[ix, ]
+test <- diamonds[-ix, ]
 
 # manual GridSearchCV
 nfolds <- 5
-folds <- create_folds(train$price, k = nfolds, seed = 9838, type = "basic")
+with_seed(
+  seed = 9387,  
+  fold_ix <- sample(1:nfolds, nrow(train), replace = TRUE)
+)
 paramGrid <- data.frame(Deviance = NA, k = 1:12)
 
 for (i in 1:nrow(paramGrid)) {
   k <- paramGrid[i, "k"]
-  scores <- c()
+  scores <- numeric(nfolds)
   
-  for (fold in folds) {
+  for (fold in 1:nfolds) {
     fit <- glm(
       price ~ poly(log(carat), degree = k) + color + cut + clarity, 
-      data = train[fold, ], 
+      data = train[fold_ix != fold, ], 
       family = Gamma(link = "log")
     )
-    pred <- predict(fit, train[-fold, ], type = "response")
-    scores[length(scores) + 1] <- deviance_gamma(train$price[-fold], pred)
+    pred <- predict(fit, train[fold_ix == fold, ], type = "response")
+    scores[fold] <- deviance_gamma(train$price[fold_ix == fold], pred)
   }
   paramGrid[i, "Deviance"] <- mean(scores)
 }
 
 paramGrid
+paramGrid[order(paramGrid$Deviance), ]
 
-# Fit model on full training data
+# Fit best model on full training data
 fit <- glm(
   price ~ poly(log(carat), degree = 8) + color + cut + clarity, 
   data = train, 
   family = Gamma(link = "log")
 )
 
-# Evaluate on test
+# Evaluate on test data
 pred <- predict(fit, test, type = "response")
-deviance_gamma(test$price, pred) # 0.01710076
-r_squared_gamma(test$price, pred) # 0.982464 relative deviance gain
+deviance_gamma(test$price, pred) # 0.01697816
 ```
 
-**Comments:** The optimal degree seems to be 8 with a CV deviance of 0.01575. There seems to be some amount of CV overfit as the deviance evaluated on the test data is worse. Caution: Instead of using such high degree polynomial, it is almost always better to use regression splines.
+**Comments:** The optimal degree seems to be 8 with a CV mean deviance of 0.01576.
+There seems to be some CV overfit as the mean deviance of the test data is substantially larger. Caution: Instead of using such high degree polynomial, it is almost always better to use regression splines. What would you get then?
 
 ## Exercise 3 (optional)
 
