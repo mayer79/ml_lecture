@@ -642,7 +642,7 @@ for (v in x) {
 
 ```{r}
 library(tidyverse)
-library(splitTools)
+library(withr)
 library(keras)
 
 # Path to conda env with TensorFlow
@@ -651,11 +651,13 @@ keras::use_condaenv("C:/Users/Michael/anaconda3/envs/ml_lecture")
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
-# Split into train and test
-ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838, 
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
 
-train <- diamonds[ix$train, ]
-test <- diamonds[ix$test, ]
+train <- diamonds[ix, ]
+test <- diamonds[-ix, ]
 
 X_train <- train[, x]
 X_test <- test[, x]
@@ -740,9 +742,7 @@ fl <- flashlight(
 )
 
 # Performance on test data
-light_performance(fl) %>% 
-  plot(fill = "orange") + 
-  labs(x = element_blank(), y = element_blank())
+light_performance(fl)$data
 
 # Permutation importance
 light_importance(fl, v = x) %>% 
