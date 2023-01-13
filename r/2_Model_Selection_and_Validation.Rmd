@@ -86,45 +86,48 @@ Furthermore, the performance difference between training and validation data giv
 
 ## Example: simple validation
 
-We now use a 80%/20% split on the diamonds data to calculate RMSE of 5-nearest-neighbour on both training and validation data. What k provides the best validation RMSE?
+We now use a 80%/20% split on the diamonds data to calculate RMSE of 5-nearest-neighbour on both training and validation data.
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(FNN)
-library(splitTools)
-library(MetricsWeighted)
+library(withr)
 
-# Covariates
+y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
 # Split diamonds into 80% for "training" and 20% for validation
-ix <- partition(
-  diamonds$price, p = c(train = 0.8, valid = 0.2), seed = 9838, type = "basic"
+with_seed(
+  9838,
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
 )
 
-train <- diamonds[ix$train, ]
-valid <- diamonds[ix$valid, ]
+X_train <- diamonds[ix, x]
+X_valid <- diamonds[-ix, x]
 
-y_train <- train$price
-y_valid <- valid$price
+y_train <- diamonds[[y]][ix]
+y_valid <- diamonds[[y]][-ix]
 
 # Standardize training data
-X_train <- scale(data.matrix(train[, x]))
+X_train <- scale(data.matrix(X_train))
 
 # Apply training scale to validation data
 X_valid <- scale(
-  data.matrix(valid[, x]),
+  data.matrix(X_valid),
   center = attr(X_train, "scaled:center"),
   scale = attr(X_train, "scaled:scale")
 )
 
-# Performance on training data
-pred_train <- knn.reg(X_train, test = X_train, k = 5, y = y_train)$pred
-cat("Training RMSE:", rmse(y_train, pred_train))
+# Performance
+RMSE <- function(y, pred) {
+  sqrt(mean((y - pred)^2))
+}
 
-# Performance on valid data
+pred_train <- knn.reg(X_train, test = X_train, k = 5, y = y_train)$pred
+cat("Training RMSE:", RMSE(y_train, pred_train))
+
 pred_valid <- knn.reg(X_train, test = X_valid, k = 5, y = y_train)$pred
-cat("Validation RMSE:", rmse(y_valid, pred_valid))
+cat("Validation RMSE:", RMSE(y_valid, pred_valid))
 ```
 
 **Comment:** Validation RMSE is substantially worse than training RMSE, a clear sign of overfitting. However, it is still much better than the (full-sample) performance of linear regression (see Exercise 1, Chapter 1).
@@ -132,6 +135,8 @@ cat("Validation RMSE:", rmse(y_valid, pred_valid))
 Can we find a k with better validation RMSE?
 
 ```{r}
+library(tidyr)
+
 # Tuning grid with different values for parameter k
 paramGrid <- data.frame(train = NA, valid = NA, k = 1:20)
     
@@ -141,12 +146,15 @@ for (i in 1:nrow(paramGrid)) {
   
   # Performance on training data
   pred_train <- knn.reg(X_train, test = X_train, k = k, y = y_train)$pred
-  paramGrid[i, "train"] <- rmse(y_train, pred_train)
+  paramGrid[i, "train"] <- RMSE(y_train, pred_train)
   
   # Performance on valid data
   pred_valid <- knn.reg(X_train, test = X_valid, k = k, y = y_train)$pred
-  paramGrid[i, "valid"] <- rmse(y_valid, pred_valid)
+  paramGrid[i, "valid"] <- RMSE(y_valid, pred_valid)
 }
+
+# Best validation RMSE
+head(paramGrid[order(paramGrid$valid), ], 2)
 
 # Plot results
 pivot_longer(paramGrid, cols = -k, values_to = "RMSE", names_to = "Data") %>% 
@@ -159,7 +167,7 @@ ggplot(aes(x = k, y = RMSE, group = Data, color = Data)) +
 
 - The amount of overfitting decreases for growing k, which makes sense.
 - Selecting k based on the training data would lead to a suboptimal model.
-- Based on the validation data, we would choose $k=4$. It has a minimal RMSE of 602 USD.
+- Based on the validation data, we would choose $k=5$. It has a minimal RMSE of 608 USD.
 - Why is the RMSE on the training data not 0 for 1-nearest-neighbour?
 - Why is it problematic that some diamonds appear multiple times in the dataset?
 
@@ -186,21 +194,27 @@ The CV performance is a good basis to choose the best and final model among alte
 We now use five-fold CV on the diamonds data to find the optimal k, i.e., to *tune* our nearest-neighbour approach.
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(FNN)
-library(splitTools)
-library(MetricsWeighted)
+library(withr)
 
-# Response and scaled covariate matrix
-y <- diamonds$price
-X <- diamonds %>% 
-  select(carat, color, cut, clarity) %>% 
-  data.matrix() %>% 
-  scale()
+RMSE <- function(y, pred) {
+  sqrt(mean((y - pred)^2))
+}
+
+y <- "price"
+x <- c("carat", "color", "cut", "clarity")
+
+# Scaled feature matrix
+X <- scale(data.matrix(diamonds[x]))
 
 # Split diamonds into folds
 nfolds <- 5
-folds <- create_folds(y, k = nfolds, seed = 9838, type = "basic")
+with_seed(
+  9838,
+  fold_ix <- sample(1:nfolds, nrow(diamonds), replace = TRUE)
+)
+table(fold_ix)
 
 # Tuning grid with different values for parameter k
 paramGrid <- data.frame(RMSE = NA, k = 1:20)
@@ -209,22 +223,23 @@ paramGrid <- data.frame(RMSE = NA, k = 1:20)
 for (i in 1:nrow(paramGrid)) {
   k <- paramGrid[i, "k"]
   
-  scores <- c()
+  scores <- numeric(nfolds)
   
-  for (fold in folds) {
-    y_train <- y[fold]
-    y_valid <- y[-fold]
-    
-    X_train <- X[fold, ]
-    X_valid <- X[-fold, ]
+  for (fold in 1:nfolds) {
+    X_train <- X[fold_ix != fold, ]
+    X_valid <- X[fold_ix == fold, ]
+
+    y_train <- diamonds[[y]][fold_ix != fold]
+    y_valid <- diamonds[[y]][fold_ix == fold]
 
     pred <- knn.reg(X_train, test = X_valid, k = k, y = y_train)$pred
-    scores[length(scores) + 1] <- rmse(y_valid, pred)
+    scores[fold] <- RMSE(y_valid, pred)
   }
   paramGrid[i, "RMSE"] <- mean(scores)
 }
- 
-paramGrid
+
+# Best CV-scores 
+head(paramGrid[order(paramGrid$RMSE), ], 2)
 
 ggplot(paramGrid, aes(x = k, y = RMSE)) +
   geom_point(color = "chartreuse4") +
@@ -232,7 +247,7 @@ ggplot(paramGrid, aes(x = k, y = RMSE)) +
   ggtitle("Performance by cross-validation")
 ```
 
-**Comment:** Using 5 neighbours seems to be the best choice with a CV RMSE of 619 USD. Again, the fact that certain diamonds appear multiple times leaves a slightly bad feeling. Should we really trust these results?
+**Comment:** Using 6 neighbours seems to be the best choice with a CV RMSE of 618 USD. Again, the fact that certain diamonds appear multiple times leaves a slightly bad feeling. Should we really trust these results?
 
 # Grid Search
 
@@ -268,23 +283,28 @@ Remark: For simplicity, Workflow A is sometimes done without refitting on the co
 We will now go through Workflow B for our diamond price model. We will (1) tune the "k" of our nearest-neighbour regression and (2) compete with a linear regression. The model with best CV performance will be evaluated on the test data.
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(FNN)
-library(splitTools)
-library(MetricsWeighted)
+library(withr)
 
-# y is now the response *name*
+RMSE <- function(y, pred) {
+  sqrt(mean((y - pred)^2))
+}
+
 y <- "price"  
 x <- c("carat", "color", "cut", "clarity")
 
 dia <- diamonds[, c(y, x)]
-# dia <- unique(dia)  #  -> Exercise 2
+# dia <- unique(dia)  #  -> Exercise 1
 
-# Split diamonds into 90% for training and 10% for testing
-ix <- partition(dia[[y]], p = c(train = 0.9, test = 0.1), seed = 9838, type = "basic")
+# Split diamonds into 80% for training and 20% for testing
+with_seed(
+  9838,
+  ix <- sample(nrow(dia), 0.8 * nrow(dia))
+)
 
-train <- dia[ix$train, ]
-test <- dia[ix$test, ]
+train <- dia[ix, ]
+test <- dia[-ix, ]
 
 y_train <- train[[y]]
 y_test <- test[[y]]
@@ -301,47 +321,54 @@ X_test <- scale(
 
 # Split training data into folds
 nfolds <- 5
-folds <- create_folds(y_train, k = nfolds, seed = 9838, type = "basic")
+with_seed(
+  9838,
+  fold_ix <- sample(1:nfolds, nrow(train), replace = TRUE)
+)
 
-# Cross-validation performance of k-nearest-neighbour for k = 1-20
+# Cross-validation performance of k-nearest-neighbor for k = 1-20
 paramGrid <- data.frame(RMSE = NA, k = 1:20)
 
 for (i in 1:nrow(paramGrid)) {
   k <- paramGrid[i, "k"]
-  scores <- c()
+  scores <- numeric(nfolds)
   
-  for (fold in folds) {
-    pred <- knn.reg(
-      X_train[fold, ], test = X_train[-fold, ], k = k, y = y_train[fold]
-    )$pred
-    scores[length(scores) + 1] <- rmse(y_train[-fold], pred)
+  for (fold in 1:nfolds) {
+    X_train_cv <- X_train[fold_ix != fold, ]
+    y_train_cv <- y_train[fold_ix != fold]
+    
+    X_valid_cv <- X_train[fold_ix == fold, ]
+    y_valid_cv <- y_train[fold_ix == fold]
+    
+    pred <- knn.reg(X_train_cv, test = X_valid_cv, k = k, y = y_train_cv)$pred
+    scores[fold] <- RMSE(y_valid_cv, pred)
   }
   paramGrid[i, "RMSE"] <- mean(scores)
 }
 
-# Best k along with its CV performance
-paramGrid[order(paramGrid$RMSE)[1], ]
+# Best CV performance
+head(paramGrid[order(paramGrid$RMSE), ], 2)
 
 # Cross-validation performance of linear regression
-rmse_reg <- c()
+rmse_reg <- numeric(nfolds)
 
-for (fold in folds) {
-  fit <- lm(price ~ log(carat) + color + cut + clarity, data = train[fold, ])
-  pred <- predict(fit, newdata = train[-fold, ])
-  rmse_reg[length(rmse_reg) + 1] <- rmse(y_train[-fold], pred)
+for (fold in 1:nfolds) {
+  fit <- lm(reformulate(x, y), data = train[fold_ix != fold, ])
+  pred <- predict(fit, newdata = train[fold_ix == fold, ])
+  rmse_reg[fold] <- RMSE(y_train[fold_ix == fold], pred)
 }
 (rmse_reg <- mean(rmse_reg))
 
-# The overall best model is 5-nearest-neighbour
-pred <- knn.reg(X_train, test = X_test, k = 5, y = y_train)$pred
+# The overall best model is 6-nearest-neighbor
+pred <- knn.reg(X_train, test = X_test, k = 6, y = y_train)$pred
 
 # Test performance for the best model
-rmse(y_test, pred)
+RMSE(y_test, pred)
 ```
 
 **Comments** 
 
-- 5-nearest-neighbour regression performs much better than linear regression.
+- 6-nearest-neighbour regression performs much better than linear regression.
 - Its performance on the independent test data is even better than CV suggests. Could this be a consequence of the fact that certain diamonds appear multiple times in the data, introducing potential "leakage" from training to test data?
 
 # Random Splitting?
@@ -372,7 +399,9 @@ In our example with diamonds data, it would be useful to have a column with diam
 # Exercises
 
 1. Regarding the problem that some diamonds seem to appear multiple times in the data: As an alternative to *grouped* splitting, repeat the last example also on data deduplicated by `price` and all covariates. Do the results change? Which results do you trust more?
-2. Use cross-validation to select the best polynomial degree to represent `log(carat)` in the Gamma GLM with log-link (with additional covariates `color`, `cut`, and `clarity`). Evaluate the result on an independent test data.
+
+2. Use 5-fold cross-validation to select the best polynomial degree to represent `log(carat)` in a Gamma GLM for diamonds prices with log-link (with additional covariates `color`, `cut`, and `clarity`). Evaluate the result on 10% test data. Use the average Gamma deviance as performance measure (function `deviance_gamma()` in the package "MetricsWeighted"). Again make sure that the code is fully reproducible.
+
 3. Optional: Compare the linear regression for `price` (using `log(carat)`, `color`, `cut`, and `clarity` as covariates) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?
 
 # Chapter Summary

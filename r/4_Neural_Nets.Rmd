@@ -354,17 +354,20 @@ We will now fit a neural net with two hidden layers (30 and 15 nodes) and a tota
 
 ```{r}
 library(tidyverse)
-library(splitTools)
+library(withr)
 library(keras)
 
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and test
-ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838, 
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
 
-train <- diamonds[ix$train, ]
-test <- diamonds[ix$test, ]
+train <- diamonds[ix, ]
+test <- diamonds[-ix, ]
 
 X_train <- train[, x]
 X_test <- test[, x]
@@ -468,7 +471,7 @@ Representing categorical input variables through embedding layers is extremely u
 ```{r}
 library(tidyverse)
 library(keras)
-library(splitTools)
+library(withr)
 library(insuranceData)
 
 data(dataCar)
@@ -480,10 +483,13 @@ x_dense <- c("veh_value", "veh_age", "gender", "area", "agecat")
 x <- c(x_dense, x_emb)
 
 # Split into train and test
-ix <- partition(dataCar[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(dataCar), 0.8 * nrow(dataCar))
+)
 
-train <- dataCar[ix$train, ]
-test <- dataCar[ix$test, ]
+train <- dataCar[ix, ]
+test <- dataCar[-ix, ]
 
 y_train <- train[[y]]
 y_test <- test[[y]]
@@ -491,7 +497,7 @@ y_test <- test[[y]]
 X_train <- train[, x]
 X_test <- test[, x]
 
-# Standardize X using X_train
+# Standardization info using X_train
 temp <- scale(data.matrix(X_train[, x_dense]))
 sc <- list(
   center = attr(temp, "scaled:center"),
@@ -523,7 +529,8 @@ emb_veh_body <- input_veh_body %>%
 # Combine dense input and embedding
 outputs <- list(input_dense, emb_veh_body) %>%
   layer_concatenate() %>% 
-  layer_dense(30, activation = "tanh") %>% 
+  layer_dense(30, activation = "relu") %>% 
+  layer_dense(5, activation = "relu") %>% 
   layer_dense(1, activation = "sigmoid")
 
 # Input
@@ -534,7 +541,7 @@ nn <- keras_model(inputs = inputs, outputs = outputs)
 summary(nn)
 
 nn %>% compile(
-  optimizer = optimizer_adam(learning_rate = 0.0001),
+  optimizer = optimizer_adam(learning_rate = 0.001),
   loss = "binary_crossentropy"
 )
 
@@ -574,9 +581,7 @@ fl <- flashlight(
 )
 
 # Performance on test data
-light_performance(fl) %>% 
-  plot(fill = "chartreuse4") + 
-  labs(x = element_blank(), y = element_blank())
+light_performance(fl)$data
 
 # Permutation importance
 light_importance(fl, v = x) %>% 

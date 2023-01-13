@@ -109,30 +109,33 @@ Predictions are found by pooling the predictions of all trees, e.g., by averagin
 
 ## Example: random forest
 
-Let us now fit a random forest for diamond prices with typical parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. We use stratified splitting on the response variable. (Throughout the rest of the lecture, we will ignore the problematic aspect of having repeated rows for some diamonds.)
+Let us now fit a random forest for diamond prices with typical parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. (Throughout the rest of the lecture, we will ignore the problematic aspect of having repeated rows for some diamonds.)
 
 ```{r}
 library(tidyverse)
-library(splitTools)
+library(withr)
 library(ranger)
 library(MetricsWeighted)
 
 # Train/test split
-ix <- partition(diamonds$price, p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
 
 fit <- ranger(
   price ~ carat + color + cut + clarity, 
   num.trees = 500,
-  data = diamonds[ix$train, ], 
+  data = diamonds[ix, ], 
   importance = "impurity",
   seed = 83
 )
 fit
 
 # Performance on test data
-pred <- predict(fit, diamonds[ix$test, ])$predictions
-rmse(diamonds$price[ix$test], pred)       # 557 USD
-r_squared(diamonds$price[ix$test], pred)  # 0.9807277
+pred <- predict(fit, diamonds[-ix, ])$predictions
+rmse(diamonds$price[-ix], pred)       # 553 USD
+r_squared(diamonds$price[-ix], pred)  # 0.9814
 ```
 
 **Comments**
@@ -174,15 +177,15 @@ barplot(imp, horiz = TRUE, col = "chartreuse4")
 # Partial dependence plots
 fl <- flashlight(
   model = fit, 
-  data = diamonds[ix$train, ], 
-  label = "rf", 
+  data = diamonds[ix, ], 
+  label = "Random forest", 
   predict_function = function(m, X) predict(m, X)$predictions
 )
 
 for (v in c("carat", "color", "cut", "clarity")) {
   p <- light_profile(fl, v = v, n_bins = 40) %>% 
     plot(color = "chartreuse4") +
-    ggtitle(paste("PDP for", v)) 
+    labs(title = paste("PDP for", v), y = "Prediction") 
   print(p)
 }
 ```
@@ -195,7 +198,7 @@ for (v in c("carat", "color", "cut", "clarity")) {
 ## Exercises
 
 1. In above example, replace carat by its logarithm. Do the results change compared to the example without logs?
-2. Fit a random forest on the claims data for the binary variable `clm` using covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree depth either by cross-validation or by minimizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e., predicting probabilities, not classes. Additionally, make sure to work with a relevant loss function (information/cross-entropy or Gini gain). Evaluate the final model on an independent test dataset. Interpret the results by split gain importance and partial dependence plots.
+2. Fit a random forest on the claims data for the binary variable `clm` using covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Choose a suitable tree depth either by cross-validation or by minimizing OOB error on the training data. Make sure to fit a *probability random forest*, i.e., predicting probabilities, not classes. Evaluate the final model on an independent test data set. (Note that the "ranger" package uses the "Brier score" as the evaluation metric for probabilistic predictions. In the binary case, is the same as the MSE.) Interpret the results by split gain importance and partial dependence plots. 
 
 # Gradient Boosted Trees
 
@@ -213,28 +216,31 @@ As an initial example on gradient boosting and XGBoost, we fit a model for diamo
 
 ```{r}
 library(ggplot2)
+library(withr)
 library(xgboost)
-library(splitTools)
 
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and valid
-ix <- partition(diamonds[[y]], p = c(train = 0.8, valid = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
 
-y_train <- diamonds[[y]][ix$train]
-X_train <- data.matrix(diamonds[ix$train, x])
+y_train <- diamonds[[y]][ix]
+X_train <- diamonds[ix, x]
 
-y_valid <- diamonds[[y]][ix$valid]
-X_valid <- data.matrix(diamonds[ix$valid, x])
+y_valid <- diamonds[[y]][-ix]
+X_valid <- diamonds[-ix, x]
 
 # XGBoost data interface
-dtrain <- xgb.DMatrix(X_train, label = y_train)
-dvalid <- xgb.DMatrix(X_valid, label = y_valid)
+dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
+dvalid <- xgb.DMatrix(data.matrix(X_valid), label = y_valid)
 
 # Minimal set of parameters
 params <- list(
-  learning_rate = 0.02, 
+  learning_rate = 0.02,
   objective = "reg:squarederror",
   eval_metric = "rmse"
 )
@@ -286,31 +292,32 @@ Note: Since learning rate, number of boosting rounds and regularization paramete
 We will use XGBoost to fit diamond prices using the squared error as loss function and RMSE as evaluation metric, now using the tuning strategy outlined above.
 
 ```{r}
-# This code is pretty long, but may serve as a general template
 library(tidyverse)
+library(withr)
 library(xgboost)
-library(splitTools)
 
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and test
-ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
 
-y_train <- diamonds[[y]][ix$train]
-X_train <- data.matrix(diamonds[ix$train, x])
+y_train <- diamonds[[y]][ix]
+X_train <- diamonds[ix, x]
 
-y_test <- diamonds[[y]][ix$test]
-X_test <- data.matrix(diamonds[ix$test, x])
+y_test <- diamonds[[y]][-ix]
+X_test <- diamonds[-ix, x]
 
 # XGBoost data interface
-dtrain <- xgb.DMatrix(X_train, label = y_train)
+dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
 
 # If grid search is to be run again, set tune <- TRUE
-tune <- FALSE
-
 # Note that if run as rmarkdown, the path to the grid is "gridsearch",
 # otherwise it is "r/gridsearch"
+tune <- FALSE
 
 if (tune) {
   # Use default parameters to set learning rate with suitable number of rounds
@@ -330,7 +337,7 @@ if (tune) {
     showsd = FALSE, 
     print_every_n = 50
   )
-  cvm   # -> a lr of 0.02 provides about 380 trees, which is a convenient amount
+  cvm   # -> a lr of 0.02 provides about 370 trees, which is a convenient amount
    
   # Final grid search after some iterations
   grid <- expand.grid(
@@ -404,7 +411,7 @@ library(MetricsWeighted)
 library(flashlight)
 
 # Performance on test data
-pred <- predict(fit, X_test)
+pred <- predict(fit, data.matrix(X_test))
 rmse(y_test, pred)
 r_squared(y_test, pred, reference_mean = mean(y_train))
 
@@ -415,15 +422,15 @@ xgb.plot.importance(imp)
 # Partial dependence plots
 fl <- flashlight(
   model = fit, 
-  data = diamonds[ix$train, ], 
-  label = "xgb", 
+  data = diamonds[ix, ], 
+  label = "XGB", 
   predict_function = function(m, X) predict(m, data.matrix(X[x]))
 )
 
 for (v in x) {
   p <- light_profile(fl, v = v, n_bins = 40) %>% 
     plot(color = "chartreuse4") +
-    ggtitle(paste("PDP for", v)) 
+    labs(title = paste("PDP for", v), y = "Prediction") 
   print(p)
 }
 ```
@@ -434,7 +441,7 @@ for (v in x) {
 
 1. Study the online documentation of XGBoost to figure out how to make the model monotonically increasing in carat. Test your insights without rerunning the grid search in our last example, i.e., just by refitting the final model. How does the partial dependence plot for `carat` look now?
 
-2. Develop a strong XGBoost model for the claims data set with binary response `clm` and covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss as loss function and evaluation metric. Interpret its results.
+2. Develop an XGBoost model for the claims data set with binary response `clm`, and covariates `veh_value`, `veh_body`, `veh_age`, `gender`, `area`, and `agecat`. Use a clean cross-validation/test approach. Use log loss as loss function and evaluation metric. Interpret its results. You don't need to write all the code from scratch, but rather modify the XGBoost code from the lecture notes.
 
 3. Optional. Study the documentation of [LightGBM](https://lightgbm.readthedocs.io/en/latest/). Use LightGBM to develop a competitor to the XGBoost claims model from Exercise 2. The XGBoost code needs to be slightly adapted. Compare grid search time.
 
