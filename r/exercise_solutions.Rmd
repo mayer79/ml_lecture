@@ -222,28 +222,31 @@ Solution not shown here.
 
 ```{r}
 library(tidyverse)
-library(splitTools)
+library(withr)
 library(ranger)
 library(MetricsWeighted)
 
-dia <- diamonds %>% 
-  mutate(log_carat = log(carat))
-
 # Train/test split
-ix <- partition(dia$price, p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
+
+diamonds <- transform(diamonds, log_carat = log(carat))
 
 fit <- ranger(
   price ~ log_carat + color + cut + clarity, 
   num.trees = 500,
-  data = dia[ix$train, ], 
+  data = diamonds[ix, ], 
   importance = "impurity",
   seed = 83
 )
 fit
 
 # Performance on test data
-pred <- predict(fit, dia[ix$test, ])$predictions
-rmse(dia$price[ix$test], pred)
+pred <- predict(fit, diamonds[-ix, ])$predictions
+rmse(diamonds$price[-ix], pred)       # 553 USD
+r_squared(diamonds$price[-ix], pred)  # 0.9814
 ```
 
 **Comment:** The results are essentially identical because log is a monotonic transformation. Differences might come from implementation tricks.
@@ -252,7 +255,7 @@ rmse(dia$price[ix$test], pred)
 
 ```{r}
 library(tidyverse)
-library(splitTools)
+library(withr)
 library(ranger)
 library(flashlight)
 library(MetricsWeighted)
@@ -261,52 +264,53 @@ library(insuranceData)
 data(dataCar)
 
 # Train/test split (stratified on response)
-ix <- partition(dataCar$clm, p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(dataCar), 0.8 * nrow(dataCar))
+)
 
 # Instead of systematic grid search, manually select good tree depth by OOB
 fit <- ranger(
   clm ~ veh_value + veh_body + veh_age + gender + area + agecat,
-  data = dataCar[ix$train, ], 
+  data = dataCar[ix, ], 
   probability = TRUE, 
   max.depth = 5,
-  importance = "impurity"
+  importance = "impurity",
+  seed = 3938
 )
-fit # OOB prediction using Brier score (= MSE) 0.06340884 
+fit # OOB prediction using Brier score (= MSE) 0.062984
 
-# Note: Brier score is the same as the MSE, applied to binary data. It is
-# not a bad evaluation criterion in such situation, 
-# so we will use this within this example.
-pred <- predict(fit, dataCar[ix$test, ])$predictions[, 2]
-mse(dataCar[ix$test, "clm"], pred)  # 0.06337011
-r_squared(dataCar[ix$test, "clm"], pred) # 0.002069925
+pred <- predict(fit, dataCar[-ix, ])$predictions[, 2]
+mse(dataCar[-ix, "clm"], pred)  # 0.0651
+r_squared(dataCar[-ix, "clm"], pred) # 0.00198
 
-# Alternative to Brier score: relative log loss/deviance improvement
-r_squared_bernoulli(dataCar[ix$test, "clm"], pred) # 0.004246408
-```
+# Test performance with small tree depth seems to be best. 
+# When studying relative performance metrics like the relative MSE gain, 
+# we can see that performance of the model is very low. 
+# TPL claims seem to be mostly determined by bad luck, which makes sense.
 
-**Comment:** Test performance with small tree depth seems to be best. When studying relative performance metrics like the relative deviance gain, we can see that performance of the model is very low. TPL claims seem to be mostly determined by bad luck, which makes sense.
-
-```{r}
 # Variable importance regarding Gini improvement
 imp <- sort(importance(fit))
 imp <- imp / sum(imp)
-barplot(imp, horiz = TRUE, col = "chartreuse4", cex.names = 0.8, las = 2)
+barplot(imp, horiz = TRUE, col = "orange", cex.names = 0.8, las = 2)
 
-# Partial dependence plot for the strongest predictor "veh_value"
+# Partial dependence plots
 fl <- flashlight(
   model = fit,
-  data = dataCar[ix$train, ], 
+  data = dataCar[ix, ], 
   label = "rf", 
   predict_function = function(m, X) predict(m, X)$predictions[, 2]
 )
 
-for (v in all.vars(~veh_value + veh_body + veh_age + gender + area + agecat)) {
+for (v in c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")) {
   p <- light_profile(fl, v = v, n_bins = 40) %>% 
     plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
     labs(title = paste("PDP for", v), y = "Prediction") 
   print(p)
 }
 ```
+
+**Comment:** Test performance with small tree depth seems to be best. When studying relative performance metrics like the relative deviance gain, we can see that performance of the model is very low. TPL claims seem to be mostly determined by bad luck, which makes sense.
 
 ## Exercises on Boosting
 
@@ -317,29 +321,36 @@ Just copy paste parts of the code in the lecture notes.
 ```{r}
 library(tidyverse)
 library(xgboost)
-library(splitTools)
+library(withr)
+library(flashlight)
 
 y <- "price"
 x <- c("carat", "color", "cut", "clarity")
 
 # Split into train and test
-ix <- partition(diamonds[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
 
-y_train <- diamonds[[y]][ix$train]
-X_train <- data.matrix(diamonds[ix$train, x])
+y_train <- diamonds[[y]][ix]
+X_train <- diamonds[ix, x]
+
+y_test <- diamonds[[y]][-ix]
+X_test <- diamonds[-ix, x]
 
 # XGBoost data interface
-dtrain <- xgb.DMatrix(X_train, label = y_train)
+dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
 
-# Load grid and select best iteration. If interactive, use r/gridsearch/...
+# Load grid and select best iteration
 grid <- readRDS("gridsearch/diamonds_xgb.rds")
 grid <- grid[order(grid$cv_score), ]
+head(grid)
 
-# Monotone constraints for carat
+# Fit final, tuned model
 params <- as.list(grid[1, -(1:3)])
 params$monotone_constraints <- c(1, 0, 0, 0)
 
-# Fit final, tuned model with monotone constraints for carat
 fit <- xgb.train(
   params = params, 
   data = dtrain, 
@@ -347,13 +358,11 @@ fit <- xgb.train(
 )
 
 # Partial dependence plot for carat
-library(flashlight)
-
 fl <- flashlight(
-  model = fit,
-  data = diamonds[ix$train, ], 
-  label = "xgb", 
-  predict_function = function(m, X) predict(m, data.matrix(X[x]))
+  model = fit, 
+  data = X_train, 
+  label = "XGB", 
+  predict_function = function(m, X) predict(m, data.matrix(X))
 )
 
 light_profile(fl, v = "carat", n_bins = 40) %>% 
@@ -366,29 +375,32 @@ light_profile(fl, v = "carat", n_bins = 40) %>%
 ### Exercise 2
 
 ```{r}
-# We simply adapt the template from the script
+# We adapt the template from the script
 
 library(tidyverse)
 library(xgboost)
-library(splitTools)
+library(withr)
 library(insuranceData)
 
 data(dataCar)
 
-y <- "clm"
 x <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
+y <- "clm"
 
 # Split into train and test
-ix <- partition(dataCar[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(dataCar), 0.8 * nrow(dataCar))
+)
 
-y_train <- dataCar[[y]][ix$train]
-X_train <- data.matrix(dataCar[ix$train, x])
+y_train <- dataCar[ix, y]
+X_train <- dataCar[ix, x]
 
-y_test <- dataCar[[y]][ix$test]
-X_test <- data.matrix(dataCar[ix$test, x])
+y_test <- dataCar[-ix, y]
+X_test <- dataCar[-ix, x]
 
 # XGBoost data handler
-dtrain <- xgb.DMatrix(X_train, label = y_train)
+dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
 
 # If grid search is to be run again, set tune <- TRUE
 tune <- FALSE
@@ -478,24 +490,23 @@ library(MetricsWeighted)
 library(flashlight)
 
 # Performance on test data
-pred <- predict(fit, X_test)
+pred <- predict(fit, data.matrix(X_test))
 deviance_bernoulli(y_test, pred)
 
 # Relative performance
 r_squared_bernoulli(y_test, pred)
-# Relative performance gain is very low, but very slightly better than 
-# of the tuned random forest.
+# Relative performance gain is very low, but better than of the tuned random forest.
 
 # Variable importance regarding total loss improvement
 imp <- xgb.importance(model = fit)
-xgb.plot.importance(imp)
+xgb.plot.importance(imp, col = "chartreuse4")
 
-# Partial dependence plots
+# Some partial dependence plots
 fl <- flashlight(
   model = fit, 
-  data = dataCar[ix$train, ], 
-  label = "xgb", 
-  predict_function = function(m, X) predict(m, data.matrix(X[x]))
+  data = X_train, 
+  label = "XGB", 
+  predict_function = function(m, X) predict(m, data.matrix(X))
 )
 
 for (v in x) {
@@ -513,27 +524,30 @@ for (v in x) {
 
 library(tidyverse)
 library(lightgbm)
-library(splitTools)
+library(withr)
 library(insuranceData)
 
 data(dataCar)
 
-y <- "clm"
 x <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
+y <- "clm"
 
 # Split into train and test
-ix <- partition(dataCar[[y]], p = c(train = 0.8, test = 0.2), seed = 9838)
+with_seed(
+  9838,
+  ix <- sample(nrow(dataCar), 0.8 * nrow(dataCar))
+)
 
-y_train <- dataCar[[y]][ix$train]
-X_train <- data.matrix(dataCar[ix$train, x])
+y_train <- dataCar[ix, y]
+X_train <- dataCar[ix, x]
 
-y_test <- dataCar[[y]][ix$test]
-X_test <- data.matrix(dataCar[ix$test, x])
+y_test <- dataCar[-ix, y]
+X_test <- dataCar[-ix, x]
 
 # We could even set categorical_feature = "veh_body" in order
 # to treat that feature unordered categorical
 dtrain <- lgb.Dataset(
-  X_train, label = y_train, params = list(feature_pre_filter = FALSE)
+  data.matrix(X_train), label = y_train, params = list(feature_pre_filter = FALSE)
 )
 
 # If grid search is to be run again, set tune <- TRUE
@@ -623,11 +637,11 @@ library(MetricsWeighted)
 library(flashlight)
 
 # Performance on test data
-pred <- predict(fit, X_test)
+pred <- predict(fit, data.matrix(X_test))
 deviance_bernoulli(y_test, pred)
 
 # Relative performance
-r_squared_bernoulli(y_test, pred) # 0.00439
+r_squared_bernoulli(y_test, pred) # 0.0037
 # Relative performance gain is a bit lower than with XGB
 
 # Variable importance regarding total loss improvement
@@ -637,9 +651,9 @@ lgb.plot.importance(imp)
 # Some partial dependence plots
 fl <- flashlight(
   model = fit, 
-  data = dataCar[ix$train, ], 
-  label = "lgb", 
-  predict_function = function(m, X) predict(m, data.matrix(X[, x]))
+  data = X_train, 
+  label = "LGB", 
+  predict_function = function(m, X) predict(m, data.matrix(X))
 )
 
 for (v in x) {

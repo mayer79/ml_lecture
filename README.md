@@ -86,13 +86,13 @@ Note: we use default [black](https://github.com/psf/black) as autoformatter.
 - Successfully installed packages:
     - `tidyverse`
     - `FNN`
+    - `withr`
     - `rpart`
     - `rpart.plot`
     - `ranger`
     - `xgboost`
     - `keras`
     - `flashlight`
-    - `splitTools`
     - `insuranceData`
     - `lightgbm` (optional)
 
