@@ -105,30 +105,11 @@ install_keras()
 
 If this fails, an option is to install Python as outlined in the section above and then set the corresponding `conda_env` path with `use_condaenv()`.
 
-Run the following code to test `keras`.
+Run the following code to test TensorFlow. It will take a moment to start up Python in the background.
 
 ```
-library(keras)
-
-# Path to conda env with TensorFlow
-# use_condaenv(path_to_conda_env)
-
-input <- layer_input(shape = 3)
-
-output <- input %>% 
-  layer_dense(5, activation = "relu") %>% 
-  layer_dense(1)
-
-simple_model <- keras_model(input, output)
-
-simple_model %>% 
-  compile(loss = "mse", optimizer = optimizer_adam(lr = 0.1))
-
-simple_model %>% 
-  fit(x = data.matrix(iris[2:4]),
-      y = iris[, 1],
-      epochs = 20,
-      batch_size = 10)
+library(tensorflow)
+tf$constant("Hello Tensorflow!")
 ```
 
 ## Optional Topics to Discuss
