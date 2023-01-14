@@ -82,30 +82,20 @@ Note: we use default [black](https://github.com/psf/black) as autoformatter.
 
 ### Software for the R version of the lecture
 
-- R version >= 3.6
+- R version >= 4.1
 - Successfully installed packages:
-    - `tidyverse`
-    - `FNN`
-    - `withr`
-    - `rpart`
-    - `rpart.plot`
-    - `ranger`
-    - `xgboost`
-    - `keras`
-    - `flashlight`
-    - `insuranceData`
-    - `lightgbm` (optional)
+    - tidyverse
+    - FNN
+    - withr
+    - rpart.plot
+    - ranger
+    - xgboost
+    - keras
+    - flashlight
+    - insuranceData
+    - lightgbm (optional)
 
-`keras` requires a Python installation with Tensorflow >=2.9. If you do not have Python installed and are not behind a company firewall, you can simply run the following two lines to get a minimal Python bundle with TensorFlow.
-
-```
-library(keras)
-install_keras()
-```
-
-If this fails, an option is to install Python as outlined in the section above and then set the corresponding `conda_env` path with `use_condaenv()`.
-
-Run the following code to test TensorFlow. It will take a moment to start up Python in the background.
+For the last chapter, we additionally need Python with TensorFlow >= 2.9. You can install it by running the R command `keras::install_keras(version = "release-cpu")`. If the following code works, you are all set. (Some red start-up messages/warnings are okay.)
 
 ```
 library(tensorflow)
