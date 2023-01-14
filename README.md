@@ -95,7 +95,7 @@ Note: we use default [black](https://github.com/psf/black) as autoformatter.
     - insuranceData
     - lightgbm (optional)
 
-For the last chapter, we additionally need Python with TensorFlow >= 2.9. You can install it by running the R command `keras::install_keras(version = "release-cpu")`. If the following code works, you are all set. (Some red start-up messages/warnings are okay.)
+For the last chapter, we will use Python with TensorFlow >= 2.11. You can install it by running the R command `keras::install_keras(version = "release-cpu")`. If the following code works, you are all set. (Some red start-up messages/warnings are okay.)
 
 ```
 library(tensorflow)
