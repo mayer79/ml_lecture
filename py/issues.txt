@@ -4,12 +4,3 @@
 - How to do stratified cross-validation for non-discrete responses? -> Tricky
 - D2 is the default scorer of GammaRegressor. What is its name? "r2"?
 I would like to track D2 and "neg_mean_gamma_deviance" together in cross-validation.
-
-# Dalex
-
-model_profile
-- Issue opened and solved: Option to relax y scale -> implemented in Dalex 1.4.1
-- Issue opened: variable_splits -> specify only subset
-
-Made two issues on dalex github page.
-
