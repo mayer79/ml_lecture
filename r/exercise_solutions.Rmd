@@ -76,9 +76,9 @@ RMSE <- function(y, pred) {
 }
 
 y <- "price"  
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
-dia <- diamonds[, c(y, x)]
+dia <- diamonds[, c(y, xvars)]
 dia <- unique(dia)  #  -> only new row
 
 # Split diamonds into 80% for training and 20% for testing
@@ -94,11 +94,11 @@ y_train <- train[[y]]
 y_test <- test[[y]]
 
 # Standardize training data
-X_train <- scale(data.matrix(train[, x]))
+X_train <- scale(data.matrix(train[, xvars]))
 
 # Apply training scale to test data
 X_test <- scale(
-  data.matrix(test[, x]),
+  data.matrix(test[, xvars]),
   center = attr(X_train, "scaled:center"),
   scale = attr(X_train, "scaled:scale")
 )
@@ -137,7 +137,7 @@ head(paramGrid[order(paramGrid$RMSE), ], 2)
 rmse_reg <- numeric(nfolds)
 
 for (fold in 1:nfolds) {
-  fit <- lm(reformulate(x, y), data = train[fold_ix != fold, ])
+  fit <- lm(reformulate(xvars, y), data = train[fold_ix != fold, ])
   pred <- predict(fit, newdata = train[fold_ix == fold, ])
   rmse_reg[fold] <- RMSE(y_train[fold_ix == fold], pred)
 }
@@ -254,10 +254,10 @@ r_squared(diamonds$price[-ix], pred)  # 0.9814
 ### Exercise 2
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(withr)
 library(ranger)
-library(flashlight)
+library(hstats)
 library(MetricsWeighted)
 library(insuranceData)
 
@@ -294,18 +294,13 @@ imp <- sort(importance(fit))
 imp <- imp / sum(imp)
 barplot(imp, horiz = TRUE, col = "orange", cex.names = 0.8, las = 2)
 
-# Partial dependence plots
-fl <- flashlight(
-  model = fit,
-  data = dataCar[ix, ], 
-  label = "rf", 
-  predict_function = function(m, X) predict(m, X)$predictions[, 2]
-)
+# Partial dependence plots (need prediction function to get only second column)
+pred_fun <- function(m, X) predict(m, X)$predictions[, 2]
 
 for (v in c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")) {
-  p <- light_profile(fl, v = v, n_bins = 40) %>% 
-    plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
-    labs(title = paste("PDP for", v), y = "Prediction") 
+  p <- partial_dep(fit, v = v, X = dataCar[ix, ], pred_fun = pred_fun) |> 
+    plot(rotate_x = (v == "veh_body")) +
+    ggtitle(paste("PDP for", v)) 
   print(p)
 }
 ```
@@ -319,13 +314,13 @@ for (v in c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")) {
 Just copy paste parts of the code in the lecture notes.
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(xgboost)
 library(withr)
-library(flashlight)
+library(hstats)
 
 y <- "price"
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
 # Split into train and test
 with_seed(
@@ -334,10 +329,10 @@ with_seed(
 )
 
 y_train <- diamonds[[y]][ix]
-X_train <- diamonds[ix, x]
+X_train <- diamonds[ix, xvars]
 
 y_test <- diamonds[[y]][-ix]
-X_test <- diamonds[-ix, x]
+X_test <- diamonds[-ix, xvars]
 
 # XGBoost data interface
 dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
@@ -351,23 +346,11 @@ head(grid)
 params <- as.list(grid[1, -(1:3)])
 params$monotone_constraints <- c(1, 0, 0, 0)
 
-fit <- xgb.train(
-  params = params, 
-  data = dtrain, 
-  nrounds = grid[1, "iteration"]
-)
+fit <- xgb.train(params = params, data = dtrain, nrounds = grid[1, "iteration"])
 
 # Partial dependence plot for carat
-fl <- flashlight(
-  model = fit, 
-  data = X_train, 
-  label = "XGB", 
-  predict_function = function(m, X) predict(m, data.matrix(X))
-)
-
-light_profile(fl, v = "carat", n_bins = 40) %>% 
-  plot(color = "chartreuse4") +
-  labs(title = "PDP for carat", y = "Prediction") 
+partial_dep(fit, v = "carat", X = data.matrix(X_train)) |> 
+  plot()
 ```
 
 **Comment:** The argument is called "monotone_constraints". For each covariate, a value 0 means no constraint, a value -1 means a negative constraints, and a value 1 means positive constraint. Applying the constraint now leads to a monotonically increasing partial dependence plot. This is extremely useful in practice. Besides monotonic constraints, also interaction constraints are possible.
@@ -376,15 +359,14 @@ light_profile(fl, v = "carat", n_bins = 40) %>%
 
 ```{r}
 # We adapt the template from the script
-
-library(tidyverse)
+library(ggplot2)
 library(xgboost)
 library(withr)
 library(insuranceData)
 
 data(dataCar)
 
-x <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
+xvars <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
 y <- "clm"
 
 # Split into train and test
@@ -394,10 +376,10 @@ with_seed(
 )
 
 y_train <- dataCar[ix, y]
-X_train <- dataCar[ix, x]
+X_train <- dataCar[ix, xvars]
 
 y_test <- dataCar[-ix, y]
-X_test <- dataCar[-ix, x]
+X_test <- dataCar[-ix, xvars]
 
 # XGBoost data handler
 dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
@@ -487,7 +469,7 @@ fit <- xgb.train(
 
 # Interpretation
 library(MetricsWeighted)
-library(flashlight)
+library(hstats)
 
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
@@ -501,18 +483,12 @@ r_squared_bernoulli(y_test, pred)
 imp <- xgb.importance(model = fit)
 xgb.plot.importance(imp, col = "chartreuse4")
 
-# Some partial dependence plots
-fl <- flashlight(
-  model = fit, 
-  data = X_train, 
-  label = "XGB", 
-  predict_function = function(m, X) predict(m, data.matrix(X))
-)
-
-for (v in x) {
-  p <- light_profile(fl, v = v, n_bins = 40) %>% 
-    plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
-    labs(title = paste("PDP for", v), y = "Prediction") 
+# PDPs
+pred_fun <- function(m, x) predict(m, data.matrix(x))
+for (v in xvars) {
+  p <- partial_dep(fit, v = v, X = X_train, pred_fun = pred_fun) |> 
+    plot(rotate_x = (v == "veh_body")) +
+    ggtitle(paste("PDP for", v)) 
   print(p)
 }
 ```
@@ -521,15 +497,14 @@ for (v in x) {
 
 ```{r}
 # We slightly adapt the XGBoost template
-
-library(tidyverse)
+library(ggplot2)
 library(lightgbm)
 library(withr)
 library(insuranceData)
 
 data(dataCar)
 
-x <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
+xvars <- c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")
 y <- "clm"
 
 # Split into train and test
@@ -539,10 +514,10 @@ with_seed(
 )
 
 y_train <- dataCar[ix, y]
-X_train <- dataCar[ix, x]
+X_train <- dataCar[ix, xvars]
 
 y_test <- dataCar[-ix, y]
-X_test <- dataCar[-ix, x]
+X_test <- dataCar[-ix, xvars]
 
 # We could even set categorical_feature = "veh_body" in order
 # to treat that feature unordered categorical
@@ -634,7 +609,7 @@ fit <- lgb.train(
 
 # Interpretation
 library(MetricsWeighted)
-library(flashlight)
+library(hstats)
 
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
@@ -648,18 +623,12 @@ r_squared_bernoulli(y_test, pred) # 0.0037
 imp <- lgb.importance(model = fit)
 lgb.plot.importance(imp)
 
-# Some partial dependence plots
-fl <- flashlight(
-  model = fit, 
-  data = X_train, 
-  label = "LGB", 
-  predict_function = function(m, X) predict(m, data.matrix(X))
-)
-
-for (v in x) {
-  p <- light_profile(fl, v = v, n_bins = 40) %>% 
-    plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
-    labs(title = paste("PDP for", v), y = "Prediction") 
+# PDPs
+pred_fun <- function(m, x) predict(m, data.matrix(x))
+for (v in xvars) {
+  p <- partial_dep(fit, v = v, X = X_train, pred_fun = pred_fun) |> 
+    plot(rotate_x = (v == "veh_body")) +
+    ggtitle(paste("PDP for", v)) 
   print(p)
 }
 ```
@@ -669,15 +638,12 @@ for (v in x) {
 ## Exercise 1
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(withr)
 library(keras)
 
-# Path to conda env with TensorFlow
-keras::use_condaenv("C:/Users/Michael/anaconda3/envs/ml_lecture")
-
 y <- "price"
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
 with_seed(
   9838, 
@@ -687,8 +653,8 @@ with_seed(
 train <- diamonds[ix, ]
 test <- diamonds[-ix, ]
 
-X_train <- train[, x]
-X_test <- test[, x]
+X_train <- train[, xvars]
+X_test <- test[, xvars]
 
 # Integers are not auto-cast by all TF versions...
 y_train <- as.numeric(train[[y]])
@@ -702,7 +668,7 @@ sc <- list(
 )
 
 # Function that maps data to scaled network input
-prep_nn <- function(X, sel = x, scaling = sc) {
+prep_nn <- function(X, sel = xvars, scaling = sc) {
   X <- data.matrix(X[, sel, drop = FALSE])
   scale(X, center = scaling$center, scale = scaling$scale)
 }
@@ -719,16 +685,16 @@ tensorflow::set_random_seed(49)
 input <- layer_input(shape = 4)
 
 # Two hidden layers with contracting number of nodes
-output <- input %>%
-  layer_dense(units = 30, activation = "tanh") %>% 
-  layer_dense(units = 15, activation = "tanh") %>% 
+output <- input |> 
+  layer_dense(units = 30, activation = "tanh") |> 
+  layer_dense(units = 15, activation = "tanh") |>  
   layer_dense(units = 1, activation = k_exp)
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 
-nn %>% compile(
+nn |> compile(
   optimizer = optimizer_adam(learning_rate = 0.001),
   loss = loss_gamma
 )
@@ -740,7 +706,7 @@ cb <- list(
 )
 
 # Fit model
-history <- nn %>% fit(
+history <- nn |> fit(
   x = prep_nn(X_train),
   y = y_train,
   epochs = 200,
@@ -753,33 +719,25 @@ plot(history, metrics = "loss", smooth = FALSE) +
   coord_cartesian(ylim = c(0, 5))
 
 # Interpret
-library(flashlight)
 library(MetricsWeighted)
+library(hstats)
 
-fl <- flashlight(
-  model = nn, 
-  y = "price", 
-  data = test, 
-  label = "nn", 
-  metrics = list(
-    `Gamma deviance` = deviance_gamma, 
-    `Relative deviance reduction` = r_squared_gamma
-  ),
-  predict_function = function(m, X) 
-    predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
-)
+pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
 
 # Performance on test data
-light_performance(fl)$data
+pred <- pred_fun(nn, X_test)
+deviance_gamma(y_test, pred)
+r_squared_gamma(y_test, pred)
 
 # Permutation importance
-light_importance(fl, v = x) %>% 
-  plot(fill = "orange")
+perm_importance(
+  nn, X = X_test, y = y_test, loss = "gamma", pred_fun = pred_fun, verbose = FALSE) |> 
+  plot()
 
 # Partial dependence plots
-for (v in x) {
-  p <- light_profile(fl, v = v, n_bins = 40) %>% 
-    plot(color = "chartreuse4") +
+for (v in xvars) {
+  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |> 
+    plot() +
     ggtitle(paste("PDP for", v)) 
   print(p)
 }

@@ -53,11 +53,11 @@ library(ggplot2)
 library(FNN)
 
 # Covariate matrix
-x <- c("carat", "color", "cut", "clarity")
-X <- scale(data.matrix(diamonds[, x]))
+xvars <- c("carat", "color", "cut", "clarity")
+X <- scale(data.matrix(diamonds[, xvars]))
 
 # The 10'000th observation
-diamonds[10000, c("price", x)]
+diamonds[10000, c("price", xvars)]
 
 # Its prediction
 knn.reg(X, test = X[10000, ], k = 5, y = diamonds$price)
@@ -94,7 +94,7 @@ library(FNN)
 library(withr)
 
 y <- "price"
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
 # Split diamonds into 80% for "training" and 20% for validation
 with_seed(
@@ -102,8 +102,8 @@ with_seed(
   ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
 )
 
-X_train <- diamonds[ix, x]
-X_valid <- diamonds[-ix, x]
+X_train <- diamonds[ix, xvars]
+X_valid <- diamonds[-ix, xvars]
 
 y_train <- diamonds[[y]][ix]
 y_valid <- diamonds[[y]][-ix]
@@ -157,7 +157,7 @@ for (i in 1:nrow(paramGrid)) {
 head(paramGrid[order(paramGrid$valid), ], 2)
 
 # Plot results
-pivot_longer(paramGrid, cols = -k, values_to = "RMSE", names_to = "Data") %>% 
+pivot_longer(paramGrid, cols = -k, values_to = "RMSE", names_to = "Data") |> 
 ggplot(aes(x = k, y = RMSE, group = Data, color = Data)) +
   geom_point() +
   geom_line()
@@ -203,10 +203,10 @@ RMSE <- function(y, pred) {
 }
 
 y <- "price"
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
 # Scaled feature matrix
-X <- scale(data.matrix(diamonds[x]))
+X <- scale(data.matrix(diamonds[xvars]))
 
 # Split diamonds into folds
 nfolds <- 5
@@ -292,9 +292,9 @@ RMSE <- function(y, pred) {
 }
 
 y <- "price"  
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
-dia <- diamonds[, c(y, x)]
+dia <- diamonds[, c(y, xvars)]
 # dia <- unique(dia)  #  -> Exercise 1
 
 # Split diamonds into 80% for training and 20% for testing
@@ -310,11 +310,11 @@ y_train <- train[[y]]
 y_test <- test[[y]]
 
 # Standardize training data
-X_train <- scale(data.matrix(train[, x]))
+X_train <- scale(data.matrix(train[, xvars]))
 
 # Apply training scale to test data
 X_test <- scale(
-  data.matrix(test[, x]),
+  data.matrix(test[, xvars]),
   center = attr(X_train, "scaled:center"),
   scale = attr(X_train, "scaled:scale")
 )
@@ -353,7 +353,7 @@ head(paramGrid[order(paramGrid$RMSE), ], 2)
 rmse_reg <- numeric(nfolds)
 
 for (fold in 1:nfolds) {
-  fit <- lm(reformulate(x, y), data = train[fold_ix != fold, ])
+  fit <- lm(reformulate(xvars, y), data = train[fold_ix != fold, ])
   pred <- predict(fit, newdata = train[fold_ix == fold, ])
   rmse_reg[fold] <- RMSE(y_train[fold_ix == fold], pred)
 }
