@@ -112,7 +112,7 @@ Predictions are found by pooling the predictions of all trees, e.g., by averagin
 Let us now fit a random forest for diamond prices with typical parameters and 500 trees. 80% of the data is used for training, the other 20% we use for evaluating the performance. (Throughout the rest of the lecture, we will ignore the problematic aspect of having repeated rows for some diamonds.)
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(withr)
 library(ranger)
 library(MetricsWeighted)
@@ -167,7 +167,7 @@ Alternatives to partial dependence plots include **accumulated local effect plot
 For our last example, we will now look at variable importance and partial dependence plots.
 
 ```{r}
-library(flashlight)
+library(hstats)
 
 # Variable importance regarding MSE improvement
 imp <- sort(importance(fit))
@@ -175,17 +175,10 @@ imp <- imp / sum(imp)
 barplot(imp, horiz = TRUE, col = "chartreuse4")
 
 # Partial dependence plots
-fl <- flashlight(
-  model = fit, 
-  data = diamonds[ix, ], 
-  label = "Random forest", 
-  predict_function = function(m, X) predict(m, X)$predictions
-)
-
 for (v in c("carat", "color", "cut", "clarity")) {
-  p <- light_profile(fl, v = v, n_bins = 40) %>% 
-    plot(color = "chartreuse4") +
-    labs(title = paste("PDP for", v), y = "Prediction") 
+  p <- partial_dep(fit, v = v, X = diamonds[ix, ]) |> 
+    plot() +
+    ggtitle(paste("PDP for", v))
   print(p)
 }
 ```
@@ -220,7 +213,7 @@ library(withr)
 library(xgboost)
 
 y <- "price"
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
 # Split into train and valid
 with_seed(
@@ -229,10 +222,10 @@ with_seed(
 )
 
 y_train <- diamonds[[y]][ix]
-X_train <- diamonds[ix, x]
+X_train <- diamonds[ix, xvars]
 
 y_valid <- diamonds[[y]][-ix]
-X_valid <- diamonds[-ix, x]
+X_valid <- diamonds[-ix, xvars]
 
 # XGBoost data interface
 dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
@@ -292,12 +285,12 @@ Note: Since learning rate, number of boosting rounds and regularization paramete
 We will use XGBoost to fit diamond prices using the squared error as loss function and RMSE as evaluation metric, now using the tuning strategy outlined above.
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(withr)
 library(xgboost)
 
 y <- "price"
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
 # Split into train and test
 with_seed(
@@ -306,10 +299,10 @@ with_seed(
 )
 
 y_train <- diamonds[[y]][ix]
-X_train <- diamonds[ix, x]
+X_train <- diamonds[ix, xvars]
 
 y_test <- diamonds[[y]][-ix]
-X_test <- diamonds[-ix, x]
+X_test <- diamonds[-ix, xvars]
 
 # XGBoost data interface
 dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
@@ -407,8 +400,8 @@ Now, the model is ready to be inspected by evaluating
 - partial dependence plots.
 
 ```{r}
+library(hstats)
 library(MetricsWeighted)
-library(flashlight)
 
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
@@ -420,17 +413,11 @@ imp <- xgb.importance(model = fit)
 xgb.plot.importance(imp)
 
 # Partial dependence plots
-fl <- flashlight(
-  model = fit, 
-  data = diamonds[ix, ], 
-  label = "XGB", 
-  predict_function = function(m, X) predict(m, data.matrix(X[x]))
-)
 
-for (v in x) {
-  p <- light_profile(fl, v = v, n_bins = 40) %>% 
-    plot(color = "chartreuse4") +
-    labs(title = paste("PDP for", v), y = "Prediction") 
+for (v in xvars) {
+  p <- partial_dep(fit, v = v, X = data.matrix(X_train)) |> 
+    plot() +
+    ggtitle(paste("PDP for", v))
   print(p)
 }
 ```

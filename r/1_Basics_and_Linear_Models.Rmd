@@ -149,7 +149,6 @@ ggplot(diamonds, aes(y = price, x = cut)) +
 ggplot(diamonds, aes(y = price, x = clarity)) +
   geom_boxplot(fill = "chartreuse4", varwidth = TRUE) +
   ggtitle("Price against clarity")
-
 ```
 
 **Comments**
@@ -514,7 +513,6 @@ ggplot(to_plot, aes(x = carat, y = price)) +
   geom_line() +
   geom_point() +
   ggtitle("Original scale")
-
 ```
 
 **Comments** 

@@ -22,10 +22,6 @@ knitr::opts_chunk$set(
   warning = FALSE, 
   message = FALSE
 )
-
-# Path to conda env with TensorFlow
-keras::use_condaenv("C:/Users/Michael/anaconda3/envs/ml_lecture")
-
 ```
 
 # Introduction
@@ -85,28 +81,28 @@ To gain confidence in neural nets, we first show that parameters estimated by a 
 ### Example: simple linear regression
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(keras)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # Output layer connected to the input layer
-output <- input %>%
+output <- input |> 
   layer_dense(units = 1)
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
 
-nn %>% compile(
+nn |> compile(
   optimizer = optimizer_adam(learning_rate = 1),
   loss = "mse",
   metrics = metric_root_mean_squared_error()
 )
 
 # Fit model - naive without validation
-history <- nn %>% fit(
+history <- nn |> fit(
   x = diamonds$carat,
   y = diamonds$price,
   epochs = 30,
@@ -118,8 +114,8 @@ plot(history, metrics = "root_mean_squared_error")
 unlist(get_weights(nn))
 
 # Plot effect of carat on average price
-data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
-  mutate(price = predict(nn, carat, verbose = 0)) %>% 
+data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
+  transform(price = predict(nn, carat, verbose = 0)) |> 
 ggplot(aes(x = carat, y = price)) +
   geom_line(color = "chartreuse4") +
   geom_point(color = "chartreuse4")
@@ -156,29 +152,29 @@ This network has 16 parameters. How much better than our simple network with jus
 The following code is identical to the last one up to one extra line of code specifying the hidden layer.
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(keras)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # One hidden layer
-output <- input %>%
-  layer_dense(units = 5) %>%  # the only new line of code!
+output <- input |>
+  layer_dense(units = 5) |>  # the only new line of code!
   layer_dense(units = 1)
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
 
-nn %>% compile(
+nn |> compile(
   optimizer = optimizer_adam(learning_rate = 1),
   loss = "mse",
   metrics = metric_root_mean_squared_error()
 )
 
 # Fit model - naive without validation
-nn %>% fit(
+nn |> fit(
   x = diamonds$carat,
   y = diamonds$price,
   epochs = 30,
@@ -186,8 +182,8 @@ nn %>% fit(
 )
 
 # Plot effect of carat on average price
-data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
-  mutate(price = predict(nn, carat, verbose = 0)) %>% 
+data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
+  transform(price = predict(nn, carat, verbose = 0)) |> 
 ggplot(aes(x = carat, y = price)) +
   geom_line(color = "chartreuse4") +
   geom_point(color = "chartreuse4")
@@ -221,28 +217,28 @@ Let us add a hyperbolic tangent activation function ($\sigma$) after the hidden 
 Again, the code is very similar to the last one, with the exception of using a hyperbolic tangent activation after the hidden layer (and different learning rate and number of epochs).
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(keras)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # One hidden layer
-output <- input %>%
-  layer_dense(units = 5, activation = "tanh") %>% 
+output <- input |>
+  layer_dense(units = 5, activation = "tanh") |> 
   layer_dense(units = 1, activation = "linear")
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 
-nn %>% compile(
+nn |> compile(
   optimizer = optimizer_adam(learning_rate = 0.2),
   loss = "mse",
   metrics = metric_root_mean_squared_error()
 )
 
 # Fit model - naive without validation
-nn %>% fit(
+nn |> fit(
   x = diamonds$carat,
   y = diamonds$price,
   epochs = 50,
@@ -250,8 +246,8 @@ nn %>% fit(
 )
 
 # Plot effect of carat on average price
-data.frame(carat = seq(0.3, 3, by = 0.1)) %>% 
-  mutate(price = predict(nn, carat, verbose = 0)) %>% 
+data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
+  transform(price = predict(nn, carat, verbose = 0)) |> 
 ggplot(aes(x = carat, y = price)) +
   geom_line(color = "chartreuse4") +
   geom_point(color = "chartreuse4")
@@ -353,12 +349,14 @@ We will now fit a neural net with two hidden layers (30 and 15 nodes) and a tota
 ![](../figs/nn_2_hidden.PNG)
 
 ```{r}
-library(tidyverse)
+library(ggplot2)
 library(withr)
 library(keras)
+library(MetricsWeighted)
+library(hstats)
 
 y <- "price"
-x <- c("carat", "color", "cut", "clarity")
+xvars <- c("carat", "color", "cut", "clarity")
 
 # Split into train and test
 with_seed(
@@ -369,8 +367,8 @@ with_seed(
 train <- diamonds[ix, ]
 test <- diamonds[-ix, ]
 
-X_train <- train[, x]
-X_test <- test[, x]
+X_train <- train[, xvars]
+X_test <- test[, xvars]
 
 y_train <- train[[y]]
 y_test <- test[[y]]
@@ -383,7 +381,7 @@ sc <- list(
 )
 
 # Function that maps data to scaled network input
-prep_nn <- function(X, sel = x, scaling = sc) {
+prep_nn <- function(X, sel = xvars, scaling = sc) {
   X <- data.matrix(X[, sel, drop = FALSE])
   scale(X, center = scaling$center, scale = scaling$scale)
 }
@@ -396,16 +394,16 @@ tensorflow::set_random_seed(499)
 input <- layer_input(shape = 4)
 
 # Two hidden layers with contracting number of nodes
-output <- input %>%
-  layer_dense(units = 30, activation = "relu") %>% 
-  layer_dense(units = 15, activation = "relu") %>% 
+output <- input |>
+  layer_dense(units = 30, activation = "relu") |> 
+  layer_dense(units = 15, activation = "relu") |> 
   layer_dense(units = 1, activation = "linear")
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 
-nn %>% compile(
+nn |> compile(
   optimizer = optimizer_adam(learning_rate = 0.1),
   loss = "mse",
   metrics = metric_root_mean_squared_error()
@@ -418,7 +416,7 @@ cb <- list(
 )
        
 # Fit model
-history <- nn %>% fit(
+history <- nn |> fit(
   x = prep_nn(X_train),
   y = y_train,
   epochs = 100,
@@ -430,32 +428,20 @@ history <- nn %>% fit(
 plot(history, metrics = "root_mean_squared_error", smooth = FALSE)
 
 # Interpret
-library(flashlight)
-library(MetricsWeighted)
-
-fl <- flashlight(
-  model = nn, 
-  y = y, 
-  data = test, 
-  label = "Neural net", 
-  metrics = list(rmse = rmse, `R squared` = r_squared),
-  predict_function = function(m, X) 
-    predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
-)
+pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
 
 # Performance on test data
-perf <- light_performance(fl)
-perf$data
-plot(perf, fill = "chartreuse4") +
-  labs(x = element_blank(), y = element_blank())
+pred <- pred_fun(nn, X_test)
+rmse(y_test, pred)
+r_squared(y_test, pred)
 
-# Permutation importance
-light_importance(fl, v = x) %>% 
+# Permutation importance wrt test data
+perm_importance(nn, X = X_test, y = y_test, pred_fun = pred_fun, verbose = FALSE) |> 
   plot(fill = "chartreuse4")
 
 # PDPs
-for (v in x) {
-  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+for (v in xvars) {
+  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |> 
     plot(color = "chartreuse4") +
     ggtitle(paste("PDP for", v)) 
   print(p)
@@ -480,7 +466,7 @@ data(dataCar)
 y <- "clm"
 x_emb <- "veh_body"
 x_dense <- c("veh_value", "veh_age", "gender", "area", "agecat")
-x <- c(x_dense, x_emb)
+xvars <- c(x_dense, x_emb)
 
 # Split into train and test
 with_seed(
@@ -494,8 +480,8 @@ test <- dataCar[-ix, ]
 y_train <- train[[y]]
 y_test <- test[[y]]
 
-X_train <- train[, x]
-X_test <- test[, x]
+X_train <- train[, xvars]
+X_test <- test[, xvars]
 
 # Standardization info using X_train
 temp <- scale(data.matrix(X_train[, x_dense]))
@@ -522,15 +508,15 @@ input_dense <- layer_input(shape = length(x_dense), name = "dense1")
 input_veh_body <- layer_input(shape = 1, name = "veh_body")
 
 # Embedding of veh_body
-emb_veh_body <- input_veh_body %>% 
-  layer_embedding(input_dim = nlevels(dataCar$veh_body) + 1, output_dim = 1) %>% 
+emb_veh_body <- input_veh_body |> 
+  layer_embedding(input_dim = nlevels(dataCar$veh_body) + 1, output_dim = 1) |> 
   layer_flatten()
 
 # Combine dense input and embedding
-outputs <- list(input_dense, emb_veh_body) %>%
-  layer_concatenate() %>% 
-  layer_dense(30, activation = "relu") %>% 
-  layer_dense(5, activation = "relu") %>% 
+outputs <- list(input_dense, emb_veh_body) |>
+  layer_concatenate() |> 
+  layer_dense(30, activation = "relu") |> 
+  layer_dense(5, activation = "relu") |> 
   layer_dense(1, activation = "sigmoid")
 
 # Input
@@ -540,7 +526,7 @@ inputs <- list(dense1 = input_dense, veh_body = input_veh_body)
 nn <- keras_model(inputs = inputs, outputs = outputs)
 summary(nn)
 
-nn %>% compile(
+nn |> compile(
   optimizer = optimizer_adam(learning_rate = 0.001),
   loss = "binary_crossentropy"
 )
@@ -552,7 +538,7 @@ cb <- list(
 )
 
 # Fit model
-history <- nn %>% fit(
+history <- nn |> fit(
   x = prep_nn(X_train),
   y = y_train,
   epochs = 100,
@@ -564,34 +550,26 @@ history <- nn %>% fit(
 plot(history, metrics = c("loss", "val_loss"), smooth = FALSE)
 
 # Interpret
-library(flashlight)
+library(hstats)
 library(MetricsWeighted)
 
-fl <- flashlight(
-  model = nn, 
-  y = y, 
-  data = test, 
-  label = "Neural net", 
-  metrics = list(
-    logLoss = logLoss, 
-    `R squared` = r_squared_bernoulli
-  ),
-  predict_function = 
-    function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
-)
+pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
 
 # Performance on test data
-light_performance(fl)$data
+pred <- pred_fun(nn, X_test)
+logLoss(y_test, pred)
+r_squared_bernoulli(y_test, pred)
 
 # Permutation importance
-light_importance(fl, v = x) %>% 
+perm_importance(
+  nn, X = X_test, y = y_test, loss = "logloss", pred_fun = pred_fun, verbose = FALSE) |> 
   plot(fill = "chartreuse4")
 
 # Partial dependence
-for (v in x) {
-  p <- light_profile(fl, v = v, n_bins = 40) %>% 
+for (v in xvars) {
+  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |> 
     plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
-    labs(title = paste("PDP for", v), y = "Prediction") 
+    ggtitle(paste("PDP for", v)) 
   print(p)
 }
 ```
