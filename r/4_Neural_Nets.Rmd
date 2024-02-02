@@ -553,7 +553,7 @@ plot(history, metrics = c("loss", "val_loss"), smooth = FALSE)
 library(hstats)
 library(MetricsWeighted)
 
-pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
+pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = FALSE)
 
 # Performance on test data
 pred <- pred_fun(nn, X_test)

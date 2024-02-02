@@ -400,8 +400,8 @@ Now, the model is ready to be inspected by evaluating
 - partial dependence plots.
 
 ```{r}
-library(hstats)
 library(MetricsWeighted)
+library(hstats)
 
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
@@ -413,9 +413,9 @@ imp <- xgb.importance(model = fit)
 xgb.plot.importance(imp)
 
 # Partial dependence plots
-
+pred_fun <- function(m, X) predict(m, data.matrix(X))
 for (v in xvars) {
-  p <- partial_dep(fit, v = v, X = data.matrix(X_train)) |> 
+  p <- partial_dep(fit, v = v, X = X_train, pred_fun = pred_fun) |> 
     plot() +
     ggtitle(paste("PDP for", v))
   print(p)
