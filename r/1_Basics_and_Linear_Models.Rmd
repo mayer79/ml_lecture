@@ -68,7 +68,7 @@ Data types are important in determining suitable analysis methods.
 
 In the `diamonds` data set, we will consider the numeric variables `price` and `carat` and the following *ordered* categoricals:
 
-- `color` with ordered categories D < E < F < G < H < I < J,
+- `color` with ordered categories D > E > F > G > H > I > J,
 - `cut` with ordered categories Fair < Good < Very Good < Premium < Ideal, and
 - `clarity` with ordered categories I1 < SI2 < SI1 < VS2 < VS1 < VVS2 < VVS1 < IF.
 

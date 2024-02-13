@@ -1,6 +1,0 @@
-# Scikit-Learn
-
-- PoissonRegressor tricky to "tune" to get same results as statsmodels and R.
-- How to do stratified cross-validation for non-discrete responses? -> Tricky
-- D2 is the default scorer of GammaRegressor. What is its name? "r2"?
-I would like to track D2 and "neg_mean_gamma_deviance" together in cross-validation.
