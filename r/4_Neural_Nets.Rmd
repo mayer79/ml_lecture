@@ -95,19 +95,21 @@ output <- input |>
 nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 1),
-  loss = "mse",
-  metrics = metric_root_mean_squared_error()
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 1),
+    loss = "mse",
+    metrics = metric_root_mean_squared_error()
+  )
 
 # Fit model - naive without validation
-history <- nn |> fit(
-  x = diamonds$carat,
-  y = diamonds$price,
-  epochs = 30,
-  batch_size = 100
-)
+history <- nn |>
+  fit(
+    x = diamonds$carat,
+    y = diamonds$price,
+    epochs = 30,
+    batch_size = 100
+  )
 
 plot(history, metrics = "root_mean_squared_error")
 
@@ -167,20 +169,22 @@ output <- input |>
 nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 1),
-  loss = "mse",
-  metrics = metric_root_mean_squared_error()
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 1),
+    loss = "mse",
+    metrics = metric_root_mean_squared_error()
+  )
 
 # Fit model - naive without validation
-nn |> fit(
-  x = diamonds$carat,
-  y = diamonds$price,
-  epochs = 30,
-  batch_size = 100,
-  verbose = 0
-)
+nn |> 
+  fit(
+    x = diamonds$carat,
+    y = diamonds$price,
+    epochs = 30,
+    batch_size = 100,
+    verbose = 0
+  )
 
 # Plot effect of carat on average price
 data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
@@ -232,20 +236,22 @@ output <- input |>
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 0.2),
-  loss = "mse",
-  metrics = metric_root_mean_squared_error()
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 0.2),
+    loss = "mse",
+    metrics = metric_root_mean_squared_error()
+  )
 
 # Fit model - naive without validation
-nn |> fit(
-  x = diamonds$carat,
-  y = diamonds$price,
-  epochs = 50,
-  batch_size = 100,
-  verbose = 0
-)
+nn |> 
+  fit(
+    x = diamonds$carat,
+    y = diamonds$price,
+    epochs = 50,
+    batch_size = 100,
+    verbose = 0
+  )
 
 # Plot effect of carat on average price
 data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
@@ -405,11 +411,12 @@ output <- input |>
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 0.1),
-  loss = "mse",
-  metrics = metric_root_mean_squared_error()
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 0.1),
+    loss = "mse",
+    metrics = metric_root_mean_squared_error()
+  )
 
 # Callbacks
 cb <- list(
@@ -418,15 +425,16 @@ cb <- list(
 )
        
 # Fit model
-history <- nn |> fit(
-  x = prep_nn(X_train),
-  y = y_train,
-  epochs = 100,
-  batch_size = 400, 
-  validation_split = 0.2,
-  callbacks = cb,
-  verbose = 0
-)
+history <- nn |>
+  fit(
+    x = prep_nn(X_train),
+    y = y_train,
+    epochs = 100,
+    batch_size = 400, 
+    validation_split = 0.2,
+    callbacks = cb,
+    verbose = 0
+  )
 
 plot(history, metrics = "root_mean_squared_error", smooth = FALSE)
 
@@ -531,10 +539,11 @@ inputs <- list(dense1 = input_dense, veh_body = input_veh_body)
 nn <- keras_model(inputs = inputs, outputs = outputs)
 summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 0.001),
-  loss = "binary_crossentropy"
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 0.001),
+    loss = "binary_crossentropy"
+  )
 
 # Callbacks
 cb <- list(
@@ -543,15 +552,16 @@ cb <- list(
 )
 
 # Fit model
-history <- nn |> fit(
-  x = prep_nn(X_train),
-  y = y_train,
-  epochs = 100,
-  batch_size = 400,
-  validation_split = 0.2,
-  callbacks = cb,
-  verbose = 0
-)
+history <- nn |>
+  fit(
+    x = prep_nn(X_train),
+    y = y_train,
+    epochs = 100,
+    batch_size = 400,
+    validation_split = 0.2,
+    callbacks = cb,
+    verbose = 0
+  )
 
 plot(history, metrics = c("loss", "val_loss"), smooth = FALSE)
 

@@ -259,8 +259,8 @@ rmse(y_test, predict(fit, data.matrix(X_test)))  # 541.2
 
 **Comments:** 
 
-- More trees would mean better training performance, but worse validation performance.
-- Compared to simple validation, cross-validation would provide an even better way to find the optimal number of boosting rounds/trees.
+- More trees would mean better training performance, but worse CV performance.
+- Test performance is slightly better than the random forest. Can we do even better?
 - In the next example, we will also interpret such a model.
 
 ## Parameters of gradient boosted trees

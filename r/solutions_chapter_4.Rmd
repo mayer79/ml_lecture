@@ -85,10 +85,11 @@ output <- input |>
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 0.001),
-  loss = loss_gamma
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 0.001),
+    loss = loss_gamma
+  )
 
 # Callbacks
 cb <- list(
@@ -97,15 +98,16 @@ cb <- list(
 )
 
 # Fit model
-history <- nn |> fit(
-  x = prep_nn(X_train),
-  y = y_train,
-  epochs = 200,
-  batch_size = 400, 
-  validation_split = 0.2,
-  callbacks = cb,
-  verbose = 0
-)
+history <- nn |> 
+  fit(
+    x = prep_nn(X_train),
+    y = y_train,
+    epochs = 200,
+    batch_size = 400, 
+    validation_split = 0.2,
+    callbacks = cb,
+    verbose = 0
+  )
 
 plot(history, metrics = "loss", smooth = FALSE) +
   coord_cartesian(ylim = c(0, 5))

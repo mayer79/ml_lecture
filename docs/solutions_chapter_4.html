@@ -2957,10 +2957,11 @@ summary(nn)</code></pre>
 ## Trainable params: 631 (2.46 KB)
 ## Non-trainable params: 0 (0.00 Byte)
 ## ________________________________________________________________________________</code></pre>
-<pre class="r"><code>nn |&gt; compile(
-  optimizer = optimizer_adam(learning_rate = 0.001),
-  loss = loss_gamma
-)
+<pre class="r"><code>nn |&gt; 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 0.001),
+    loss = loss_gamma
+  )
 
 # Callbacks
 cb &lt;- list(
@@ -2969,15 +2970,16 @@ cb &lt;- list(
 )
 
 # Fit model
-history &lt;- nn |&gt; fit(
-  x = prep_nn(X_train),
-  y = y_train,
-  epochs = 200,
-  batch_size = 400, 
-  validation_split = 0.2,
-  callbacks = cb,
-  verbose = 0
-)
+history &lt;- nn |&gt; 
+  fit(
+    x = prep_nn(X_train),
+    y = y_train,
+    epochs = 200,
+    batch_size = 400, 
+    validation_split = 0.2,
+    callbacks = cb,
+    verbose = 0
+  )
 
 plot(history, metrics = &quot;loss&quot;, smooth = FALSE) +
   coord_cartesian(ylim = c(0, 5))</code></pre>
