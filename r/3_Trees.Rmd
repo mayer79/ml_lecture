@@ -237,7 +237,7 @@ params <- list(
   learning_rate = 0.02
 )
   
-# Add trees until CV validation RMSE stops improving over the last 20 rounds
+# Add trees until CV validation MSE stops improving over the last 20 rounds
 cvm <- xgb.cv(
   params = params,
   data = dtrain,
