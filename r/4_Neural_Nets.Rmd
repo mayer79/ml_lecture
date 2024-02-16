@@ -436,7 +436,7 @@ pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0
 # Performance on test data
 pred <- pred_fun(nn, X_test)
 rmse(y_test, pred)
-r_squared(y_test, pred)
+r_squared(y_test, pred, reference_mean = mean(y_train))
 
 # Permutation importance wrt test data
 perm_importance(nn, X = X_test, y = y_test, pred_fun = pred_fun, verbose = FALSE) |> 
@@ -561,7 +561,7 @@ pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = F
 # Performance on test data
 pred <- pred_fun(nn, X_test)
 logLoss(y_test, pred)
-r_squared_bernoulli(y_test, pred)
+r_squared_bernoulli(y_test, pred, reference_mean = mean(y_train))
 
 # Permutation importance
 perm_importance(

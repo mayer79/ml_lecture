@@ -54,7 +54,8 @@ fit
 # Performance on test data
 pred <- predict(fit, diamonds[-ix, ])$predictions
 rmse(diamonds$price[-ix], pred)       # 553 USD
-r_squared(diamonds$price[-ix], pred)  # 0.9814
+train_mean <- mean(diamonds[["price"]][ix])
+r_squared(diamonds$price[-ix], pred, reference_mean = train_mean)  # 0.9814
 ```
 
 **Comment:** The results are essentially identical because log is a monotonic transformation. Differences might come from implementation tricks.
@@ -90,7 +91,8 @@ fit # OOB prediction using Brier score (= MSE) 0.062984
 
 pred <- predict(fit, dataCar[-ix, ])$predictions[, 2]
 mse(dataCar[-ix, "clm"], pred)  # 0.0651
-r_squared(dataCar[-ix, "clm"], pred) # 0.00198
+train_mean <- mean(dataCar[["clm"]][ix])
+r_squared(dataCar[-ix, "clm"], pred, reference_mean = train_mean) # 0.0021
 
 # Test performance with small tree depth seems to be best. 
 # When studying relative performance metrics like the relative MSE gain, 
@@ -201,8 +203,7 @@ if (tune) {
   # Use default parameters to set learning rate with suitable number of rounds
   params <- list(
     learning_rate = 0.02,
-    objective = "binary:logistic",
-    eval_metric = "logloss"
+    objective = "binary:logistic"
   )
   
   # Cross-validation
@@ -222,21 +223,19 @@ if (tune) {
     iteration = NA,
     cv_score = NA,
     train_score = NA,
-    learning_rate = 0.02,
     objective = "binary:logistic",
-    eval_metric = "logloss",
+    learning_rate = 0.02,
     max_depth = 3:6, 
-    min_child_weight = c(0.1, 1),
-    colsample_bytree = c(0.8, 1), 
+    colsample_bynode = c(0.8, 1), 
     subsample = c(0.8, 1), 
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
-    # tree_method = "hist",   # when data is large
-    min_split_loss = c(0, 1e-04)
+    min_split_loss = c(0, 1e-04),
+    min_child_weight = c(0.1, 1)
   )
   
   # Grid search or randomized search if grid is too large
-  max_size <- 20
+  max_size <- 32
   grid_size <- nrow(grid)
   if (grid_size > max_size) {
     grid <- grid[sample(grid_size, max_size), ]
@@ -284,7 +283,7 @@ pred <- predict(fit, data.matrix(X_test))
 deviance_bernoulli(y_test, pred)
 
 # Relative performance
-r_squared_bernoulli(y_test, pred)
+r_squared_bernoulli(y_test, pred, reference_mean = mean(y_train))  # 0.0048
 # Relative performance gain is very low, but better than of the tuned random forest.
 
 # Variable importance regarding total loss improvement
@@ -341,10 +340,8 @@ tune <- FALSE
 if (tune) {
   # Use default parameters to set learning rate with suitable number of rounds
   params <- list(
-    learning_rate = 0.002,
     objective = "binary",
-    metric = "binary_logloss",
-    num_threads = 4  # choose number of physical cores
+    learning_rate = 0.002
   )
   
   # Cross-validation
@@ -362,22 +359,20 @@ if (tune) {
   grid <- expand.grid(
     iteration = NA,
     score = NA,
-    learning_rate = 0.002,
     objective = "binary",
-    metric = "binary_logloss",
+    learning_rate = 0.002,
     num_leaves = c(15, 31, 63),
-    min_data_in_leaf = c(10, 20, 50), # unclear whether this works without calling lgb.Dataset()
-    min_sum_hessian_in_leaf = c(0.001, 0.1),
     colsample_bynode = c(0.8, 1), 
     bagging_fraction = c(0.8, 1), 
     lambda_l1 = c(0, 4),
     lambda_l2 = c(0, 2.5, 5, 7.5),
-    num_threads = 4,  # choose number of physical cores
+    min_data_in_leaf = c(10, 20, 50), # unclear whether this works without calling lgb.Dataset()
+    min_sum_hessian_in_leaf = c(0.001, 0.1),
     stringsAsFactors = FALSE
   )
   
   # Grid search or randomized search if grid is too large
-  max_size <- 20
+  max_size <- 32
   grid_size <- nrow(grid)
   if (grid_size > max_size) {
     grid <- grid[sample(grid_size, max_size), ]
@@ -414,6 +409,7 @@ head(grid)
 fit <- lgb.train(
   params = as.list(grid[1, -(1:2)]), 
   data = dtrain, 
+  
   nrounds = grid[1, "iteration"]
 )
 
@@ -424,7 +420,7 @@ pred <- predict(fit, data.matrix(X_test))
 deviance_bernoulli(y_test, pred)
 
 # Relative performance
-r_squared_bernoulli(y_test, pred) # 0.0037
+r_squared_bernoulli(y_test, pred, reference_mean = mean(y_train)) # 0.0037
 # Relative performance gain is a bit lower than with XGB
 
 # Variable importance regarding total loss improvement
