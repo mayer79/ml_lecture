@@ -349,10 +349,10 @@ if (tune) {
     objective = "reg:squarederror",
     learning_rate = 0.02,
     max_depth = 6:7, 
-    colsample_bynode = c(0.8, 1), 
-    subsample = c(0.8, 1), 
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
+    colsample_bynode = c(0.8, 1), 
+    subsample = c(0.8, 1), 
     min_split_loss = c(0, 1e-04),
     min_child_weight = c(1, 10)
   )

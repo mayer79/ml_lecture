@@ -226,10 +226,10 @@ if (tune) {
     objective = "binary:logistic",
     learning_rate = 0.02,
     max_depth = 3:6, 
-    colsample_bynode = c(0.8, 1), 
-    subsample = c(0.8, 1), 
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
+    colsample_bynode = c(0.8, 1), 
+    subsample = c(0.8, 1), 
     min_split_loss = c(0, 1e-04),
     min_child_weight = c(0.1, 1)
   )
@@ -362,10 +362,10 @@ if (tune) {
     objective = "binary",
     learning_rate = 0.002,
     num_leaves = c(15, 31, 63),
+    lambda_l2 = c(0, 2.5, 5, 7.5),
+    lambda_l1 = c(0, 4),
     colsample_bynode = c(0.8, 1), 
     bagging_fraction = c(0.8, 1), 
-    lambda_l1 = c(0, 4),
-    lambda_l2 = c(0, 2.5, 5, 7.5),
     min_data_in_leaf = c(10, 20, 50), # unclear whether this works without calling lgb.Dataset()
     min_sum_hessian_in_leaf = c(0.001, 0.1),
     stringsAsFactors = FALSE
