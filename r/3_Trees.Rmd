@@ -116,6 +116,7 @@ library(ggplot2)
 library(withr)
 library(ranger)
 library(MetricsWeighted)
+library(hstats)
 
 # Train/test split
 with_seed(
@@ -167,8 +168,6 @@ Alternatives to partial dependence plots include **accumulated local effect plot
 For our last example, we will now look at variable importance and partial dependence plots.
 
 ```{r}
-library(hstats)
-
 # Variable importance regarding MSE improvement
 imp <- sort(importance(fit))
 imp <- imp / sum(imp)
@@ -288,6 +287,8 @@ We will use XGBoost to fit diamond prices using the squared error as loss functi
 library(ggplot2)
 library(withr)
 library(xgboost)
+library(MetricsWeighted)
+library(hstats)
 
 y <- "price"
 xvars <- c("carat", "color", "cut", "clarity")
@@ -400,9 +401,6 @@ Now, the model is ready to be inspected by evaluating
 - partial dependence plots.
 
 ```{r}
-library(MetricsWeighted)
-library(hstats)
-
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
 rmse(y_test, pred)

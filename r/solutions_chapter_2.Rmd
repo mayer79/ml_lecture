@@ -1,0 +1,175 @@
+---
+title: "Solutions Chapter 2"
+author: "Michael Mayer"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    number_sections: yes
+    df_print: paged
+    theme: paper
+    code_folding: show
+    math_method: katex
+editor_options: 
+  chunk_output_type: console
+knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE
+)
+```
+
+# Exercise 1
+
+```{r}
+library(ggplot2)
+library(FNN)
+library(withr)
+
+RMSE <- function(y, pred) {
+  sqrt(mean((y - pred)^2))
+}
+
+y <- "price"  
+xvars <- c("carat", "color", "cut", "clarity")
+
+dia <- diamonds[, c(y, xvars)]
+dia <- unique(dia)  #  -> only new row
+
+# Split diamonds into 80% for training and 20% for testing
+with_seed(
+  9838,
+  ix <- sample(nrow(dia), 0.8 * nrow(dia))
+)
+
+train <- dia[ix, ]
+test <- dia[-ix, ]
+
+y_train <- train[[y]]
+y_test <- test[[y]]
+
+# Standardize training data
+X_train <- scale(data.matrix(train[, xvars]))
+
+# Apply training scale to test data
+X_test <- scale(
+  data.matrix(test[, xvars]),
+  center = attr(X_train, "scaled:center"),
+  scale = attr(X_train, "scaled:scale")
+)
+
+# Split training data into folds
+nfolds <- 5
+with_seed(
+  9838,
+  fold_ix <- sample(1:nfolds, nrow(train), replace = TRUE)
+)
+
+# Cross-validation performance of k-nearest-neighbor for k = 1-20
+paramGrid <- data.frame(RMSE = NA, k = 1:20)
+
+for (i in 1:nrow(paramGrid)) {
+  k <- paramGrid[i, "k"]
+  scores <- numeric(nfolds)
+  
+  for (fold in 1:nfolds) {
+    X_train_cv <- X_train[fold_ix != fold, ]
+    y_train_cv <- y_train[fold_ix != fold]
+    
+    X_valid_cv <- X_train[fold_ix == fold, ]
+    y_valid_cv <- y_train[fold_ix == fold]
+    
+    pred <- knn.reg(X_train_cv, test = X_valid_cv, k = k, y = y_train_cv)$pred
+    scores[fold] <- RMSE(y_valid_cv, pred)
+  }
+  paramGrid[i, "RMSE"] <- mean(scores)
+}
+
+# Best CV performance
+head(paramGrid[order(paramGrid$RMSE), ], 2)
+
+# Cross-validation performance of linear regression
+rmse_reg <- numeric(nfolds)
+
+for (fold in 1:nfolds) {
+  fit <- lm(reformulate(xvars, y), data = train[fold_ix != fold, ])
+  pred <- predict(fit, newdata = train[fold_ix == fold, ])
+  rmse_reg[fold] <- RMSE(y_train[fold_ix == fold], pred)
+}
+(rmse_reg <- mean(rmse_reg))
+
+# The overall best model is 6-nearest-neighbor
+pred <- knn.reg(X_train, test = X_test, k = 6, y = y_train)$pred
+
+# Test performance for the best model
+RMSE(y_test, pred)
+```
+
+**Comments:** The test performance of the best model (6-NN) seems clearly worse than the one without deduplication (~700 USD RMSE vs ~600). CV performance well corresponds to test performance. Overall, this is probably the more realistic performance than the one obtained from the original data set. Still, as certain rows could be identical by chance, our deduplication approach might be slightly too conservative. The true performance will probably be somewhere between the two approaches.
+
+# Exercise 2
+
+```{r}
+library(ggplot2)
+library(withr)
+library(MetricsWeighted)
+
+# Split diamonds into train and test
+with_seed(
+  9838,
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
+
+train <- diamonds[ix, ]
+test <- diamonds[-ix, ]
+
+# manual GridSearchCV
+nfolds <- 5
+with_seed(
+  seed = 9387,  
+  fold_ix <- sample(1:nfolds, nrow(train), replace = TRUE)
+)
+paramGrid <- data.frame(Deviance = NA, k = 1:12)
+
+for (i in 1:nrow(paramGrid)) {
+  k <- paramGrid[i, "k"]
+  scores <- numeric(nfolds)
+  
+  for (fold in 1:nfolds) {
+    fit <- glm(
+      price ~ poly(log(carat), degree = k) + color + cut + clarity, 
+      data = train[fold_ix != fold, ], 
+      family = Gamma(link = "log")
+    )
+    pred <- predict(fit, train[fold_ix == fold, ], type = "response")
+    scores[fold] <- deviance_gamma(train$price[fold_ix == fold], pred)
+  }
+  paramGrid[i, "Deviance"] <- mean(scores)
+}
+
+paramGrid
+paramGrid[order(paramGrid$Deviance), ]
+
+# Fit best model on full training data
+fit <- glm(
+  price ~ poly(log(carat), degree = 8) + color + cut + clarity, 
+  data = train, 
+  family = Gamma(link = "log")
+)
+
+# Evaluate on test data
+pred <- predict(fit, test, type = "response")
+deviance_gamma(test$price, pred) # 0.0152
+```
+
+**Comments:** The optimal degree seems to be 8 with a CV mean deviance of 0.01604.
+The mean deviance of the test data is somewhat better. Caution: Instead of using such high degree polynomial, it is better to use regression splines. What would you get then?
+
+# Exercise 3 (optional)
+
+Solution not shown here.

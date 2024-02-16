@@ -1,0 +1,61 @@
+---
+title: "Solutions Chapter 1"
+author: "Michael Mayer"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    number_sections: yes
+    df_print: paged
+    theme: paper
+    code_folding: show
+    math_method: katex
+editor_options: 
+  chunk_output_type: console
+knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE
+)
+```
+
+# Exercise on linear regression
+
+```{r}
+library(tidyverse)
+
+diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
+
+fit <- lm(price ~ carat + color + cut + clarity, data = diamonds)
+summary(fit)
+```
+
+**Comments**
+
+- **Model quality:** About 92% of price variations are explained by covariates. Typical prediction error is 1157 USD.
+- **Effects:** All effects point into the intuitively right direction (larger stones are more expensive, worse color are less expensive etc.)
+- **Practical perspective:** Additivity in color, cut and clarity are not making sense. Their effects should get larger with larger diamond size. This can be solved by adding interaction terms with carat or, much easier, to switch to a logarithmic response.
+ 
+# Exercise on GLMs
+
+```{r}
+library(tidyverse)
+
+diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
+
+fit <- glm(
+  price ~ log(carat) + color + cut + clarity, 
+  data = diamonds, 
+  family = Gamma(link = "log")
+)
+summary(fit)
+
+mean(predict(fit, type = "response")) / mean(diamonds$price) - 1
+```
+
+**Comment:** The coefficients are very similar to the linear regression with log(price) as response. This makes sense as we interpret the coefficients in the same way! The bias is small, but not exactly 0 (because log is not the natural link of the Gamma GLM).

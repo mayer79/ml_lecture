@@ -1,0 +1,137 @@
+---
+title: "Solutions Chapter 4"
+author: "Michael Mayer"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    number_sections: yes
+    df_print: paged
+    theme: paper
+    code_folding: show
+    math_method: katex
+editor_options: 
+  chunk_output_type: console
+knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE
+)
+```
+
+# Exercise 1
+
+```{r}
+library(ggplot2)
+library(withr)
+library(keras)
+library(MetricsWeighted)
+library(hstats)
+
+y <- "price"
+xvars <- c("carat", "color", "cut", "clarity")
+
+with_seed(
+  9838, 
+  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
+)
+
+train <- diamonds[ix, ]
+test <- diamonds[-ix, ]
+
+X_train <- train[, xvars]
+X_test <- test[, xvars]
+
+# Integers are not auto-cast by all TF versions...
+y_train <- as.numeric(train[[y]])
+y_test <- as.numeric(test[[y]])
+
+# Standardize X using X_train
+temp <- scale(data.matrix(X_train))
+sc <- list(
+  center = attr(temp, "scaled:center"), 
+  scale = attr(temp, "scaled:scale")
+)
+
+# Function that maps data to scaled network input
+prep_nn <- function(X, sel = xvars, scaling = sc) {
+  X <- data.matrix(X[, sel, drop = FALSE])
+  scale(X, center = scaling$center, scale = scaling$scale)
+}
+
+loss_gamma <- function(y_true, y_pred) {
+  -k_log(y_true / y_pred) + y_true / y_pred
+}
+
+# Trying to make things reproducible...
+k_clear_session()
+tensorflow::set_random_seed(49)
+
+# Input layer: we have 4 covariates
+input <- layer_input(shape = 4)
+
+# Two hidden layers with contracting number of nodes
+output <- input |> 
+  layer_dense(units = 30, activation = "tanh") |> 
+  layer_dense(units = 15, activation = "tanh") |>  
+  layer_dense(units = 1, activation = k_exp)
+
+# Create and compile model
+nn <- keras_model(inputs = input, outputs = output)
+summary(nn)
+
+nn |> compile(
+  optimizer = optimizer_adam(learning_rate = 0.001),
+  loss = loss_gamma
+)
+
+# Callbacks
+cb <- list(
+  callback_early_stopping(patience = 20),
+  callback_reduce_lr_on_plateau(patience = 5)
+)
+
+# Fit model
+history <- nn |> fit(
+  x = prep_nn(X_train),
+  y = y_train,
+  epochs = 200,
+  batch_size = 400, 
+  validation_split = 0.2,
+  callbacks = cb,
+  verbose = 0
+)
+
+plot(history, metrics = "loss", smooth = FALSE) +
+  coord_cartesian(ylim = c(0, 5))
+
+# Interpret
+pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
+
+# Performance on test data
+pred <- pred_fun(nn, X_test)
+deviance_gamma(y_test, pred)
+r_squared_gamma(y_test, pred)
+
+# Permutation importance
+perm_importance(
+  nn, X = X_test, y = y_test, loss = "gamma", pred_fun = pred_fun, verbose = FALSE) |> 
+  plot()
+
+# Partial dependence plots
+for (v in xvars) {
+  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |> 
+    plot() +
+    ggtitle(paste("PDP for", v)) 
+  print(p)
+}
+```
+
+# Exercise 2
+
+See lecture notes for a solution with embeddings.

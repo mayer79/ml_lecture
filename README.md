@@ -20,7 +20,7 @@ This lecture is being distributed under the [creative commons license](https://c
 
 ## How to cite?
 
-Michael Mayer. Introduction to Machine Learning (2021). Web: https://github.com/mayer79/ml_lecture/
+Michael Mayer. Introduction to Machine Learning (2024). Web: https://github.com/mayer79/ml_lecture/
 
 ## Organization
 
@@ -37,8 +37,6 @@ The lecture is split into four chapters, each of which is accompanied with an R/
     - Gradient boosting
 4. Neural Nets
 
-All examples are self-contained.
-
 Each chapter will take us about two hours and is accompanied by exercises.
 
 You can preview the html outputs of the R lecture by clicking on these links:
@@ -48,9 +46,7 @@ You can preview the html outputs of the R lecture by clicking on these links:
 3. [Trees](https://mayer79.github.io/ml_lecture/3_Trees.html)
 4. [Neural Nets](https://mayer79.github.io/ml_lecture/4_Neural_Nets.html)
 
-[Exercise Solutions](https://mayer79.github.io/ml_lecture/exercise_solutions.html)
-
-The Python html files can be downloaded from the repository as well, but are not linked.
+The Python notebooks can be viewed directly on Github in the "py" folder.
 
 ## Prerequisites
 
@@ -66,24 +62,14 @@ To get the lecture notes both as html and code-notebooks, clone this repository 
 git clone https://github.com/mayer79/ml_lecture.git
 ```
 
-### Software (and data) for the Python version of the lecture
+### Software for the Python version of the lecture
 
-We will use the conda environment specified in the "py" folder.
-
-1. Install Anaconda (if not yet available on your machine)
-2. Open the conda prompt and use it to navigate to your "ml_lecture/py" folder
-3. Type in the conda prompt: "conda env create -f environment.yml"
-4. Use this environment to run the code of the lecture, e.g., in [Visual Studio Code](https://code.visualstudio.com/) or [Jupyterlab](https://jupyterlab.readthedocs.io/en/stable/)
-
-Furthermore, download the "**Car** [Data - csv]" dataset on the following [link](http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData/data_sets)
-and put it as "car.csv" into the "py" folder. It is about 4 MB small.
-
-Note: we use default [black](https://github.com/psf/black) as autoformatter.
+Python 3.11 and the packages specified [here](py/requirements.txt).
 
 ### Software for the R version of the lecture
 
 - R version >= 4.1
-- Successfully installed packages:
+- These packages:
     - tidyverse
     - FNN
     - withr
@@ -94,7 +80,7 @@ Note: we use default [black](https://github.com/psf/black) as autoformatter.
     - hstats
     - MetricsWeighted
     - insuranceData
-    - lightgbm (optional)
+    - lightgbm
 
 For the last chapter, we will use Python with TensorFlow >= 2.15. You can install it by running the R command `keras::install_keras(version = "release-cpu")`. If the following code works, you are all set. (Some red start-up messages/warnings are okay.)
 
@@ -107,7 +93,7 @@ tf$constant("Hello Tensorflow!")
 
 - Basics and Linear Models: random effects; penalized regression
 - Model Selection and Validation: is it always necessary?
-- Trees: supervised clustering; SHAP; interaction constraints
+- Trees: supervised clustering; SHAP; interaction constraints, interaction strength
 - Neural Nets: transfer learning; PyTorch; image data; autoencoders
 - General: distribution of predictions; quantile regression; when is overfitting (un-)problematic?
 - XAI: How to use insights from complex ML model to improve GLM?
@@ -115,15 +101,11 @@ tf$constant("Hello Tensorflow!")
 ## Further Reading
 
 - James, G., Witten, D., Hastie, T., Tibshirani, R. (2013). *An Introduction to Statistical Learning - with Applications in R*. New York: Springer.
-
+- James, G., Witten, D., Hastie, T., Tibshirani, R., Taylor, J. (2023). *An Introduction to Statistical Learning - with Applications in Python*. New York: Springer.
 - Hastie, T., Tibshirani, R., Friedman, J. (2001). *The Elements of Statistical Learning: Data Mining, Inference, and Prediction*. New York: Springer.
-
 - Wickham, H., Grolemund, G. (2017). *R for Data Science: Import, Tidy, Transform, Visualize, and Model Data*. O'Reilly Media. 
-
 - VanderPlas, J. (2016). *Python data science handbook : essential tools for working with data*. O'Reilly Media.
-
 - Chollet, F. (2017). *Deep Learning with Python*. Manning Publications Co.
-
 - Chollet, F., Allaire, J. J. (2018). *Deep Learning with R*. Manning Publications Co.
 
 

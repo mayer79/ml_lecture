@@ -1,5 +1,5 @@
 ---
-title: "Exercises with Solutions"
+title: "Solutions Chapter 3"
 author: "Michael Mayer"
 date: "`r Sys.Date()`"
 output:
@@ -24,201 +24,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Chapter 1: Basics and Linear Models
-
-## Exercise on linear regression
-
-```{r}
-library(tidyverse)
-
-diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
-
-fit <- lm(price ~ carat + color + cut + clarity, data = diamonds)
-summary(fit)
-```
-
-**Comments**
-
-- **Model quality:** About 92% of price variations are explained by covariates. Typical prediction error is 1157 USD.
-- **Effects:** All effects point into the intuitively right direction (larger stones are more expensive, worse color are less expensive etc.)
-- **Practical perspective:** Additivity in color, cut and clarity are not making sense. Their effects should get larger with larger diamond size. This can be solved by adding interaction terms with carat or, much easier, to switch to a logarithmic response.
- 
-## Exercise on GLMs
-
-```{r}
-library(tidyverse)
-
-diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
-
-fit <- glm(
-  price ~ log(carat) + color + cut + clarity, 
-  data = diamonds, 
-  family = Gamma(link = "log")
-)
-summary(fit)
-
-mean(predict(fit, type = "response")) / mean(diamonds$price) - 1
-```
-
-**Comment:** The coefficients are very similar to the linear regression with log(price) as response. This makes sense as we interpret the coefficients in the same way! The bias is small, but not exactly 0 (because log is not the natural link of the Gamma GLM).
-
-# Chapter 2: Model Selection and Validation
+# Exercises on Random Forests
 
 ## Exercise 1
-
-```{r}
-library(ggplot2)
-library(FNN)
-library(withr)
-
-RMSE <- function(y, pred) {
-  sqrt(mean((y - pred)^2))
-}
-
-y <- "price"  
-xvars <- c("carat", "color", "cut", "clarity")
-
-dia <- diamonds[, c(y, xvars)]
-dia <- unique(dia)  #  -> only new row
-
-# Split diamonds into 80% for training and 20% for testing
-with_seed(
-  9838,
-  ix <- sample(nrow(dia), 0.8 * nrow(dia))
-)
-
-train <- dia[ix, ]
-test <- dia[-ix, ]
-
-y_train <- train[[y]]
-y_test <- test[[y]]
-
-# Standardize training data
-X_train <- scale(data.matrix(train[, xvars]))
-
-# Apply training scale to test data
-X_test <- scale(
-  data.matrix(test[, xvars]),
-  center = attr(X_train, "scaled:center"),
-  scale = attr(X_train, "scaled:scale")
-)
-
-# Split training data into folds
-nfolds <- 5
-with_seed(
-  9838,
-  fold_ix <- sample(1:nfolds, nrow(train), replace = TRUE)
-)
-
-# Cross-validation performance of k-nearest-neighbor for k = 1-20
-paramGrid <- data.frame(RMSE = NA, k = 1:20)
-
-for (i in 1:nrow(paramGrid)) {
-  k <- paramGrid[i, "k"]
-  scores <- numeric(nfolds)
-  
-  for (fold in 1:nfolds) {
-    X_train_cv <- X_train[fold_ix != fold, ]
-    y_train_cv <- y_train[fold_ix != fold]
-    
-    X_valid_cv <- X_train[fold_ix == fold, ]
-    y_valid_cv <- y_train[fold_ix == fold]
-    
-    pred <- knn.reg(X_train_cv, test = X_valid_cv, k = k, y = y_train_cv)$pred
-    scores[fold] <- RMSE(y_valid_cv, pred)
-  }
-  paramGrid[i, "RMSE"] <- mean(scores)
-}
-
-# Best CV performance
-head(paramGrid[order(paramGrid$RMSE), ], 2)
-
-# Cross-validation performance of linear regression
-rmse_reg <- numeric(nfolds)
-
-for (fold in 1:nfolds) {
-  fit <- lm(reformulate(xvars, y), data = train[fold_ix != fold, ])
-  pred <- predict(fit, newdata = train[fold_ix == fold, ])
-  rmse_reg[fold] <- RMSE(y_train[fold_ix == fold], pred)
-}
-(rmse_reg <- mean(rmse_reg))
-
-# The overall best model is 6-nearest-neighbor
-pred <- knn.reg(X_train, test = X_test, k = 6, y = y_train)$pred
-
-# Test performance for the best model
-RMSE(y_test, pred)
-```
-
-**Comments:** The test performance of the best model (6-NN) seems clearly worse than the one without deduplication (~700 USD RMSE vs ~600). CV performance well corresponds to test performance. Overall, this is probably the more realistic performance than the one obtained from the original data set. Still, as certain rows could be identical by chance, our deduplication approach might be slightly too conservative. The true performance will probably be somewhere between the two approaches.
-
-## Exercise 2
-
-```{r}
-library(ggplot2)
-library(withr)
-library(MetricsWeighted)
-
-# Split diamonds into 90% for training and 10% for testing
-with_seed(
-  seed = 343,   
-  ix <- sample(nrow(diamonds), 0.9 * nrow(diamonds))
-)
-
-train <- diamonds[ix, ]
-test <- diamonds[-ix, ]
-
-# manual GridSearchCV
-nfolds <- 5
-with_seed(
-  seed = 9387,  
-  fold_ix <- sample(1:nfolds, nrow(train), replace = TRUE)
-)
-paramGrid <- data.frame(Deviance = NA, k = 1:12)
-
-for (i in 1:nrow(paramGrid)) {
-  k <- paramGrid[i, "k"]
-  scores <- numeric(nfolds)
-  
-  for (fold in 1:nfolds) {
-    fit <- glm(
-      price ~ poly(log(carat), degree = k) + color + cut + clarity, 
-      data = train[fold_ix != fold, ], 
-      family = Gamma(link = "log")
-    )
-    pred <- predict(fit, train[fold_ix == fold, ], type = "response")
-    scores[fold] <- deviance_gamma(train$price[fold_ix == fold], pred)
-  }
-  paramGrid[i, "Deviance"] <- mean(scores)
-}
-
-paramGrid
-paramGrid[order(paramGrid$Deviance), ]
-
-# Fit best model on full training data
-fit <- glm(
-  price ~ poly(log(carat), degree = 8) + color + cut + clarity, 
-  data = train, 
-  family = Gamma(link = "log")
-)
-
-# Evaluate on test data
-pred <- predict(fit, test, type = "response")
-deviance_gamma(test$price, pred) # 0.01697816
-```
-
-**Comments:** The optimal degree seems to be 8 with a CV mean deviance of 0.01576.
-There seems to be some CV overfit as the mean deviance of the test data is substantially larger. Caution: Instead of using such high degree polynomial, it is almost always better to use regression splines. What would you get then?
-
-## Exercise 3 (optional)
-
-Solution not shown here.
-
-# Chapter 3: Trees
-
-## Exercises on Random Forests
-
-### Exercise 1
 
 ```{r}
 library(tidyverse)
@@ -251,7 +59,7 @@ r_squared(diamonds$price[-ix], pred)  # 0.9814
 
 **Comment:** The results are essentially identical because log is a monotonic transformation. Differences might come from implementation tricks.
 
-### Exercise 2
+## Exercise 2
 
 ```{r}
 library(ggplot2)
@@ -307,9 +115,9 @@ for (v in c("veh_value", "veh_body", "veh_age", "gender", "area", "agecat")) {
 
 **Comment:** Test performance with small tree depth seems to be best. When studying relative performance metrics like the relative deviance gain, we can see that performance of the model is very low. TPL claims seem to be mostly determined by bad luck, which makes sense.
 
-## Exercises on Boosting
+# Exercises on Boosting
 
-### Exercise 1
+## Exercise 1
 
 Just copy paste parts of the code in the lecture notes.
 
@@ -355,7 +163,7 @@ partial_dep(fit, v = "carat", X = data.matrix(X_train)) |>
 
 **Comment:** The argument is called "monotone_constraints". For each covariate, a value 0 means no constraint, a value -1 means a negative constraints, and a value 1 means positive constraint. Applying the constraint now leads to a monotonically increasing partial dependence plot. This is extremely useful in practice. Besides monotonic constraints, also interaction constraints are possible.
 
-### Exercise 2
+## Exercise 2
 
 ```{r}
 # We adapt the template from the script
@@ -363,6 +171,8 @@ library(ggplot2)
 library(xgboost)
 library(withr)
 library(insuranceData)
+library(MetricsWeighted)
+library(hstats)
 
 data(dataCar)
 
@@ -468,8 +278,6 @@ fit <- xgb.train(
 )
 
 # Interpretation
-library(MetricsWeighted)
-library(hstats)
 
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
@@ -493,7 +301,7 @@ for (v in xvars) {
 }
 ```
 
-### Exercise 3 (Optional)
+## Exercise 3 (Optional)
 
 ```{r}
 # We slightly adapt the XGBoost template
@@ -501,6 +309,8 @@ library(ggplot2)
 library(lightgbm)
 library(withr)
 library(insuranceData)
+library(MetricsWeighted)
+library(hstats)
 
 data(dataCar)
 
@@ -608,8 +418,6 @@ fit <- lgb.train(
 )
 
 # Interpretation
-library(MetricsWeighted)
-library(hstats)
 
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
@@ -632,117 +440,3 @@ for (v in xvars) {
   print(p)
 }
 ```
-
-# Chapter 4: Neural Nets
-
-## Exercise 1
-
-```{r}
-library(ggplot2)
-library(withr)
-library(keras)
-
-y <- "price"
-xvars <- c("carat", "color", "cut", "clarity")
-
-with_seed(
-  9838, 
-  ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
-)
-
-train <- diamonds[ix, ]
-test <- diamonds[-ix, ]
-
-X_train <- train[, xvars]
-X_test <- test[, xvars]
-
-# Integers are not auto-cast by all TF versions...
-y_train <- as.numeric(train[[y]])
-y_test <- as.numeric(test[[y]])
-
-# Standardize X using X_train
-temp <- scale(data.matrix(X_train))
-sc <- list(
-  center = attr(temp, "scaled:center"), 
-  scale = attr(temp, "scaled:scale")
-)
-
-# Function that maps data to scaled network input
-prep_nn <- function(X, sel = xvars, scaling = sc) {
-  X <- data.matrix(X[, sel, drop = FALSE])
-  scale(X, center = scaling$center, scale = scaling$scale)
-}
-
-loss_gamma <- function(y_true, y_pred) {
-  -k_log(y_true / y_pred) + y_true / y_pred
-}
-
-# Trying to make things reproducible...
-k_clear_session()
-tensorflow::set_random_seed(49)
-
-# Input layer: we have 4 covariates
-input <- layer_input(shape = 4)
-
-# Two hidden layers with contracting number of nodes
-output <- input |> 
-  layer_dense(units = 30, activation = "tanh") |> 
-  layer_dense(units = 15, activation = "tanh") |>  
-  layer_dense(units = 1, activation = k_exp)
-
-# Create and compile model
-nn <- keras_model(inputs = input, outputs = output)
-summary(nn)
-
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 0.001),
-  loss = loss_gamma
-)
-
-# Callbacks
-cb <- list(
-  callback_early_stopping(patience = 20),
-  callback_reduce_lr_on_plateau(patience = 5)
-)
-
-# Fit model
-history <- nn |> fit(
-  x = prep_nn(X_train),
-  y = y_train,
-  epochs = 200,
-  batch_size = 400, 
-  validation_split = 0.2,
-  callbacks = cb
-)
-
-plot(history, metrics = "loss", smooth = FALSE) +
-  coord_cartesian(ylim = c(0, 5))
-
-# Interpret
-library(MetricsWeighted)
-library(hstats)
-
-pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0)
-
-# Performance on test data
-pred <- pred_fun(nn, X_test)
-deviance_gamma(y_test, pred)
-r_squared_gamma(y_test, pred)
-
-# Permutation importance
-perm_importance(
-  nn, X = X_test, y = y_test, loss = "gamma", pred_fun = pred_fun, verbose = FALSE) |> 
-  plot()
-
-# Partial dependence plots
-for (v in xvars) {
-  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |> 
-    plot() +
-    ggtitle(paste("PDP for", v)) 
-  print(p)
-}
-```
-
-## Exercise 2
-
-See lecture notes for a solution with embeddings.

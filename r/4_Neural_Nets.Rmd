@@ -178,7 +178,8 @@ nn |> fit(
   x = diamonds$carat,
   y = diamonds$price,
   epochs = 30,
-  batch_size = 100
+  batch_size = 100,
+  verbose = 0
 )
 
 # Plot effect of carat on average price
@@ -242,7 +243,8 @@ nn |> fit(
   x = diamonds$carat,
   y = diamonds$price,
   epochs = 50,
-  batch_size = 100
+  batch_size = 100,
+  verbose = 0
 )
 
 # Plot effect of carat on average price
@@ -422,7 +424,8 @@ history <- nn |> fit(
   epochs = 100,
   batch_size = 400, 
   validation_split = 0.2,
-  callbacks = cb
+  callbacks = cb,
+  verbose = 0
 )
 
 plot(history, metrics = "root_mean_squared_error", smooth = FALSE)
@@ -459,6 +462,8 @@ library(tidyverse)
 library(keras)
 library(withr)
 library(insuranceData)
+library(hstats)
+library(MetricsWeighted)
 
 data(dataCar)
 
@@ -544,15 +549,13 @@ history <- nn |> fit(
   epochs = 100,
   batch_size = 400,
   validation_split = 0.2,
-  callbacks = cb
+  callbacks = cb,
+  verbose = 0
 )
 
 plot(history, metrics = c("loss", "val_loss"), smooth = FALSE)
 
 # Interpret
-library(hstats)
-library(MetricsWeighted)
-
 pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = FALSE)
 
 # Performance on test data
@@ -578,7 +581,7 @@ for (v in xvars) {
 
 1. Fit diamond prices by minimizing Gamma deviance with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on a test dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
 
-```{r}
+```r
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
 }

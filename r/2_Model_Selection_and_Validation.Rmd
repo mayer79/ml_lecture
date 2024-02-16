@@ -400,7 +400,7 @@ In our example with diamonds data, it would be useful to have a column with diam
 
 1. Regarding the problem that some diamonds seem to appear multiple times in the data: As an alternative to *grouped* splitting, repeat the last example also on data deduplicated by `price` and all covariates. Do the results change? Which results do you trust more?
 
-2. Use 5-fold cross-validation to select the best polynomial degree to represent `log(carat)` in a Gamma GLM for diamonds prices with log-link (with additional covariates `color`, `cut`, and `clarity`). Evaluate the result on 10% test data. Use the average Gamma deviance as performance measure (function `deviance_gamma()` in the package "MetricsWeighted"). Again make sure that the code is fully reproducible.
+2. Use 5-fold cross-validation to select the best polynomial degree to represent `log(carat)` in a Gamma GLM for diamonds prices with log-link (with additional covariates `color`, `cut`, and `clarity`). Evaluate the result on test data. Use the average Gamma deviance as performance measure (e.g. function `deviance_gamma()` in the package "MetricsWeighted"). Again make sure that the code is fully reproducible.
 
 3. Optional: Compare the linear regression for `price` (using `log(carat)`, `color`, `cut`, and `clarity` as covariates) with a corresponding Gamma GLM with log-link by simple validation. Use once (R)MSE for comparison and once Gamma deviance. What do you observe?
 
