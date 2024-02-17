@@ -95,19 +95,21 @@ output <- input |>
 nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 1),
-  loss = "mse",
-  metrics = metric_root_mean_squared_error()
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 1),
+    loss = "mse",
+    metrics = metric_root_mean_squared_error()
+  )
 
 # Fit model - naive without validation
-history <- nn |> fit(
-  x = diamonds$carat,
-  y = diamonds$price,
-  epochs = 30,
-  batch_size = 100
-)
+history <- nn |>
+  fit(
+    x = diamonds$carat,
+    y = diamonds$price,
+    epochs = 30,
+    batch_size = 100
+  )
 
 plot(history, metrics = "root_mean_squared_error")
 
@@ -167,19 +169,22 @@ output <- input |>
 nn <- keras_model(inputs = input, outputs = output)
 # summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 1),
-  loss = "mse",
-  metrics = metric_root_mean_squared_error()
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 1),
+    loss = "mse",
+    metrics = metric_root_mean_squared_error()
+  )
 
 # Fit model - naive without validation
-nn |> fit(
-  x = diamonds$carat,
-  y = diamonds$price,
-  epochs = 30,
-  batch_size = 100
-)
+nn |> 
+  fit(
+    x = diamonds$carat,
+    y = diamonds$price,
+    epochs = 30,
+    batch_size = 100,
+    verbose = 0
+  )
 
 # Plot effect of carat on average price
 data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
@@ -231,19 +236,22 @@ output <- input |>
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 0.2),
-  loss = "mse",
-  metrics = metric_root_mean_squared_error()
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 0.2),
+    loss = "mse",
+    metrics = metric_root_mean_squared_error()
+  )
 
 # Fit model - naive without validation
-nn |> fit(
-  x = diamonds$carat,
-  y = diamonds$price,
-  epochs = 50,
-  batch_size = 100
-)
+nn |> 
+  fit(
+    x = diamonds$carat,
+    y = diamonds$price,
+    epochs = 50,
+    batch_size = 100,
+    verbose = 0
+  )
 
 # Plot effect of carat on average price
 data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
@@ -403,11 +411,12 @@ output <- input |>
 nn <- keras_model(inputs = input, outputs = output)
 summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 0.1),
-  loss = "mse",
-  metrics = metric_root_mean_squared_error()
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 0.1),
+    loss = "mse",
+    metrics = metric_root_mean_squared_error()
+  )
 
 # Callbacks
 cb <- list(
@@ -416,14 +425,16 @@ cb <- list(
 )
        
 # Fit model
-history <- nn |> fit(
-  x = prep_nn(X_train),
-  y = y_train,
-  epochs = 100,
-  batch_size = 400, 
-  validation_split = 0.2,
-  callbacks = cb
-)
+history <- nn |>
+  fit(
+    x = prep_nn(X_train),
+    y = y_train,
+    epochs = 100,
+    batch_size = 400, 
+    validation_split = 0.2,
+    callbacks = cb,
+    verbose = 0
+  )
 
 plot(history, metrics = "root_mean_squared_error", smooth = FALSE)
 
@@ -433,7 +444,7 @@ pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = 0
 # Performance on test data
 pred <- pred_fun(nn, X_test)
 rmse(y_test, pred)
-r_squared(y_test, pred)
+r_squared(y_test, pred, reference_mean = mean(y_train))
 
 # Permutation importance wrt test data
 perm_importance(nn, X = X_test, y = y_test, pred_fun = pred_fun, verbose = FALSE) |> 
@@ -459,6 +470,8 @@ library(tidyverse)
 library(keras)
 library(withr)
 library(insuranceData)
+library(hstats)
+library(MetricsWeighted)
 
 data(dataCar)
 
@@ -526,10 +539,11 @@ inputs <- list(dense1 = input_dense, veh_body = input_veh_body)
 nn <- keras_model(inputs = inputs, outputs = outputs)
 summary(nn)
 
-nn |> compile(
-  optimizer = optimizer_adam(learning_rate = 0.001),
-  loss = "binary_crossentropy"
-)
+nn |> 
+  compile(
+    optimizer = optimizer_adam(learning_rate = 0.001),
+    loss = "binary_crossentropy"
+  )
 
 # Callbacks
 cb <- list(
@@ -538,27 +552,26 @@ cb <- list(
 )
 
 # Fit model
-history <- nn |> fit(
-  x = prep_nn(X_train),
-  y = y_train,
-  epochs = 100,
-  batch_size = 400,
-  validation_split = 0.2,
-  callbacks = cb
-)
+history <- nn |>
+  fit(
+    x = prep_nn(X_train),
+    y = y_train,
+    epochs = 100,
+    batch_size = 400,
+    validation_split = 0.2,
+    callbacks = cb,
+    verbose = 0
+  )
 
 plot(history, metrics = c("loss", "val_loss"), smooth = FALSE)
 
 # Interpret
-library(hstats)
-library(MetricsWeighted)
-
 pred_fun <- function(m, X) predict(m, prep_nn(X), batch_size = 1000, verbose = FALSE)
 
 # Performance on test data
 pred <- pred_fun(nn, X_test)
 logLoss(y_test, pred)
-r_squared_bernoulli(y_test, pred)
+r_squared_bernoulli(y_test, pred, reference_mean = mean(y_train))
 
 # Permutation importance
 perm_importance(
@@ -578,7 +591,7 @@ for (v in xvars) {
 
 1. Fit diamond prices by minimizing Gamma deviance with log-link (-> exponential output activation), using the custom loss function defined below. Tune the model by simple validation and evaluate it on a test dataset. Interpret the final model. Hints: I used a smaller learning rate and had to replace the "relu" activations by "tanh". Furthermore, the response needed to be transformed from int to float.
 
-```{r}
+```r
 loss_gamma <- function(y_true, y_pred) {
   -k_log(y_true / y_pred) + y_true / y_pred
 }

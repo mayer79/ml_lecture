@@ -116,6 +116,7 @@ library(ggplot2)
 library(withr)
 library(ranger)
 library(MetricsWeighted)
+library(hstats)
 
 # Train/test split
 with_seed(
@@ -135,7 +136,8 @@ fit
 # Performance on test data
 pred <- predict(fit, diamonds[-ix, ])$predictions
 rmse(diamonds$price[-ix], pred)       # 553 USD
-r_squared(diamonds$price[-ix], pred)  # 0.9814
+train_mean <- mean(diamonds[["price"]][ix])
+r_squared(diamonds$price[-ix], pred, reference_mean = train_mean)  # 0.9814
 ```
 
 **Comments**
@@ -167,8 +169,6 @@ Alternatives to partial dependence plots include **accumulated local effect plot
 For our last example, we will now look at variable importance and partial dependence plots.
 
 ```{r}
-library(hstats)
-
 # Variable importance regarding MSE improvement
 imp <- sort(importance(fit))
 imp <- imp / sum(imp)
@@ -205,17 +205,18 @@ Predictions are calculated similar to random forests, i.e., by combining predict
 
 ## Example: XGBoost
 
-As an initial example on gradient boosting and XGBoost, we fit a model for diamond prices with squared error as loss function. The number of rounds/trees is chosen by early stopping on the validation data, i.e., until validation (R)MSE stops improving for a couple or rounds. The learning rate (weight of each tree) is chosen by trial and error in order to end up with a reasonably small/large number of trees, see the next section for more details.
+As an initial example on gradient boosting and XGBoost, we fit a model for diamond prices with squared error as loss function. The number of rounds/trees is initially chosen by cross-validation and early stopping, i.e., until CV validation (R)MSE stops improving for a couple or rounds. The learning rate (weight of each tree) is chosen by trial and error in order to end up with a reasonably small/large number of trees, see the next section for more details.
 
 ```{r}
 library(ggplot2)
 library(withr)
 library(xgboost)
+library(MetricsWeighted)
 
 y <- "price"
 xvars <- c("carat", "color", "cut", "clarity")
 
-# Split into train and valid
+# Split into train and test
 with_seed(
   9838,
   ix <- sample(nrow(diamonds), 0.8 * nrow(diamonds))
@@ -224,35 +225,42 @@ with_seed(
 y_train <- diamonds[[y]][ix]
 X_train <- diamonds[ix, xvars]
 
-y_valid <- diamonds[[y]][-ix]
-X_valid <- diamonds[-ix, xvars]
+y_test <- diamonds[[y]][-ix]
+X_test <- diamonds[-ix, xvars]
 
 # XGBoost data interface
 dtrain <- xgb.DMatrix(data.matrix(X_train), label = y_train)
-dvalid <- xgb.DMatrix(data.matrix(X_valid), label = y_valid)
 
 # Minimal set of parameters
 params <- list(
-  learning_rate = 0.02,
   objective = "reg:squarederror",
-  eval_metric = "rmse"
+  learning_rate = 0.02
 )
   
-# Fit model until validation RMSE stops improving over the last 20 rounds
-fit <- xgb.train(
-  params = params, 
-  data = dtrain, 
-  watchlist = list(train = dtrain, valid = dvalid),
-  print_every_n = 50,
-  nrounds = 5000, 
-  early_stopping_rounds = 20
+# Add trees until CV validation MSE stops improving over the last 20 rounds
+cvm <- xgb.cv(
+  params = params,
+  data = dtrain,
+  nrounds = 5000,
+  nfold = 5,
+  early_stopping_rounds = 20, 
+  showsd = FALSE, 
+  print_every_n = 50
 )
+
+# Fit model on full training data using optimal number of boosting round
+fit <- xgb.train(
+  params = params, data = dtrain, print_every_n = 50, nrounds = cvm$best_iteration
+)
+
+# Test performance
+rmse(y_test, predict(fit, data.matrix(X_test)))  # 541.2
 ```
 
 **Comments:** 
 
-- More trees would mean better training performance, but worse validation performance.
-- Compared to simple validation, cross-validation would provide an even better way to find the optimal number of boosting rounds/trees.
+- More trees would mean better training performance, but worse CV performance.
+- Test performance is slightly better than the random forest. Can we do even better?
 - In the next example, we will also interpret such a model.
 
 ## Parameters of gradient boosted trees
@@ -288,6 +296,8 @@ We will use XGBoost to fit diamond prices using the squared error as loss functi
 library(ggplot2)
 library(withr)
 library(xgboost)
+library(MetricsWeighted)
+library(hstats)
 
 y <- "price"
 xvars <- c("carat", "color", "cut", "clarity")
@@ -315,9 +325,8 @@ tune <- FALSE
 if (tune) {
   # Use default parameters to set learning rate with suitable number of rounds
   params <- list(
-    learning_rate = 0.02,
     objective = "reg:squarederror",
-    eval_metric = "rmse"
+    learning_rate = 0.02
   )
   
   # Cross-validation
@@ -337,21 +346,19 @@ if (tune) {
     iteration = NA,
     cv_score = NA,
     train_score = NA,
-    learning_rate = 0.02,
     objective = "reg:squarederror",
-    eval_metric = "rmse",
+    learning_rate = 0.02,
     max_depth = 6:7, 
-    min_child_weight = c(1, 10),
-    colsample_bytree = c(0.8, 1), 
-    subsample = c(0.8, 1), 
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
-    # tree_method = "hist",   # when data is large
-    min_split_loss = c(0, 1e-04)
+    colsample_bynode = c(0.8, 1), 
+    subsample = c(0.8, 1), 
+    min_split_loss = c(0, 1e-04),
+    min_child_weight = c(1, 10)
   )
 
  # Grid search or randomized search if grid is too large
-  max_size <- 20
+  max_size <- 32
   grid_size <- nrow(grid)
   if (grid_size > max_size) {
     grid <- grid[sample(grid_size, max_size), ]
@@ -400,13 +407,10 @@ Now, the model is ready to be inspected by evaluating
 - partial dependence plots.
 
 ```{r}
-library(MetricsWeighted)
-library(hstats)
-
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
-rmse(y_test, pred)
-r_squared(y_test, pred, reference_mean = mean(y_train))
+rmse(y_test, pred)                                       # 539.9
+r_squared(y_test, pred, reference_mean = mean(y_train))  # 0.9823
 
 # Variable importance regarding MSE improvement
 imp <- xgb.importance(model = fit)
@@ -422,7 +426,7 @@ for (v in xvars) {
 }
 ```
 
-**Comment**: The resulting model seems comparable to the random forest with slightly better performance.
+**Comment**: The resulting model seems comparable to the random forest with slightly better performance. The grid search did not improve the results in this case.
 
 ## Exercises
 

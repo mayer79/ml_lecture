@@ -5,4 +5,9 @@
 3. [Trees](https://mayer79.github.io/ml_lecture/3_Trees.html)
 4. [Neural Nets](https://mayer79.github.io/ml_lecture/4_Neural_Nets.html)
 
-[Exercise Solutions](https://mayer79.github.io/ml_lecture/exercise_solutions.html)
+# Exercise Solutions
+
+- [Solutions Chapter 1](https://mayer79.github.io/ml_lecture/solutions_chapter_1.html)
+- [Solutions Chapter 2](https://mayer79.github.io/ml_lecture/solutions_chapter_2.html)
+- [Solutions Chapter 3](https://mayer79.github.io/ml_lecture/solutions_chapter_3.html)
+- [Solutions Chapter 4](https://mayer79.github.io/ml_lecture/solutions_chapter_4.html)
