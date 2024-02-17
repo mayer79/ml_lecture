@@ -1,5 +1,4 @@
-from sklearn.base import RegressorMixin
-from sklearn.utils.validation import check_is_fitted
+from sklearn.base import RegressorMixin, BaseEstimator, TransformerMixin
 
 
 class KerasRegressor(RegressorMixin):
@@ -29,3 +28,35 @@ class KerasRegressor(RegressorMixin):
 
     def predict(self, X):
         return self._estimator.predict(X, verbose=0, batch_size=10000).flatten()
+
+
+class ColumnSplitter(BaseEstimator, TransformerMixin):
+    """
+    Transformer that splits a pandas.Dataframe into a dict of dataframes.
+
+    Parameters
+    ----------
+    feature_dict : dictionary
+        The keys define the keys of the dict holding the dataframe pieces, and
+        the values the corresponding feature column names.
+
+    Methods
+    -------
+    transform(X)
+        Splits input dataframe X into dict of dataframes defined by `feature_dict`.
+
+    fit(*args, **kwargs)
+        Not used.
+    """
+
+    def __init__(self, feature_dict):
+        self._feature_dict = feature_dict
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        out = dict()
+        for key, value in self._feature_dict.items():
+            out[key] = X[value]
+        return out
