@@ -32,7 +32,7 @@ class KerasRegressor(RegressorMixin):
 
 class ColumnSplitter(BaseEstimator, TransformerMixin):
     """
-    Transformer that splits a pandas.Dataframe into a dict of dataframes.
+    Transformer that splits a pandas.Dataframe into a dict of numpy arrays.
 
     Parameters
     ----------
@@ -43,7 +43,7 @@ class ColumnSplitter(BaseEstimator, TransformerMixin):
     Methods
     -------
     transform(X)
-        Splits input dataframe X into dict of dataframes defined by `feature_dict`.
+        Splits input dataframe X into dict of numpy arrays defined by `feature_dict`.
 
     fit(*args, **kwargs)
         Not used.
@@ -58,5 +58,5 @@ class ColumnSplitter(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
         out = dict()
         for key, value in self._feature_dict.items():
-            out[key] = X[value]
+            out[key] = X[value].to_numpy()
         return out
