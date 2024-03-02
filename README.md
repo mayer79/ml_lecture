@@ -24,7 +24,7 @@ Michael Mayer. Introduction to Machine Learning (2024). Web: https://github.com/
 
 ## Organization
 
-The lecture is split into four chapters, each of which is accompanied with an R/Python notebook. You will find them in the corresponding subfolders.
+The lecture is split into four chapters, each of which is accompanied with an R/Python notebook and exercise solutions. You will find them in the corresponding subfolders.
 
 1. Basics and Linear Models 
     - Basics
@@ -37,50 +37,47 @@ The lecture is split into four chapters, each of which is accompanied with an R/
     - Gradient boosting
 4. Neural Nets
 
-Each chapter will take us about two hours and is accompanied by exercises.
+Each chapter will take us about two hours. You will do the exercises on your own.
 
-You can preview the html outputs of the R lecture by clicking on these links:
+## Lecture notes
+
+The lecture notes are available both as Jupyter notebooks (Python) and HTML (R).
+
+### Python
+
+1. [Basics and Linear Models](https://github.com/mayer79/ml_lecture/blob/main/py/1_Basics_and_Linear_Models.ipynb)
+2. [Model Selection and Validation](https://github.com/mayer79/ml_lecture/blob/main/py/2_Model_Selection_and_Validation.ipynb)
+3. [Trees](https://github.com/mayer79/ml_lecture/blob/main/py/3_Trees.ipynb)
+4. [Neural Nets](https://github.com/mayer79/ml_lecture/blob/main/py/4_Neural_Nets.ipynb)
+
+### R
 
 1. [Basics and Linear Models](https://mayer79.github.io/ml_lecture/1_Basics_and_Linear_Models.html)
 2. [Model Selection and Validation](https://mayer79.github.io/ml_lecture/2_Model_Selection_and_Validation.html)
 3. [Trees](https://mayer79.github.io/ml_lecture/3_Trees.html)
 4. [Neural Nets](https://mayer79.github.io/ml_lecture/4_Neural_Nets.html)
 
-The Python notebooks can be viewed directly on Github in the "py" folder.
-
 ## Prerequisites
 
-In order to be able to follow the lecture, you should be familiar with
+To follow the lecture, you should be familiar with
 
 - Descriptive statistics
 - Linear regression
 - R or Python
 
-To get the lecture notes both as html and code-notebooks, clone this repository by running 
+To get the material, clone this repository via
 
 ```
 git clone https://github.com/mayer79/ml_lecture.git
 ```
 
-### Software for the Python version of the lecture
+### Python setup
 
 Python 3.11 and the packages specified [here](py/requirements.txt).
 
-### Software for the R version of the lecture
+### R setup
 
-- R version >= 4.1
-- These packages:
-    - tidyverse
-    - FNN
-    - withr
-    - rpart.plot
-    - ranger
-    - xgboost
-    - keras
-    - hstats
-    - MetricsWeighted
-    - insuranceData
-    - lightgbm
+R version >= 4.1 and these packages: tidyverse, FNN, withr, rpart.plot, ranger, xgboost, keras, hstats, MetricsWeighted, insuranceData, lightgbm
 
 For the last chapter, we will use Python with TensorFlow >= 2.15. You can install it by running the R command `keras::install_keras(version = "release-cpu")`. If the following code works, you are all set. (Some red start-up messages/warnings are okay.)
 
@@ -88,15 +85,6 @@ For the last chapter, we will use Python with TensorFlow >= 2.15. You can instal
 library(tensorflow)
 tf$constant("Hello Tensorflow!")
 ```
-
-## Optional Topics to Discuss
-
-- Basics and Linear Models: random effects; penalized regression
-- Model Selection and Validation: is it always necessary?
-- Trees: supervised clustering; SHAP; interaction constraints, interaction strength
-- Neural Nets: transfer learning; PyTorch; image data; autoencoders
-- General: distribution of predictions; quantile regression; when is overfitting (un-)problematic?
-- XAI: How to use insights from complex ML model to improve GLM?
 
 ## Further Reading
 
