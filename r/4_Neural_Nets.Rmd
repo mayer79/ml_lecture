@@ -413,7 +413,7 @@ summary(nn)
 
 nn |> 
   compile(
-    optimizer = optimizer_adam(learning_rate = 0.1),
+    optimizer = optimizer_adam(learning_rate = 0.5),
     loss = "mse",
     metrics = metric_root_mean_squared_error()
   )
@@ -430,7 +430,7 @@ history <- nn |>
     x = prep_nn(X_train),
     y = y_train,
     epochs = 100,
-    batch_size = 400, 
+    batch_size = 500, 
     validation_split = 0.2,
     callbacks = cb,
     verbose = 0
