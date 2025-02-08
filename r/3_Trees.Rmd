@@ -197,7 +197,7 @@ for (v in c("carat", "color", "cut", "clarity")) {
 
 The idea of *boosting* was introduced by Schapire in 1990 [3] and roughly works as follows: A simple model is fit to the data. Then, another simple model is added, trying to correct the errors from the first model. This process is repeated until some stopping criterion triggers. As simple models or *base learners*, usually **small decision trees** are used, an idea pushed by Jerome Friedman in his famous 2001 article on the very general framework of gradient boosting machines [4]. 
 
-Modern variants of such *gradient boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Oct. 20, 2022:
+Modern variants of such *gradient boosted trees* are [XGBoost](https://xgboost.readthedocs.io/en/latest/), [LightGBM](https://lightgbm.readthedocs.io/en/latest/) and [CatBoost](https://catboost.ai/). These are the predominant algorithms in ML competitions on tabular data, check [this comparison](https://github.com/mayer79/gradient_boosting_comparison) for differences with a screenshot as per Feb. 07, 2025:
 
 ![](../figs/comparison_boosting.PNG).
 
@@ -272,7 +272,7 @@ Gradient boosted trees offer a quite a lot of parameters. Unlike with random for
 - **Learning rate:** The learning rate determines training speed and the impact of each tree to the final model. Typical values are between 0.01 and 0.5. In practical applications, it is set to a value that leads to a reasonable amount of trees (100-1000). Usually, halving the learning rate means twice as much boosting rounds for comparable performance.
 
 - **Regularization parameters:** Depending on the implementation, additional parameters are
-    - the tree depth (often 3-7) or the number of leaves (often 7-63), 
+    - the tree depth (often 1-7) or the number of leaves (often 2-63), 
     - the strength of the L1 and/or L2 penalties added to the objective function (often between 0 and 5), 
     - the row subsampling rate (often between 0.8 and 1), 
     - the column subsampling rate (often between 0.6 and 1), 
