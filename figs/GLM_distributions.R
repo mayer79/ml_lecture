@@ -20,11 +20,13 @@ for (d in names(distr)) { # d <- "Normal"
     geom <- geom_bar
   }
   p[[d]] <- ggplot(distr, aes_string(x = d)) +
-    geom(fill = "orange") + 
-    ylab(element_blank()) +
+    geom(fill = "orange") +
+    ylab(NULL) +
     theme_gray(base_size = 15) +
-    theme(axis.ticks.y = element_blank(), 
-          axis.text.y = element_blank())
+    theme(
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank()
+    )
 }
 
 main_title <- textGrob("Empirical distributions of 100'000 values", gp = gpar(fontsize = 20))
