@@ -250,11 +250,11 @@ cvm <- xgb.cv(
 
 # Fit model on full training data using optimal number of boosting round
 fit <- xgb.train(
-  params = params, data = dtrain, print_every_n = 50, nrounds = cvm$best_iteration
+  params = params, data = dtrain, print_every_n = 50, nrounds = cvm$early_stop$best_iteration
 )
 
 # Test performance
-rmse(y_test, predict(fit, data.matrix(X_test)))  # 541.2
+rmse(y_test, predict(fit, data.matrix(X_test)))  # 544.5
 ```
 
 **Comments:** 
@@ -339,7 +339,7 @@ if (tune) {
     showsd = FALSE, 
     print_every_n = 50
   )
-  cvm   # -> a lr of 0.02 provides about 370 trees, which is a convenient amount
+  cvm   # -> a lr of 0.02 provides about 430 trees, which is a convenient amount
    
   # Final grid search after some iterations
   grid <- expand.grid(
@@ -354,7 +354,8 @@ if (tune) {
     colsample_bynode = c(0.8, 1), 
     subsample = c(0.8, 1), 
     min_split_loss = c(0, 1e-04),
-    min_child_weight = c(1, 10)
+    min_child_weight = c(1, 10),
+    stringsAsFactors = FALSE
   )
 
  # Grid search or randomized search if grid is too large
@@ -378,8 +379,8 @@ if (tune) {
     )
     
     # Store result
-    grid[i, 1] <- cvm$best_iteration
-    grid[i, 2:3] <- cvm$evaluation_log[, c(4, 2)][cvm$best_iteration]
+    grid[i, 1] <- best_iteration <- cvm$early_stop$best_iteration
+    grid[i, 2:3] <- cvm$evaluation_log[, c(4, 2)][best_iteration]
     setTxtProgressBar(pb, i)
   
     # Save grid to survive hard crashs
@@ -409,8 +410,8 @@ Now, the model is ready to be inspected by evaluating
 ```{r}
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
-rmse(y_test, pred)                                       # 539.9
-r_squared(y_test, pred, reference_mean = mean(y_train))  # 0.9823
+rmse(y_test, pred)                                       # 544.9
+r_squared(y_test, pred, reference_mean = mean(y_train))  # 0.982
 
 # Variable importance regarding MSE improvement
 imp <- xgb.importance(model = fit)

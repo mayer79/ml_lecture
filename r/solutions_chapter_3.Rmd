@@ -231,7 +231,8 @@ if (tune) {
     colsample_bynode = c(0.8, 1), 
     subsample = c(0.8, 1), 
     min_split_loss = c(0, 1e-04),
-    min_child_weight = c(0.1, 1)
+    min_child_weight = c(0.1, 1),
+    stringsAsFactors = FALSE
   )
   
   # Grid search or randomized search if grid is too large
@@ -255,8 +256,8 @@ if (tune) {
     )
     
     # Store result
-    grid[i, 1] <- cvm$best_iteration
-    grid[i, 2:3] <- cvm$evaluation_log[, c(4, 2)][cvm$best_iteration]
+    grid[i, 1] <- best_iteration <- cvm$early_stop$best_iteration
+    grid[i, 2:3] <- cvm$evaluation_log[, c(4, 2)][best_iteration]
     setTxtProgressBar(pb, i)
     
     # Save grid to survive hard crashs. If interactive, use r/gridsearch/...
@@ -283,7 +284,7 @@ pred <- predict(fit, data.matrix(X_test))
 deviance_bernoulli(y_test, pred)
 
 # Relative performance
-r_squared_bernoulli(y_test, pred, reference_mean = mean(y_train))  # 0.0048
+r_squared_bernoulli(y_test, pred, reference_mean = mean(y_train))  # 0.0042
 # Relative performance gain is very low, but better than of the tuned random forest.
 
 # Variable importance regarding total loss improvement
