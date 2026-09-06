@@ -18,8 +18,8 @@ knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, 
-  warning = FALSE, 
+  echo = TRUE,
+  warning = FALSE,
   message = FALSE
 )
 ```
@@ -142,8 +142,8 @@ for (i in 1:nrow(paramGrid)) {
   
   for (fold in 1:nfolds) {
     fit <- glm(
-      price ~ poly(log(carat), degree = k) + color + cut + clarity, 
-      data = train[fold_ix != fold, ], 
+      price ~ poly(log(carat), degree = k) + color + cut + clarity,
+      data = train[fold_ix != fold, ],
       family = Gamma(link = "log")
     )
     pred <- predict(fit, train[fold_ix == fold, ], type = "response")
@@ -157,7 +157,7 @@ paramGrid[order(paramGrid$Deviance), ]
 
 # Fit best model on full training data
 fit <- glm(
-  price ~ poly(log(carat), degree = 8) + color + cut + clarity, 
+  price ~ poly(log(carat), degree = 8) + color + cut + clarity,
   data = train, 
   family = Gamma(link = "log")
 )

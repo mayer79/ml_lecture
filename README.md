@@ -73,13 +73,13 @@ git clone https://github.com/mayer79/ml_lecture.git
 
 ### Python setup
 
-Python 3.11 and the packages specified [here](py/requirements.txt).
+Python 3.13 and the packages specified [here](py/requirements.txt).
 
 ### R setup
 
-R version >= 4.1 and these packages: tidyverse, FNN, withr, rpart.plot, ranger, xgboost, keras, hstats, MetricsWeighted, insuranceData, lightgbm
+R version >= 4.6 and these packages: tidyverse, FNN, withr, rpart.plot, ranger, xgboost, keras3, hstats, MetricsWeighted, insuranceData, lightgbm
 
-For the last chapter, we will use Python with TensorFlow >= 2.15. You can install it by running the R command `keras::install_keras(version = "release-cpu")`. If the following code works, you are all set. (Some red start-up messages/warnings are okay.)
+For the last chapter, we will use Python with TensorFlow >= 2.21. You can install it by running the R command `keras3::install_keras()`. If the following code works, you are all set. (Some red start-up messages/warnings are okay.)
 
 ```
 library(tensorflow)
@@ -95,6 +95,3 @@ tf$constant("Hello Tensorflow!")
 - VanderPlas, J. (2016). *Python data science handbook : essential tools for working with data*. O'Reilly Media.
 - Chollet, F. (2017). *Deep Learning with Python*. Manning Publications Co.
 - Chollet, F., Allaire, J. J. (2018). *Deep Learning with R*. Manning Publications Co.
-
-
-

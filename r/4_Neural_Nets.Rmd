@@ -18,8 +18,8 @@ knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, 
-  warning = FALSE, 
+  echo = TRUE,
+  warning = FALSE,
   message = FALSE
 )
 ```
@@ -82,13 +82,13 @@ To gain confidence in neural nets, we first show that parameters estimated by a 
 
 ```{r}
 library(ggplot2)
-library(keras)
+library(keras3)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # Output layer connected to the input layer
-output <- input |> 
+output <- input |>
   layer_dense(units = 1)
 
 # Create and compile model
@@ -116,14 +116,14 @@ plot(history, metrics = "root_mean_squared_error")
 unlist(get_weights(nn))
 
 # Plot effect of carat on average price
-data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
-  transform(price = predict(nn, carat, verbose = 0)) |> 
+data.frame(carat = seq(0.3, 3, by = 0.1)) |>
+  transform(price = predict(nn, carat, verbose = 0)) |>
 ggplot(aes(x = carat, y = price)) +
   geom_line(color = "chartreuse4") +
   geom_point(color = "chartreuse4")
 ```
 
-**Comment:** The solution of the simple neural network is indeed quite similar to the OLS solution. 
+**Comment:** The solution of the simple neural network is indeed quite similar to the OLS solution.
 
 ### The optimization algorithm
 
@@ -139,7 +139,7 @@ Gradient descent on batches of size 1 is called "stochastic gradient descent" (S
 
 ## Step 2: Hidden layers
 
-Our first neural network above consisted of only an input layer and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, and thus more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariates. The nodes of a hidden layer are sometimes called *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariates in an automatic way. The only ingredients are a large data set and a flexible enough network "architecture" (number of layers, nodes per layer). 
+Our first neural network above consisted of only an input layer and an output layer. By adding one or more *hidden* layers between in- and output, the network gains additional parameters, and thus more flexibility. The nodes of a hidden layer can be viewed as latent variables, representing the original covariates. The nodes of a hidden layer are sometimes called *encoding*. The closer a layer is to the output, the better its nodes are suitable to predict the response variable. In this way, a neural network finds the right transformations and interactions of its covariates in an automatic way. The only ingredients are a large data set and a flexible enough network "architecture" (number of layers, nodes per layer).
 
 Neural nets with more than one hidden layer are called "deep neural nets".
 
@@ -155,7 +155,7 @@ The following code is identical to the last one up to one extra line of code spe
 
 ```{r}
 library(ggplot2)
-library(keras)
+library(keras3)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
@@ -187,8 +187,8 @@ nn |>
   )
 
 # Plot effect of carat on average price
-data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
-  transform(price = predict(nn, carat, verbose = 0)) |> 
+data.frame(carat = seq(0.3, 3, by = 0.1)) |>
+  transform(price = predict(nn, carat, verbose = 0)) |>
 ggplot(aes(x = carat, y = price)) +
   geom_line(color = "chartreuse4") +
   geom_point(color = "chartreuse4")
@@ -223,14 +223,14 @@ Again, the code is very similar to the last one, with the exception of using a h
 
 ```{r}
 library(ggplot2)
-library(keras)
+library(keras3)
 
 # Input layer: we have 1 covariate
 input <- layer_input(shape = 1)
 
 # One hidden layer
 output <- input |>
-  layer_dense(units = 5, activation = "tanh") |> 
+  layer_dense(units = 5, activation = "tanh") |>
   layer_dense(units = 1, activation = "linear")
 
 # Create and compile model
@@ -254,8 +254,8 @@ nn |>
   )
 
 # Plot effect of carat on average price
-data.frame(carat = seq(0.3, 3, by = 0.1)) |> 
-  transform(price = predict(nn, carat, verbose = 0)) |> 
+data.frame(carat = seq(0.3, 3, by = 0.1)) |>
+  transform(price = predict(nn, carat, verbose = 0)) |>
 ggplot(aes(x = carat, y = price)) +
   geom_line(color = "chartreuse4") +
   geom_point(color = "chartreuse4")
@@ -273,9 +273,9 @@ In order to choose the main tuning parameters, namely
 
 - network architecture,
 - activation functions,
-- learning rate, 
+- learning rate,
 - batch size, and
-- number of epochs, 
+- number of epochs,
 
 one often uses simple validation because cross-validation takes too much time.
 
@@ -295,7 +295,7 @@ Note that the scaling transformation is calculated on the training data and then
 
 ## Categorical input
 
-There are three common ways to represent categorical input variables in a neural network. 
+There are three common ways to represent categorical input variables in a neural network.
 
 1. Binary and ordinal categoricals are best represented by integers and then treated as numeric.
 2. Unordered categoricals are either one-hot-encoded (i.e., each category is represented by a binary variable) or 
@@ -342,9 +342,9 @@ As with linear models, a model with too many parameters will overfit in an undes
 
 ## Choosing the architecture
 
-How many layers and number of nodes per layer to select? For tabular data, using 1-3 hidden layers is usually enough. If we start with $m$ input variables, the number of nodes in the first hidden layer is usually higher than $m$ and reduces for later layers. There should not be a "representational bottleneck", i.e., an early hidden layer with too few parameters. 
+How many layers and number of nodes per layer to select? For tabular data, using 1-3 hidden layers is usually enough. If we start with $m$ input variables, the number of nodes in the first hidden layer is usually higher than $m$ and reduces for later layers. There should not be a "representational bottleneck", i.e., an early hidden layer with too few parameters.
 
-The number of parameters should not be too high compared to the number of rows, see "Overfitting and regularization" above. 
+The number of parameters should not be too high compared to the number of rows, see "Overfitting and regularization" above.
 
 ## Interpretation
 
@@ -359,7 +359,7 @@ We will now fit a neural net with two hidden layers (30 and 15 nodes) and a tota
 ```{r}
 library(ggplot2)
 library(withr)
-library(keras)
+library(keras3)
 library(MetricsWeighted)
 library(hstats)
 
@@ -384,7 +384,7 @@ y_test <- test[[y]]
 # Standardize X using X_train
 temp <- scale(data.matrix(X_train))
 sc <- list(
-  center = attr(temp, "scaled:center"), 
+  center = attr(temp, "scaled:center"),
   scale = attr(temp, "scaled:scale")
 )
 
@@ -395,7 +395,7 @@ prep_nn <- function(X, sel = xvars, scaling = sc) {
 }
 
 # Trying to make things reproducible...
-k_clear_session()
+clear_session()
 tensorflow::set_random_seed(499)
 
 # Input layer: we have 4 covariates
@@ -403,8 +403,8 @@ input <- layer_input(shape = 4)
 
 # Two hidden layers with contracting number of nodes
 output <- input |>
-  layer_dense(units = 30, activation = "relu") |> 
-  layer_dense(units = 15, activation = "relu") |> 
+  layer_dense(units = 30, activation = "relu") |>
+  layer_dense(units = 15, activation = "relu") |>
   layer_dense(units = 1, activation = "linear")
 
 # Create and compile model
@@ -430,7 +430,7 @@ history <- nn |>
     x = prep_nn(X_train),
     y = y_train,
     epochs = 100,
-    batch_size = 500, 
+    batch_size = 500,
     validation_split = 0.2,
     callbacks = cb,
     verbose = 0
@@ -447,14 +447,14 @@ rmse(y_test, pred)
 r_squared(y_test, pred, reference_mean = mean(y_train))
 
 # Permutation importance wrt test data
-perm_importance(nn, X = X_test, y = y_test, pred_fun = pred_fun, verbose = FALSE) |> 
+perm_importance(nn, X = X_test, y = y_test, pred_fun = pred_fun, verbose = FALSE) |>
   plot(fill = "chartreuse4")
 
 # PDPs
 for (v in xvars) {
-  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |> 
+  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |>
     plot(color = "chartreuse4") +
-    ggtitle(paste("PDP for", v)) 
+    ggtitle(paste("PDP for", v))
   print(p)
 }
 ```
@@ -467,7 +467,7 @@ Representing categorical input variables through embedding layers is extremely u
 
 ```{r}
 library(tidyverse)
-library(keras)
+library(keras3)
 library(withr)
 library(insuranceData)
 library(hstats)
@@ -513,7 +513,7 @@ prep_nn <- function(X, dense = x_dense, emb = x_emb, scaling = sc) {
 }
 
 # Trying to make things reproducible...
-k_clear_session()
+clear_session()
 tensorflow::set_random_seed(469)
 
 # Inputs
@@ -521,15 +521,15 @@ input_dense <- layer_input(shape = length(x_dense), name = "dense1")
 input_veh_body <- layer_input(shape = 1, name = "veh_body")
 
 # Embedding of veh_body
-emb_veh_body <- input_veh_body |> 
-  layer_embedding(input_dim = nlevels(dataCar$veh_body) + 1, output_dim = 1) |> 
+emb_veh_body <- input_veh_body |>
+  layer_embedding(input_dim = nlevels(dataCar$veh_body) + 1, output_dim = 1) |>
   layer_flatten()
 
 # Combine dense input and embedding
 outputs <- list(input_dense, emb_veh_body) |>
-  layer_concatenate() |> 
-  layer_dense(30, activation = "relu") |> 
-  layer_dense(5, activation = "relu") |> 
+  layer_concatenate() |>
+  layer_dense(30, activation = "relu") |>
+  layer_dense(5, activation = "relu") |>
   layer_dense(1, activation = "sigmoid")
 
 # Input
@@ -575,14 +575,15 @@ r_squared_bernoulli(y_test, pred, reference_mean = mean(y_train))
 
 # Permutation importance
 perm_importance(
-  nn, X = X_test, y = y_test, loss = "logloss", pred_fun = pred_fun, verbose = FALSE) |> 
+  nn, X = X_test, y = y_test, loss = "logloss", pred_fun = pred_fun, verbose = FALSE
+) |>
   plot(fill = "chartreuse4")
 
 # Partial dependence
 for (v in xvars) {
-  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |> 
+  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |>
     plot(color = "chartreuse4", rotate_x = (v == "veh_body")) +
-    ggtitle(paste("PDP for", v)) 
+    ggtitle(paste("PDP for", v))
   print(p)
 }
 ```
@@ -593,7 +594,7 @@ for (v in xvars) {
 
 ```r
 loss_gamma <- function(y_true, y_pred) {
-  -k_log(y_true / y_pred) + y_true / y_pred
+  -op_log(y_true / y_pred) + y_true / y_pred
 }
 ```
 
@@ -612,14 +613,14 @@ Here, we summarize some of the neural network slang.
 - Embedding: A numeric representation of categorical input as learned by the neural net.
 - Encoding: The values of latent variables of a hidden layer, usually the last.
 - Gradient descent: The basic optimization algorithm of neural networks.
-- Keras: User-friendly wrapper of TensorFlow.
+- Keras: User-friendly wrapper around TensorFlow and Torch.
 - Layer: Main organizational unit of a neural network.
 - Learning rate: Controls the step size of gradient descent, i.e., how aggressive the network learns.
 - Node: Nodes on the input layer are the covariates, nodes on the output layer the response(s) and nodes on a hidden layer are latent variables representing the covariates for the task to predict the response.
 - Optimizer: The specific variant of gradient descent.
-- PyTorch: An important implementation of neural networks.
 - Stochastic gradient descent (SGD): Mini-batch gradient descent with batches of size 1.
 - TensorFlow: An important implementation of neural networks.
+- Torch/PyTorch: An important implementation of neural networks.
 - Weights: The parameters of a neural net.
 
 # Chapter Summary
@@ -647,5 +648,3 @@ What additional insights did you get from Step 3?
 # Chapter References
 
 [1] P.J. Werbos, "Beyond Regression: New Tools for Prediction and Analysis in the Behavioral Sciences", Dissertation, 1974.
-
-
