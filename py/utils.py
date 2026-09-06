@@ -1,7 +1,7 @@
-from sklearn.base import RegressorMixin, BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
 
 
-class KerasRegressor(RegressorMixin):
+class KerasRegressor(RegressorMixin, BaseEstimator):
     """
     A wrapper class for a keras model.
 
@@ -20,17 +20,20 @@ class KerasRegressor(RegressorMixin):
     """
 
     def __init__(self, estimator):
-        self._estimator = estimator
+        self.estimator = estimator
         self.is_fitted_ = True
 
     def fit(self, *args, **kwargs):
         return self
 
     def predict(self, X):
-        return self._estimator.predict(X, verbose=0, batch_size=10000).flatten()
+        # Bypass Pipeline.predict(): its kwarg routing calls __sklearn_tags__ on
+        # every step, which the raw Keras model does not implement
+        Xt = self.estimator[:-1].transform(X)
+        return self.estimator[-1].predict(Xt, verbose=0, batch_size=20_000).flatten()
 
 
-class ColumnSplitter(BaseEstimator, TransformerMixin):
+class ColumnSplitter(TransformerMixin, BaseEstimator):
     """
     Transformer that splits a pandas.Dataframe into a dict of numpy arrays.
 
@@ -50,13 +53,14 @@ class ColumnSplitter(BaseEstimator, TransformerMixin):
     """
 
     def __init__(self, feature_dict):
-        self._feature_dict = feature_dict
+        self.feature_dict = feature_dict
 
     def fit(self, X, y=None):
+        self.is_fitted_ = True
         return self
 
     def transform(self, X, y=None):
-        out = dict()
-        for key, value in self._feature_dict.items():
+        out = {}
+        for key, value in self.feature_dict.items():
             out[key] = X[value].to_numpy()
         return out

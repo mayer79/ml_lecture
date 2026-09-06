@@ -18,8 +18,8 @@ knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, 
-  warning = FALSE, 
+  echo = TRUE,
+  warning = FALSE,
   message = FALSE
 )
 ```
@@ -49,8 +49,8 @@ library(tidyverse)
 diamonds <- mutate_if(diamonds, is.ordered, factor, ordered = FALSE)
 
 fit <- glm(
-  price ~ log(carat) + color + cut + clarity, 
-  data = diamonds, 
+  price ~ log(carat) + color + cut + clarity,
+  data = diamonds,
   family = Gamma(link = "log")
 )
 summary(fit)

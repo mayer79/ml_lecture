@@ -18,8 +18,8 @@ knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, 
-  warning = FALSE, 
+  echo = TRUE,
+  warning = FALSE,
   message = FALSE
 )
 ```
@@ -29,7 +29,7 @@ knitr::opts_chunk$set(
 ```{r}
 library(ggplot2)
 library(withr)
-library(keras)
+library(keras3)
 library(MetricsWeighted)
 library(hstats)
 
@@ -54,7 +54,7 @@ y_test <- as.numeric(test[[y]])
 # Standardize X using X_train
 temp <- scale(data.matrix(X_train))
 sc <- list(
-  center = attr(temp, "scaled:center"), 
+  center = attr(temp, "scaled:center"),
   scale = attr(temp, "scaled:scale")
 )
 
@@ -65,11 +65,11 @@ prep_nn <- function(X, sel = xvars, scaling = sc) {
 }
 
 loss_gamma <- function(y_true, y_pred) {
-  -k_log(y_true / y_pred) + y_true / y_pred
+  -op_log(y_true / y_pred) + y_true / y_pred
 }
 
 # Trying to make things reproducible...
-k_clear_session()
+clear_session()
 tensorflow::set_random_seed(49)
 
 # Input layer: we have 4 covariates
@@ -79,7 +79,7 @@ input <- layer_input(shape = 4)
 output <- input |> 
   layer_dense(units = 30, activation = "tanh") |> 
   layer_dense(units = 15, activation = "tanh") |>  
-  layer_dense(units = 1, activation = k_exp)
+  layer_dense(units = 1, activation = op_exp)
 
 # Create and compile model
 nn <- keras_model(inputs = input, outputs = output)
@@ -103,7 +103,7 @@ history <- nn |>
     x = prep_nn(X_train),
     y = y_train,
     epochs = 200,
-    batch_size = 400, 
+    batch_size = 400,
     validation_split = 0.2,
     callbacks = cb,
     verbose = 0
@@ -122,15 +122,20 @@ r_squared_gamma(y_test, pred, reference_mean = mean(y_train))
 
 # Permutation importance
 imp <- perm_importance(
-  nn, X = X_test, y = y_test, loss = "gamma", pred_fun = pred_fun, verbose = FALSE
+  nn,
+  X = X_test,
+  y = y_test,
+  loss = "gamma",
+  pred_fun = pred_fun,
+  verbose = FALSE
 )
 plot(imp)
 
 # Partial dependence plots
 for (v in xvars) {
-  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |> 
+  p <- partial_dep(nn, v = v, X = X_train, pred_fun = pred_fun) |>
     plot() +
-    ggtitle(paste("PDP for", v)) 
+    ggtitle(paste("PDP for", v))
   print(p)
 }
 ```

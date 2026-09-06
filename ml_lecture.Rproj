@@ -1,4 +1,5 @@
 Version: 1.0
+ProjectId: d4c16e1d-d161-4e11-8ed6-670030e16830
 
 RestoreWorkspace: Default
 SaveWorkspace: Default
@@ -11,3 +12,7 @@ Encoding: UTF-8
 
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
+
+PythonType: virtualenv
+PythonVersion: 3.13.15
+PythonPath: .venv/Scripts/python.exe

@@ -18,8 +18,8 @@ knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, 
-  warning = FALSE, 
+  echo = TRUE,
+  warning = FALSE,
   message = FALSE
 )
 ```
@@ -55,18 +55,20 @@ library(insuranceData)
 data(dataCar)
 
 fit <- rpart(
-  clm ~ veh_value + veh_body + veh_age + gender + area + agecat, 
+  clm ~ veh_value + veh_body + veh_age + gender + area + agecat,
   data = dataCar,
-  method = "class", 
+  method = "class",
   parms = list(split = "information"),
   xval = 0,
   cp = -1,
   maxdepth = 3
 )
 
-prp(fit, type = 2, extra = 7, shadow.col = "gray",
-    faclen = 0, box.palette = "auto", branch.type = 4, 
-    varlen = 0, cex = 0.9, digits = 3, split.cex = 0.8)
+prp(
+  fit, type = 2, extra = 7, shadow.col = "gray",
+  faclen = 0, box.palette = "auto", branch.type = 4,
+  varlen = 0, cex = 0.9, digits = 3, split.cex = 0.8
+)
 
 dataCar[1, c("agecat", "veh_value", "veh_body")]
 predict(fit, dataCar[1, ])
@@ -118,6 +120,8 @@ library(ranger)
 library(MetricsWeighted)
 library(hstats)
 
+options(ranger.num.threads = 8)  # Adapt to your CPU
+
 # Train/test split
 with_seed(
   9838,
@@ -125,9 +129,9 @@ with_seed(
 )
 
 fit <- ranger(
-  price ~ carat + color + cut + clarity, 
+  price ~ carat + color + cut + clarity,
   num.trees = 500,
-  data = diamonds[ix, ], 
+  data = diamonds[ix, ],
   importance = "impurity",
   seed = 83
 )
@@ -250,11 +254,14 @@ cvm <- xgb.cv(
 
 # Fit model on full training data using optimal number of boosting round
 fit <- xgb.train(
-  params = params, data = dtrain, print_every_n = 50, nrounds = cvm$early_stop$best_iteration
+  params = params,
+  data = dtrain,
+  print_every_n = 50,
+  nrounds = cvm$early_stop$best_iteration
 )
 
 # Test performance
-rmse(y_test, predict(fit, data.matrix(X_test)))  # 544.5
+rmse(y_test, predict(fit, data.matrix(X_test)))  # 544.1
 ```
 
 **Comments:** 
@@ -335,8 +342,8 @@ if (tune) {
     data = dtrain,
     nrounds = 5000,
     nfold = 5,
-    early_stopping_rounds = 20, 
-    showsd = FALSE, 
+    early_stopping_rounds = 20,
+    showsd = FALSE,
     print_every_n = 50
   )
   cvm   # -> a lr of 0.02 provides about 430 trees, which is a convenient amount
@@ -348,10 +355,10 @@ if (tune) {
     train_score = NA,
     objective = "reg:squarederror",
     learning_rate = 0.02,
-    max_depth = 6:7, 
+    max_depth = 6:7,
     reg_lambda = c(0, 2.5, 5, 7.5),
     reg_alpha = c(0, 4),
-    colsample_bynode = c(0.8, 1), 
+    colsample_bynode = c(0.8, 1),
     subsample = c(0.8, 1), 
     min_split_loss = c(0, 1e-04),
     min_child_weight = c(1, 10),
@@ -395,8 +402,8 @@ head(grid)
 
 # Fit final, tuned model
 fit <- xgb.train(
-  params = as.list(grid[1, -(1:3)]), 
-  data = dtrain, 
+  params = as.list(grid[1, -(1:3)]),
+  data = dtrain,
   nrounds = grid[1, "iteration"]
 )
 ```
@@ -410,7 +417,7 @@ Now, the model is ready to be inspected by evaluating
 ```{r}
 # Performance on test data
 pred <- predict(fit, data.matrix(X_test))
-rmse(y_test, pred)                                       # 544.9
+rmse(y_test, pred)                                       # 545.7
 r_squared(y_test, pred, reference_mean = mean(y_train))  # 0.982
 
 # Variable importance regarding MSE improvement

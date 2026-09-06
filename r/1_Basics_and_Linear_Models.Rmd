@@ -18,9 +18,9 @@ knit: (function(input, ...) {rmarkdown::render(input, output_dir = "../docs")})
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, 
+  echo = TRUE,
   warning = FALSE,
-  message = FALSE, 
+  message = FALSE,
   fig.height = 5,
   fig.width = 6
 )
@@ -229,10 +229,12 @@ intercept <- coef(fit)[[1]]
 slope <- coef(fit)[[2]]
 
 # Visualize the regression line
-ggplot(diamonds, aes(x = carat, y = price)) + 
+ggplot(diamonds, aes(x = carat, y = price)) +
   geom_point(alpha = 0.2, shape = ".") +
   coord_cartesian(xlim = c(0, 3), ylim = c(-3000, 20000)) +
-  geom_abline(slope = slope, intercept = intercept, color = "chartreuse4", size = 1)
+  geom_abline(
+    slope = slope, intercept = intercept, color = "chartreuse4", linewidth = 1
+  )
 
 # Predictions for diamonds with 1.3 carat?
 predict(fit, data.frame(carat = 1.3))
@@ -405,10 +407,10 @@ library(tidyverse)
 fit <- lm(price ~ poly(carat, 3), data = diamonds)
 
 # Plot effect of carat on average price
-data.frame(carat = seq(0.3, 4.5, by = 0.1)) %>% 
-  mutate(price = predict(fit, .)) %>% 
+data.frame(carat = seq(0.3, 4.5, by = 0.1)) %>%
+  mutate(price = predict(fit, .)) %>%
 ggplot(aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") +
   geom_line() +
   geom_point()
 ```
@@ -443,16 +445,16 @@ with_interaction <- lm(price ~ carat * color, data = diamonds)
 
 # Plot effect of carat grouped by color
 to_plot <- expand.grid(
-    carat = seq(0.3, 2.5, by = 0.1), 
+    carat = seq(0.3, 2.5, by = 0.1),
     color = levels(diamonds$color)
   ) %>% 
   mutate(
     no_interaction = predict(no_interaction, .),
     with_interaction = predict(with_interaction, .)
-  ) %>% 
+  ) %>%
   pivot_longer(
-    ends_with("interaction"), 
-    names_to = "model", 
+    ends_with("interaction"),
+    names_to = "model",
     values_to = "prediction"
   )
 
@@ -497,19 +499,19 @@ library(tidyverse)
 fit <- lm(price ~ log(carat), data = diamonds)
 fit
 
-to_plot <- data.frame(carat = seq(0.3, 4.5, by = 0.1)) %>% 
+to_plot <- data.frame(carat = seq(0.3, 4.5, by = 0.1)) %>%
   mutate(price = predict(fit, .))
 
 # log-scale
 ggplot(to_plot, aes(x = log(carat), y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") +
   geom_line() +
   geom_point() +
   ggtitle("log-scale")
 
 # original scale
 ggplot(to_plot, aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") +
   geom_line() +
   geom_point() +
   ggtitle("Original scale")
@@ -563,12 +565,12 @@ library(tidyverse)
 fit <- lm(log(price) ~ carat, data = diamonds)
 summary(fit)
 
-to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>% 
-  mutate(price = exp(predict(fit, .))) 
+to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>%
+  mutate(price = exp(predict(fit, .)))
   
 # log-scale
 ggplot(to_plot, aes(x = carat, y = log(price))) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") +
   geom_line() +
   geom_point() +
   coord_cartesian(x = c(0, 3)) +
@@ -576,7 +578,7 @@ ggplot(to_plot, aes(x = carat, y = log(price))) +
 
 # original scale
 ggplot(to_plot, aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") +
   geom_line() +
   geom_point() +
   coord_cartesian(x = c(0, 3)) +
@@ -602,12 +604,12 @@ library(tidyverse)
 fit <- lm(log(price) ~ log(carat), data = diamonds)
 summary(fit)
 
-to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>% 
+to_plot <- data.frame(carat = seq(0.3, 2.5, by = 0.1)) %>%
   mutate(price = exp(predict(fit, .)))
 
 # log-log-scale
 ggplot(to_plot, aes(x = log(carat), y = log(price))) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") +
   geom_line() +
   geom_point() +
   coord_cartesian(x = log(c(0.3, 3))) +
@@ -615,7 +617,7 @@ ggplot(to_plot, aes(x = log(carat), y = log(price))) +
 
 # Back-transformed
 ggplot(to_plot, aes(x = carat, y = price)) +
-  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") + 
+  geom_point(data = diamonds, shape = ".", alpha = 0.2, color = "chartreuse4") +
   geom_line() +
   geom_point() +
   coord_cartesian(x = c(0.3, 3)) +
